@@ -19,15 +19,17 @@ int main(int a, char const *arguments[])
   double sumv2 = 0.;
   double sumf = 0.;
 
-  foreach() {
-    sumv1 += clamp(f[], 0., 1.)*x;
-    sumv2 += clamp(f[], 0., 1.)*y;
-
-    sumf += clamp(f[], 0., 1.);    
+  /* Volume-weighted centroid: on an adaptive mesh the cell count is not a
+     measure of area, so each cell contributes f*dv(). */
+  foreach (reduction(+:sumv1) reduction(+:sumv2) reduction(+:sumf)) {
+    double ff = clamp(f[], 0., 1.);
+    sumv1 += ff*x*dv();
+    sumv2 += ff*y*dv();
+    sumf += ff*dv();
   }
 
-  xcm1 = sumv1/sumf;
-  ycm2 = sumv2/sumf;
+  xcm1 = sumf > 0. ? sumv1/sumf : 0.;
+  ycm2 = sumf > 0. ? sumv2/sumf : 0.;
 
   boundary((scalar *){f, u.x, u.y});
 

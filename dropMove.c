@@ -21,7 +21,7 @@
 #define tsnap 1e-1
 
 #include "navier-stokes/centered.h"
-#define FILTERED
+#define FILTERED 1
 #include "two-phase-clsvof.h"
 #include "integral.h"
 #include "src-local/activity.h"
@@ -148,7 +148,7 @@ event logWriting (i++) {
   
   double ke = 0.;
   foreach(reduction(+:ke)){
-    ke += 0.5*rho(f[])*(sq(u.x[])+sq(u.y[]))*sq(Delta);
+    ke += 0.5*rho(f[])*(sq(u.x[])+sq(u.y[]))*dv();
   }
 
   static FILE * fp;
