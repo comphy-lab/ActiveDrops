@@ -1,0 +1,27 @@
+# Local ref-locked Basilisk install and its shell configuration
+/basilisk/
+/.project_config
+
+# Build products
+dropMove
+Script/dropMove
+Script/centroid-check
+postProcess-contour/getData
+postProcess-contour/getFacets
+postProcess-vectors/getCM
+postProcess-vectors/getData
+postProcess-vectors/getDataSlice
+postProcess-vectors/getFacets
+postProcess-vectors/getVelocity_v2
+*.o
+_*.c
+*.dSYM/
+
+# Run output
+intermediate/
+Script/intermediate/
+Script/scan/
+log.dat
+**/__pycache__/
+
+.DS_Store
