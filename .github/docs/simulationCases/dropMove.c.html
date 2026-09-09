@@ -202,7 +202,7 @@
   </style>
 
   <!-- Critical Meta Tags -->
-  <meta name="description" content="A single planar drop emits a chemical species at its interface. The species is advected and diffuses in the outer phase and lowers the interfacial tension wh...">
+  <meta name="description" content="A single planar drop emits a chemical species at its interface. The species is advected and diffuses in the outer phase. The implemented law sigma = 1/Ca + 4...">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
   <meta name="keywords" content="activity.h, curvature, dropmove, errno.h, integral.h, navier-stokes/centered.h, params.h, sys/stat.h, two-phase-clsvof.h">
@@ -439,13 +439,14 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 drop</h1>
                 <p>A single planar drop emits a chemical species at its
                 interface. The species is advected and diffuses in the
-                outer phase and lowers the interfacial tension where it
-                accumulates. Above a critical Péclet number the
-                isotropic state is unstable and the drop self-propels.
-                The problem is integrated in the Stokes limit with the
-                coupled level-set and volume-of-fluid (CLSVOF) interface
-                method and the integral formulation of surface
-                tension.</p>
+                outer phase. The implemented law
+                <code>sigma = 1/Ca + 4*cL</code> increases surface
+                tension with concentration. Above a critical Péclet
+                number the isotropic state is unstable and the drop
+                self-propels. The problem is integrated in the Stokes
+                limit with the coupled level-set and volume-of-fluid
+                (CLSVOF) interface method and the integral formulation
+                of surface tension.</p>
                 <h2 id="non-dimensional-groups">Non-dimensional
                 groups</h2>
                 <ul>
@@ -561,7 +562,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;errno.h&gt;</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/navier-stokes/centered.h" title="Link to Basilisk source for navier-stokes/centered.h"><span class="im">"navier-stokes/centered.h"</span></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define FILTERED </span><span class="dv">1</span><span class="pp"></span><span class="dv">60</span><span class="pp"></span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define FILTERED </span><span class="dv">1</span><span class="pp"></span><span class="dv">61</span><span class="pp"></span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/two-phase-clsvof.h" title="Link to Basilisk source for two-phase-clsvof.h"><span class="im">"two-phase-clsvof.h"</span></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/integral.h" title="Link to Basilisk source for integral.h"><span class="im">"integral.h"</span></a></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/activity.h.html" title="Link to local documentation for activity.h"><span class="im">"activity.h"</span></a></span>

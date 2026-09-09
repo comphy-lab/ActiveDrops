@@ -3,8 +3,9 @@
 Spontaneous symmetry breaking of self-propelled drops.
 
 A planar drop emits a chemical species at its interface. The species
-diffuses and is advected in the outer phase and lowers the interfacial
-tension where it accumulates. Above a critical Péclet number the isotropic
+diffuses and is advected in the outer phase. The implemented constitutive
+law is `sigma = 1/Ca + 4*cL`: positive concentration increases surface
+tension. Above a critical Péclet number the isotropic
 state is unstable: a small asymmetry in the concentration field drives a
 Marangoni flow that reinforces the asymmetry, and the drop self-propels.
 The code integrates this problem in the Stokes limit with
@@ -18,7 +19,9 @@ in Pe.
 ```
 ├── basilisk/ - Project-local pinned Basilisk (ignored; installed by the script below)
 ├── simulationCases/ - Simulation entry point and generated case folders
-│   └── dropMove.c - Single active drop; reads a key=value parameter file
+│   ├── dropMove.c - Unconfined planar reference in a finite box
+│   ├── dropMove-embed-pipe.c - Axisymmetric drop in a straight embedded pipe
+│   └── dropMove-embed-channel.c - Planar drop between embedded walls
 ├── src-local/ - Project-specific Basilisk headers and the runtime parameter API
 │   ├── activity.h - Interfacial chemical source and species transport
 │   ├── parse_params.h - Low-level key/value parser for parameter files
@@ -56,11 +59,11 @@ in Pe.
 Basilisk is pinned per project. From the repository root:
 
 ```sh
-curl -sL https://raw.githubusercontent.com/comphy-lab/basilisk-C/main/reset_install_basilisk-ref-locked.sh | bash -s -- --hard
+curl -fsSL https://raw.githubusercontent.com/comphy-lab/basilisk-C/v2026-08-30/reset_install_basilisk-ref-locked.sh | bash -s -- --ref=v2026-08-30
 source .project_config
 ```
 
-This installs the current comphy-lab/basilisk-C release into `basilisk/`,
+This installs the selected comphy-lab/basilisk-C release into `basilisk/`,
 records the ref in `basilisk/.comphy-lock` and writes `.project_config`,
 which the runners source. Both paths are ignored by Git. The code was last
 built and run against release `v2026-08-30`; it requires a release of
@@ -94,6 +97,43 @@ prints exactly one `STATUS` line (`MOVED`, `NOT_MOVED` or `FAILED`) and one
 - `threshold` [1]: centroid displacement in drop radii classified as `MOVED`; a value of zero or less disables the early stop.
 - `FErr`, `VelErr`, `cErr`, `KErr` [1e-3]: wavelet adaptation tolerances.
 - `keLimit` [1e3]: kinetic energy classified as `FAILED`.
+
+## Embedded confinement cases
+
+```sh
+bash runSimulation.sh embed-pipe.params --exec dropMove-embed-pipe.c
+bash runSimulation.sh embed-channel.params --exec dropMove-embed-channel.c
+```
+
+`wallHalfWidth` is the pipe radius or channel half-width, in initial drop
+radii (default `2.53`). A wall exactly aligned with finest-grid faces is
+rejected because it has no cut-cell fragment for the embedded no-slip flux.
+The pipe starts a unit sphere on the axis (`y=0`) and cannot represent
+transverse migration. The channel starts a planar unit circle at
+`(0,dropOffset)`; its default offset is `0.5`. `initialDipole` seeds an axial
+concentration asymmetry and may be set to zero. Both example files disable
+the displacement early stop with `threshold=0`.
+
+The embedded sidewalls are no-slip and impermeable to species:
+`cL[embed] = neumann(0)`. The axial endcaps are no-slip with `cL=0`, so the
+finite end distance remains a model parameter. Activity adds the source
+`AcNum*|grad(f)|` at the drop interface; it does not create wall flux.
+Here `cL` is produced species, not directly a consumed-fuel concentration.
+Absorbing, reactive or fixed-fuel walls would require a different chemical
+boundary model.
+
+These cases require the pinned Basilisk `v2026-08-30` and reconstruct the
+stationary embedded geometry after mesh adaptation. No contact-angle or
+wetting model is supplied: a liquid-containing cell entering a
+three-finest-cell wall/endcap band
+stops with `FAILED`. In the pipe, `volume` and `ke` omit the common `2*pi`
+factor; `ycm` is the mean radius, and `dist` measures axial displacement.
+Existing planar post-processing readers must not be used to infer pipe
+volume or transverse motion.
+
+Software checks for geometry and species wall conditions are available via
+`bash testCases/run-embed-tests.sh`. These are implementation checks;
+convergence and physical wall attraction or repulsion require separate study.
 
 ## Parameter sweep
 

@@ -1,6 +1,6 @@
-# Base parameters for simulationCases/dropMove.c
+# Base parameters for simulationCases/dropMove-embed-pipe.c
 # CaseNo >= 1000 keeps case folders sortable: simulationCases/c<CaseNo>/
-CaseNo=1000
+CaseNo=1001
 # Peclet number: species diffusivity is D = 1/Pe
 Pe=1.6
 # Refinement levels (domain is L0 x L0 with 2^MAXlevel cells across)
@@ -15,7 +15,7 @@ L0=10.0
 tmax=50
 tsnap=0.1
 # Centroid displacement (drop radii) that classifies the run as MOVED; <= 0 disables early stop
-threshold=1.0
+threshold=0
 # Adaptation tolerances
 FErr=1e-3
 VelErr=1e-3
@@ -23,6 +23,8 @@ cErr=1e-3
 KErr=1e-3
 # Kinetic-energy limit that classifies the run as FAILED
 keLimit=1e3
-# Embedded drivers additionally accept wallHalfWidth (default 2.53),
-# dropOffset (0 in the pipe, 0.5 in the channel) and initialDipole (1e-3).
-# Use embed-pipe.params or embed-channel.params to disable displacement stopping.
+
+# Embedded wall geometry and axial concentration seed
+wallHalfWidth=2.53
+dropOffset=0
+initialDipole=1e-3

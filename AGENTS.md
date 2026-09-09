@@ -7,11 +7,15 @@ for building and running.
 
 ## Layout
 
-- `simulationCases/dropMove.c`: the only simulation entry point. Reads a
+- `simulationCases/dropMove.c`: the planar reference entry point. Reads a
   `key=value` parameter file through `src-local/params.h` and writes
   `intermediate/snapshot-<t>`, `log.dat`, one `STATUS` line and one `SUMMARY`
   line. Generated case folders `simulationCases/c<CaseNo>/` and
   `simulationCases/pescan-<tag>/` are ignored by Git.
+- `simulationCases/dropMove-embed-pipe.c` and `dropMove-embed-channel.c`:
+  confined axisymmetric and planar cases, sharing `src-local/dropMove-embed.h`.
+  Use their matching `embed-*.params` files. Inert embedded walls impose
+  no slip and zero species flux; no wetting/contact model is provided.
 - `src-local/`: `activity.h` (interfacial chemical source and species
   transport), `parse_params.h` and `params.h` (the single runtime-parameter
   pathway), `two-phase-clsvof-VP.h` (experimental viscoplastic variant, not
@@ -29,7 +33,7 @@ for building and running.
 
 - One parameter pathway. Runtime values enter only through the `.params`
   file passed as `argv[1]`; do not add `key=value` command-line parsing or a
-  second parser. New parameters get a default in `dropMove.c`, a line in
+  second parser. New parameters get a default in the relevant driver, a line in
   `default.params` and a row in the driver's header table.
 - Cases run in their own directory. `runSimulation.sh` copies the source and
   parameter file into `simulationCases/c<CaseNo>/`, compiles with
@@ -70,6 +74,7 @@ for building and running.
 
 ```sh
 bash testCases/run-tests.sh            # software tests (needs qcc for the C check)
+bash testCases/run-embed-tests.sh      # embedded geometry and species wall checks
 bash runSimulation.sh default.params   # one case
 bash runParameterSweep.sh sweep.params --dry-run
 python3 PeScan.py 1.0 0.5 --tmax 50 --max-level 9 --tag level9

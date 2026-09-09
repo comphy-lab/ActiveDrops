@@ -26,7 +26,12 @@ event defaults (i = 0)
 {
   for (scalar s in stracers) {
 #if TREE
+#if EMBED
+s.refine = refine_embed_linear;
+set_prolongation (s, refine_embed_linear);
+#else
 s.refine  = refine_bilinear;
+#endif
 s.restriction = restriction_volume_average;
 s.gradient = p.gradient;
 #endif // TREE
@@ -51,6 +56,8 @@ event vof (i++)
     c.phi1 = phi1, c.phi2 = phi2;
     scalar_clone (phi1, c);
     scalar_clone (phi2, c);
+    // Diffusion-side selection on c must not reverse the c*f VOF tracer.
+    phi1.inverse = false;
     phi2.inverse = true;
     
     f.tracers = list_append (f.tracers, phi1);
@@ -68,6 +75,10 @@ event vof (i++)
 		  
     foreach() {
       double a = c[];
+#if EMBED
+      if (cs[] <= 0.)
+        a = 0.;
+#endif
       phi1[] = a*f[];
       phi2[] = a*(1. - f[]);
     }
@@ -89,6 +100,10 @@ event tracer_diffusion (i++)
     scalar phi1 = c.phi1, phi2 = c.phi2;
     foreach() {
       c[] = phi1[] + phi2[];
+#if EMBED
+      if (cs[] <= 0.)
+        c[] = 0.;
+#endif
     }
     delete ({phi1, phi2});
     
@@ -112,6 +127,10 @@ event tracer_diffusion (i++)
       double fy = (f[0,1]-f[0,-1])/(2*Delta);
       diracDelta[] = sqrt(sq(fx) + sq(fy));
       ActivityFlux[] = diracDelta[]*c.A;
+#if EMBED
+      if (cs[] <= 0.)
+        ActivityFlux[] = 0.;
+#endif
     }
   
     foreach() {

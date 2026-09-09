@@ -171,7 +171,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
-  <title>src-local/activity.h | ActiveDrops</title>
+  <title>simulationCases/dropMove-embed-pipe.c | ActiveDrops</title>
 
   <!-- Critical CSS for fastest paint -->
   <style>
@@ -202,10 +202,10 @@
   </style>
 
   <!-- Critical Meta Tags -->
-  <meta name="description" content="The stracers list of temperature tracers must be defined by the calling code. copied and inspired from http://basilisk.fr/src/henry.h & http://basilisk.fr/sa...">
+  <meta name="description" content="An axisymmetric unit sphere initially lies on y=0; x is axial and y is radial. The embedded cylindrical wall is at y=wallHalfWidth. Axisymmetry excludes tran...">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="activity, diffusion.h">
+  <meta name="keywords" content="dropmove, dropmove-embed.h, embed, pipe">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
@@ -424,158 +424,31 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 
             <div class="page-content">
 
-                                <h1 class="page-title">src-local/activity.h</h1>
+                                <h1 class="page-title">simulationCases/dropMove-embed-pipe.c</h1>
 
 
                                 <div class="raw-file-button-container">
-                    <a href="https://github.com/comphy-lab/ActiveDrops/raw/main/src-local/activity.h" class="raw-file-button" target="_blank" rel="noopener noreferrer">
+                    <a href="https://github.com/comphy-lab/ActiveDrops/raw/main/simulationCases/dropMove-embed-pipe.c" class="raw-file-button" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-github"></i> See raw file
                     </a>
                 </div>
 
                 <h1
-                id="advectiondiffusion-of-temperature-tracers">Advection/diffusion
-                of temperature tracers</h1>
-                <p>The <em>stracers</em> list of temperature tracers
-                must be defined by the calling code. copied and inspired
-                from http://basilisk.fr/src/henry.h &amp;
-                http://basilisk.fr/sandbox/farsoiya/phase_change/phase-change.h</p>
+                id="chemically-active-drop-on-the-axis-of-an-embedded-pipe">Chemically
+                active drop on the axis of an embedded pipe</h1>
+                <p>An axisymmetric unit sphere initially lies on
+                <code>y=0</code>; <code>x</code> is axial and
+                <code>y</code> is radial. The embedded cylindrical wall
+                is at <code>y=wallHalfWidth</code>. Axisymmetry excludes
+                transverse migration and non-axisymmetric modes. See <a
+                href="../src-local/dropMove-embed.h">the shared
+                driver</a> for parameters, wall chemistry, diagnostics
+                and the resolved-gap restriction.</p>
+                <h2 id="author">Author</h2>
+                <p>Vatsal Sanjay (vatsal.sanjay@comphy-lab.org)</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>attribute <span class="op">{</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  scalar phi1<span class="op">,</span> phi2<span class="op">;</span> <span class="co">// private</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> A<span class="op">;</span>  <span class="co">// activity at the interface</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> D<span class="op">;</span> <span class="co">// Diffusivity of tracer in the diffusive phase</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">extern</span> scalar <span class="op">*</span> stracers<span class="op">;</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>scalar ActivityFlux<span class="op">[];</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/diffusion.h" title="Link to Basilisk source for diffusion.h"><span class="im">"diffusion.h"</span></a><span class="pp"></span></span></code></pre></div></div>
-                <h2 id="defaults">Defaults</h2>
-                <p>On trees we need to ensure conservation of the tracer
-                when refining/coarsening.</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>event defaults <span class="op">(</span>i <span class="op">=</span> <span class="dv">0</span><span class="op">)</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span>scalar s in stracers<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#if TREE</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#if EMBED</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>s<span class="op">.</span>refine <span class="op">=</span> refine_embed_linear<span class="op">;</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>set_prolongation <span class="op">(</span>s<span class="op">,</span> refine_embed_linear<span class="op">);</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#else</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>s<span class="op">.</span>refine  <span class="op">=</span> refine_bilinear<span class="op">;</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>s<span class="op">.</span>restriction <span class="op">=</span> restriction_volume_average<span class="op">;</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>s<span class="op">.</span>gradient <span class="op">=</span> p<span class="op">.</span>gradient<span class="op">;</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif </span><span class="co">// TREE</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
-                <h2 id="advection">Advection</h2>
-                <p>To avoid numerical diffusion through the interface we
-                use the <a href="/src/vof.h">VOF tracer transport
-                scheme</a> for the temporary fields <span
-                class="math inline">\(\phi_1\)</span> and <span
-                class="math inline">\(\phi_2\)</span>, see section 3.2
-                of <a href="#farsoiya2021">Farsoiya et al.,
-                2021</a>.</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> scalar <span class="op">*</span> phi_tracers <span class="op">=</span> NULL<span class="op">;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>event vof <span class="op">(</span>i<span class="op">++)</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  phi_tracers <span class="op">=</span> f<span class="op">.</span>tracers<span class="op">;</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span>scalar c in stracers<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    scalar phi1 <span class="op">=</span> new scalar<span class="op">,</span> phi2 <span class="op">=</span> new scalar<span class="op">;</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    c<span class="op">.</span>phi1 <span class="op">=</span> phi1<span class="op">,</span> c<span class="op">.</span>phi2 <span class="op">=</span> phi2<span class="op">;</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    scalar_clone <span class="op">(</span>phi1<span class="op">,</span> c<span class="op">);</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    scalar_clone <span class="op">(</span>phi2<span class="op">,</span> c<span class="op">);</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Diffusion-side selection on c must not reverse the c*f VOF tracer.</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    phi1<span class="op">.</span>inverse <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    phi2<span class="op">.</span>inverse <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    f<span class="op">.</span>tracers <span class="op">=</span> list_append <span class="op">(</span>f<span class="op">.</span>tracers<span class="op">,</span> phi1<span class="op">);</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    f<span class="op">.</span>tracers <span class="op">=</span> list_append <span class="op">(</span>f<span class="op">.</span>tracers<span class="op">,</span> phi2<span class="op">);</span></span></code></pre></div></div>
-                <p><span class="math inline">\(\phi_1\)</span> and <span
-                class="math inline">\(\phi_2\)</span> are computed from
-                <span class="math inline">\(c\)</span> as <span
-                class="math display">\[
-                \phi_1 = c f
-                \]</span> <span class="math display">\[
-                \phi_2 = c (1-f)
-                \]</span></p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>    foreach<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>      <span class="dt">double</span> a <span class="op">=</span> c<span class="op">[];</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#if EMBED</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span>cs<span class="op">[]</span> <span class="op">&lt;=</span> <span class="fl">0.</span><span class="op">)</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        a <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>      phi1<span class="op">[]</span> <span class="op">=</span> a<span class="op">*</span>f<span class="op">[];</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      phi2<span class="op">[]</span> <span class="op">=</span> a<span class="op">*(</span><span class="fl">1.</span> <span class="op">-</span> f<span class="op">[]);</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>event tracer_diffusion <span class="op">(</span>i<span class="op">++)</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  free <span class="op">(</span>f<span class="op">.</span>tracers<span class="op">);</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  f<span class="op">.</span>tracers <span class="op">=</span> phi_tracers<span class="op">;</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span>scalar c in stracers<span class="op">)</span> <span class="op">{</span></span></code></pre></div></div>
-                <p>The advected concentration is computed from <span
-                class="math inline">\(\phi_1\)</span> and <span
-                class="math inline">\(\phi_2\)</span> as <span
-                class="math display">\[
-                c = \phi_1 + \phi_2
-                \]</span> and these fields are then discarded.</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    scalar phi1 <span class="op">=</span> c<span class="op">.</span>phi1<span class="op">,</span> phi2 <span class="op">=</span> c<span class="op">.</span>phi2<span class="op">;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    foreach<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>      c<span class="op">[]</span> <span class="op">=</span> phi1<span class="op">[]</span> <span class="op">+</span> phi2<span class="op">[];</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#if EMBED</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span>cs<span class="op">[]</span> <span class="op">&lt;=</span> <span class="fl">0.</span><span class="op">)</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        c<span class="op">[]</span> <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    delete <span class="op">({</span>phi1<span class="op">,</span> phi2<span class="op">});</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    scalar volumic_metric<span class="op">[],</span> dirichlet_source_term<span class="op">[];</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    face vector diffusion_coef<span class="op">[];</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    scalar diracDelta<span class="op">[];</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// foreach(){</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">//   if (interfacial(point, f)){</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">//     coord n = interface_normal (point, c), p;</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">//     double alpha = plane_alpha (c[], n);</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">//     double area = pow(Delta, dimension - 1)*plane_area_center (n, alpha, &amp;p);</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">//     diracDelta[] = area/sq(Delta); //sqrt(sq(fx) + sq(fy));</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">//     ActivityFlux[] = diracDelta[]*c.A;</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">//   }</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// }</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    foreach<span class="op">(){</span></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>      <span class="co">// if (interfacial (point, f))</span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>      <span class="dt">double</span> fx <span class="op">=</span> <span class="op">(</span>f<span class="op">[</span><span class="dv">1</span><span class="op">]-</span>f<span class="op">[-</span><span class="dv">1</span><span class="op">])/(</span><span class="dv">2</span><span class="op">*</span>Delta<span class="op">);</span></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>      <span class="dt">double</span> fy <span class="op">=</span> <span class="op">(</span>f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]-</span>f<span class="op">[</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">])/(</span><span class="dv">2</span><span class="op">*</span>Delta<span class="op">);</span></span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>      diracDelta<span class="op">[]</span> <span class="op">=</span> sqrt<span class="op">(</span>sq<span class="op">(</span>fx<span class="op">)</span> <span class="op">+</span> sq<span class="op">(</span>fy<span class="op">));</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>      ActivityFlux<span class="op">[]</span> <span class="op">=</span> diracDelta<span class="op">[]*</span>c<span class="op">.</span>A<span class="op">;</span></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="pp">#if EMBED</span></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span>cs<span class="op">[]</span> <span class="op">&lt;=</span> <span class="fl">0.</span><span class="op">)</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>        ActivityFlux<span class="op">[]</span> <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    foreach<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>      volumic_metric<span class="op">[]</span> <span class="op">=</span> cm<span class="op">[];</span></span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>      dirichlet_source_term<span class="op">[]</span> <span class="op">=</span> cm<span class="op">[]*</span>ActivityFlux<span class="op">[];</span></span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    foreach_face<span class="op">(){</span></span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>      <span class="dt">double</span> ff <span class="op">=</span> <span class="op">(</span>f<span class="op">[]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">])/</span><span class="fl">2.</span><span class="op">;</span></span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>      <span class="dt">double</span> wt <span class="op">=</span> c<span class="op">.</span>inverse <span class="op">?</span> <span class="op">(</span><span class="fl">1.</span><span class="op">-</span>ff<span class="op">)</span> <span class="op">:</span> ff<span class="op">;</span></span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>      diffusion_coef<span class="op">.</span>x<span class="op">[]</span> <span class="op">=</span> fm<span class="op">.</span>x<span class="op">[]*</span>c<span class="op">.</span>D<span class="op">*</span>wt<span class="op">;</span></span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>    diffusion <span class="op">(</span>c<span class="op">,</span> dt<span class="op">,</span> D <span class="op">=</span> diffusion_coef<span class="op">,</span> r <span class="op">=</span> dirichlet_source_term<span class="op">,</span> theta <span class="op">=</span> volumic_metric<span class="op">);</span></span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+                class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define ACTIVE_DROP_PIPE </span><span class="dv">1</span><span class="pp"></span><span class="dv">14</span><span class="pp"></span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/dropMove-embed.h.html" title="Link to local documentation for dropMove-embed.h"><span class="im">"dropMove-embed.h"</span></a></span></code></pre></div></div>
             </div>
         </main>
 
@@ -617,7 +490,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
               <a href="https://bsky.app/profile/comphy-lab.org" target="_blank" rel="noopener noreferrer" aria-label="Bluesky Profile">
                 <i class="fa-brands fa-bluesky" style="font-size: 2.5em; color: white;"></i>
               </a>
-              <a href="https://github.com/comphy-lab/ActiveDrops/edit/main/src-local/activity.h" class="edit-link" aria-label="Edit this page on GitHub">
+              <a href="https://github.com/comphy-lab/ActiveDrops/edit/main/simulationCases/dropMove-embed-pipe.c" class="edit-link" aria-label="Edit this page on GitHub">
                 <i class="fa-brands fa-github"></i> Edit this page
               </a>
             </div>

@@ -432,12 +432,14 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 drops.</p>
                 <p>A planar drop emits a chemical species at its
                 interface. The species diffuses and is advected in the
-                outer phase and lowers the interfacial tension where it
-                accumulates. Above a critical Péclet number the
-                isotropic state is unstable: a small asymmetry in the
-                concentration field drives a Marangoni flow that
-                reinforces the asymmetry, and the drop self-propels. The
-                code integrates this problem in the Stokes limit with <a
+                outer phase. The implemented constitutive law is
+                <code>sigma = 1/Ca + 4*cL</code>: positive concentration
+                increases surface tension. Above a critical Péclet
+                number the isotropic state is unstable: a small
+                asymmetry in the concentration field drives a Marangoni
+                flow that reinforces the asymmetry, and the drop
+                self-propels. The code integrates this problem in the
+                Stokes limit with <a
                 href="http://basilisk.fr">Basilisk</a> using the coupled
                 level-set and volume-of-fluid (CLSVOF) interface method
                 and the integral formulation of surface tension, and
@@ -455,8 +457,13 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <ul>
                 <li><strong><a
                 href="simulationCases/dropMove.c.html">dropMove.c</a></strong>
-                - - Single active drop; reads a key=value parameter
-                file</li>
+                - - Unconfined planar reference in a finite box</li>
+                <li><strong><a
+                href="simulationCases/dropMove-embed-pipe.c.html">dropMove-embed-pipe.c</a></strong>
+                - - Axisymmetric drop in a straight embedded pipe</li>
+                <li><strong><a
+                href="simulationCases/dropMove-embed-channel.c.html">dropMove-embed-channel.c</a></strong>
+                - - Planar drop between embedded walls</li>
                 </ul></li>
                 <li><strong><a href="src-local">src-local/</a></strong>
                 - - Project-specific Basilisk headers and the runtime
@@ -562,9 +569,9 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <p>Basilisk is pinned per project. From the repository
                 root:</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sL</span> https://raw.githubusercontent.com/comphy-lab/basilisk-C/main/reset_install_basilisk-ref-locked.sh <span class="kw">|</span> <span class="fu">bash</span> <span class="at">-s</span> <span class="at">--</span> <span class="at">--hard</span></span>
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSL</span> https://raw.githubusercontent.com/comphy-lab/basilisk-C/v2026-08-30/reset_install_basilisk-ref-locked.sh <span class="kw">|</span> <span class="fu">bash</span> <span class="at">-s</span> <span class="at">--</span> <span class="at">--ref</span><span class="op">=</span>v2026-08-30</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .project_config</span></code></pre></div></div>
-                <p>This installs the current comphy-lab/basilisk-C
+                <p>This installs the selected comphy-lab/basilisk-C
                 release into <code>basilisk/</code>, records the ref in
                 <code>basilisk/.comphy-lock</code> and writes
                 <code>.project_config</code>, which the runners source.
@@ -618,10 +625,55 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <li><code>keLimit</code> [1e3]: kinetic energy
                 classified as <code>FAILED</code>.</li>
                 </ul>
+                <h2 id="embedded-confinement-cases">Embedded confinement
+                cases</h2>
+                <div class="code-block-container"><div class="code-block-container"><pre
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runSimulation.sh embed-pipe.params <span class="at">--exec</span> dropMove-embed-pipe.c</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runSimulation.sh embed-channel.params <span class="at">--exec</span> dropMove-embed-channel.c</span></code></pre></div></div>
+                <p><code>wallHalfWidth</code> is the pipe radius or
+                channel half-width, in initial drop radii (default
+                <code>2.53</code>). A wall exactly aligned with
+                finest-grid faces is rejected because it has no cut-cell
+                fragment for the embedded no-slip flux. The pipe starts
+                a unit sphere on the axis (<code>y=0</code>) and cannot
+                represent transverse migration. The channel starts a
+                planar unit circle at <code>(0,dropOffset)</code>; its
+                default offset is <code>0.5</code>.
+                <code>initialDipole</code> seeds an axial concentration
+                asymmetry and may be set to zero. Both example files
+                disable the displacement early stop with
+                <code>threshold=0</code>.</p>
+                <p>The embedded sidewalls are no-slip and impermeable to
+                species: <code>cL[embed] = neumann(0)</code>. The axial
+                endcaps are no-slip with <code>cL=0</code>, so the
+                finite end distance remains a model parameter. Activity
+                adds the source <code>AcNum*|grad(f)|</code> at the drop
+                interface; it does not create wall flux. Here
+                <code>cL</code> is produced species, not directly a
+                consumed-fuel concentration. Absorbing, reactive or
+                fixed-fuel walls would require a different chemical
+                boundary model.</p>
+                <p>These cases require the pinned Basilisk
+                <code>v2026-08-30</code> and reconstruct the stationary
+                embedded geometry after mesh adaptation. No
+                contact-angle or wetting model is supplied: a
+                liquid-containing cell entering a three-finest-cell
+                wall/endcap band stops with <code>FAILED</code>. In the
+                pipe, <code>volume</code> and <code>ke</code> omit the
+                common <code>2*pi</code> factor; <code>ycm</code> is the
+                mean radius, and <code>dist</code> measures axial
+                displacement. Existing planar post-processing readers
+                must not be used to infer pipe volume or transverse
+                motion.</p>
+                <p>Software checks for geometry and species wall
+                conditions are available via
+                <code>bash testCases/run-embed-tests.sh</code>. These
+                are implementation checks; convergence and physical wall
+                attraction or repulsion require separate study.</p>
                 <h2 id="parameter-sweep">Parameter sweep</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params <span class="at">--dry-run</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params <span class="at">--parallel</span> 2</span></code></pre></div></div>
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params <span class="at">--dry-run</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params <span class="at">--parallel</span> 2</span></code></pre></div></div>
                 <p><code>SWEEP_*</code> lists in the sweep file form a
                 Cartesian product; each case gets a deterministic
                 <code>CaseNo</code> from <code>CASE_START</code>. Set
@@ -629,7 +681,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 cases.</p>
                 <h2 id="onset-scan">Onset scan</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> PeScan.py 1.0 0.5 <span class="at">--tmax</span> 50 <span class="at">--max-level</span> 9 <span class="at">--tol</span> 0.005 <span class="at">--tag</span> level9</span></code></pre></div></div>
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> PeScan.py 1.0 0.5 <span class="at">--tmax</span> 50 <span class="at">--max-level</span> 9 <span class="at">--tol</span> 0.005 <span class="at">--tag</span> level9</span></code></pre></div></div>
                 <p><code>PeScan.py</code> runs one case per sample
                 through <code>runSimulation.sh</code> (case numbers from
                 <code>--case-start</code>, default 2000), first
@@ -685,7 +737,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 a value.</p>
                 <h2 id="tests">Tests</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> testCases/run-tests.sh</span></code></pre></div></div>
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> testCases/run-tests.sh</span></code></pre></div></div>
                 <p>Both tests are software tests: the first exercises
                 the scan logic with synthetic classifiers (monotone
                 threshold, all moving, all stationary, non-monotone
@@ -697,8 +749,8 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 no such case exists in this repository yet.</p>
                 <h2 id="post-processing">Post-processing</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> postProcess</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> contour.py <span class="at">--caseToProcess</span> ../simulationCases/c1000 <span class="at">--tSnap</span> 0.1 <span class="at">--cpus</span> 4</span></code></pre></div></div>
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> postProcess</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> contour.py <span class="at">--caseToProcess</span> ../simulationCases/c1000 <span class="at">--tSnap</span> 0.1 <span class="at">--cpus</span> 4</span></code></pre></div></div>
                 <p><code>contour.py</code> compiles
                 <code>getFacets</code> and <code>getData</code> once
                 with <code>qcc</code>, then renders one frame per
@@ -708,12 +760,12 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 legacy serial script with hard-coded paths kept for
                 reference. The readers compile individually with</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">qcc</span> <span class="at">-O2</span> <span class="at">-Wall</span> <span class="at">-disable-dimensions</span> getCM.c <span class="at">-o</span> getCM <span class="at">-lm</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./getCM</span> ../simulationCases/c1000/intermediate/snapshot-10.0000</span></code></pre></div></div>
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">qcc</span> <span class="at">-O2</span> <span class="at">-Wall</span> <span class="at">-disable-dimensions</span> getCM.c <span class="at">-o</span> getCM <span class="at">-lm</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./getCM</span> ../simulationCases/c1000/intermediate/snapshot-10.0000</span></code></pre></div></div>
                 <h2 id="documentation-site">Documentation site</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> .github/scripts/build.sh</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> .github/scripts/deploy.sh</span></code></pre></div></div>
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> .github/scripts/build.sh</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> .github/scripts/deploy.sh</span></code></pre></div></div>
                 <p>The generator renders the literate C and Python
                 sources under <code>src-local/</code>,
                 <code>simulationCases/</code>, <code>postProcess/</code>
@@ -730,6 +782,10 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <li><a href="PeScan.py.html">PeScan.py</a></li>
                 <li><a
                 href="default.params.html">default.params</a></li>
+                <li><a
+                href="embed-channel.params.html">embed-channel.params</a></li>
+                <li><a
+                href="embed-pipe.params.html">embed-pipe.params</a></li>
                 <li><a
                 href="runParameterSweep.sh.html">runParameterSweep.sh</a></li>
                 <li><a
@@ -756,12 +812,20 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <h3 id="simulationcases">simulationCases</h3>
                 <ul>
                 <li><a
+                href="simulationCases/dropMove-embed-channel.c.html">simulationCases/dropMove-embed-channel.c</a></li>
+                <li><a
+                href="simulationCases/dropMove-embed-pipe.c.html">simulationCases/dropMove-embed-pipe.c</a></li>
+                <li><a
                 href="simulationCases/dropMove.c.html">simulationCases/dropMove.c</a></li>
                 </ul>
                 <h3 id="src-local">src-local</h3>
                 <ul>
                 <li><a
                 href="src-local/activity.h.html">src-local/activity.h</a></li>
+                <li><a
+                href="src-local/dropMove-embed.h.html">src-local/dropMove-embed.h</a></li>
+                <li><a
+                href="src-local/embed-channel-geometry.h.html">src-local/embed-channel-geometry.h</a></li>
                 <li><a
                 href="src-local/params.h.html">src-local/params.h</a></li>
                 <li><a
@@ -772,7 +836,13 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <h3 id="testcases">testCases</h3>
                 <ul>
                 <li><a
+                href="testCases/activity-phase-contract.c.html">testCases/activity-phase-contract.c</a></li>
+                <li><a
                 href="testCases/centroid-check.c.html">testCases/centroid-check.c</a></li>
+                <li><a
+                href="testCases/embed-contract.c.html">testCases/embed-contract.c</a></li>
+                <li><a
+                href="testCases/run-embed-tests.sh.html">testCases/run-embed-tests.sh</a></li>
                 <li><a
                 href="testCases/run-tests.sh.html">testCases/run-tests.sh</a></li>
                 <li><a

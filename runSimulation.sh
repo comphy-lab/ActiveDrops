@@ -146,6 +146,16 @@ if ! command -v qcc >/dev/null 2>&1; then
   exit 1
 fi
 
+if [[ "$EXEC_CODE" == "dropMove-embed-pipe.c" ||
+      "$EXEC_CODE" == "dropMove-embed-channel.c" ]]; then
+  if [[ "$(command -v qcc)" != "${SCRIPT_DIR}/basilisk/src/qcc" ||
+        ! -f "${SCRIPT_DIR}/basilisk/.comphy-lock" ]] ||
+     ! grep -qx 'ref=v2026-08-30' "${SCRIPT_DIR}/basilisk/.comphy-lock"; then
+    echo "ERROR: Embedded cases require project-local Basilisk v2026-08-30." >&2
+    exit 1
+  fi
+fi
+
 if [[ ! -f "$PARAM_FILE" ]]; then
   echo "ERROR: Parameter file not found: $PARAM_FILE" >&2
   exit 1

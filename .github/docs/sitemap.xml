@@ -16,6 +16,16 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://comphy-lab.org/ActiveDrops/embed-channel.params.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://comphy-lab.org/ActiveDrops/embed-pipe.params.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://comphy-lab.org/ActiveDrops/postProcess/contour.py.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -61,12 +71,32 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://comphy-lab.org/ActiveDrops/simulationCases/dropMove-embed-channel.c.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://comphy-lab.org/ActiveDrops/simulationCases/dropMove-embed-pipe.c.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://comphy-lab.org/ActiveDrops/simulationCases/dropMove.c.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://comphy-lab.org/ActiveDrops/src-local/activity.h.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://comphy-lab.org/ActiveDrops/src-local/dropMove-embed.h.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://comphy-lab.org/ActiveDrops/src-local/embed-channel-geometry.h.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -91,7 +121,22 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://comphy-lab.org/ActiveDrops/testCases/activity-phase-contract.c.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://comphy-lab.org/ActiveDrops/testCases/centroid-check.c.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://comphy-lab.org/ActiveDrops/testCases/embed-contract.c.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://comphy-lab.org/ActiveDrops/testCases/run-embed-tests.sh.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
