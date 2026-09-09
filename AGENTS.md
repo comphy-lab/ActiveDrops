@@ -23,9 +23,10 @@ for building and running.
   and pipe are periodic only left/right. The channel has upper/lower solid
   walls; the pipe has an upper solid wall and bottom symmetry axis.
 - `src-local/`: `activity.h` (interfacial chemical source and species
-  transport), `parse_params.h` and `params.h` (the single runtime-parameter
-  pathway), `two-phase-clsvof-VP.h` (experimental viscoplastic variant, not
-  included by the driver).
+  transport), `embed-channel-geometry.h` (`confined_geometry()` reconstructs
+  embedded wall fractions and metrics), `parse_params.h` and `params.h`
+  (the single runtime-parameter pathway), `two-phase-clsvof-VP.h`
+  (experimental viscoplastic variant, not included by the driver).
 - `postProcess/`: snapshot readers (`get*.c`, compiled with `qcc`) and the
   plotting scripts `contour.py` and `vectors.py`.
 - `testCases/`: software tests only (see evidence classes below).
