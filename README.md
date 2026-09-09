@@ -19,7 +19,7 @@ in Pe.
 ```
 ├── basilisk/ - Project-local pinned Basilisk (ignored; installed by the script below)
 ├── simulationCases/ - Simulation entry point and generated case folders
-│   ├── dropMove.c - Unconfined planar reference in a finite box
+│   ├── dropMove.c - Planar reference, periodic in both directions
 │   ├── dropMove-embed-pipe.c - Axisymmetric drop in a straight embedded pipe
 │   └── dropMove-embed-channel.c - Planar drop between embedded walls
 ├── src-local/ - Project-specific Basilisk headers and the runtime parameter API
@@ -37,8 +37,11 @@ in Pe.
 │   └── vectors.py - Legacy serial velocity-vector frames
 ├── testCases/ - Software tests
 │   ├── test_pescan.py - Synthetic-classifier tests for PeScan.py
+│   ├── test_periodic_centroid.py - Production moments across periodic seams
+│   ├── test_case_boundaries.py - Actual case setup and solid cleanup probes
 │   ├── centroid-check.c - Centroid diagnostic on an asymmetric adaptive mesh
-│   └── run-tests.sh - Runs both
+│   ├── run-tests.sh - Runs Python contracts and the centroid check
+│   └── run-embed-tests.sh - Embedded geometry, species and tracer contracts
 ├── .github/ - Documentation generator, workflows, issue templates and the generated site
 ├── runSimulation.sh - Single-case compile/run driver
 ├── runParameterSweep.sh - Parameter sweep driver
@@ -53,7 +56,8 @@ in Pe.
 ## Requirements
 
 - A C compiler, `make`, `gawk` and `curl` for the Basilisk install.
-- Python 3 for `PeScan.py` and the tests (standard library only).
+- Python 3 for `PeScan.py` and the tests (standard library only); the case
+  boundary tests also require the pinned Basilisk compiler.
 - Python 3 with `numpy`, `pandas` and `matplotlib` for `postProcess/*.py`.
 
 Basilisk is pinned per project. From the repository root:
@@ -92,7 +96,7 @@ prints exactly one `STATUS` line (`MOVED`, `NOT_MOVED` or `FAILED`) and one
 - `Pe` [1.6]: Péclet number, species diffusivity `1/Pe`.
 - `MAXlevel` [8], `MINlevel` [0]: quadtree refinement bounds.
 - `Oh` [1], `Ca` [0.1], `AcNum` [1]: density `4/Oh^2`, clean surface tension `1/Ca`, interfacial chemical flux.
-- `L0` [10]: square domain size in drop radii; walls are no-slip with zero concentration.
+- `L0` [10]: square domain size in drop radii; both directions are periodic.
 - `tmax` [50], `tsnap` [0.1]: observation horizon and snapshot interval.
 - `threshold` [1]: centroid displacement in drop radii classified as `MOVED`; a value of zero or less disables the early stop.
 - `FErr`, `VelErr`, `cErr`, `KErr` [1e-3]: wavelet adaptation tolerances.
@@ -114,22 +118,40 @@ transverse migration. The channel starts a planar unit circle at
 concentration asymmetry and may be set to zero. Both example files disable
 the displacement early stop with `threshold=0`.
 
-The embedded sidewalls are no-slip and impermeable to species:
-`cL[embed] = neumann(0)`. The axial endcaps are no-slip with `cL=0`, so the
-finite end distance remains a model parameter. Activity adds the source
+Each confined case is a standalone simulation driver with the same sections
+as `dropMove.c`: fields and boundaries, parameters, `main()`, initialisation,
+properties, adaptation, output and diagnostics.
+
+The channel has upper/lower no-slip, non-wetting embedded walls. The pipe
+has an upper no-slip, non-wetting embedded wall and a bottom symmetry axis.
+Both cases are periodic left/right for every field; there are no axial
+endcaps or concentration sinks. The baseline `dropMove.c` is periodic in
+both directions. Periodic extent controls interaction with periodic images.
+
+Non-wetting excludes the dispersed phase at the solid: `f[embed]=dirichlet(0)`
+and `f=0` in full-solid cells, where the CLSVOF distance remains negative.
+Wall chemistry is independent: `cL[embed]=neumann(0)` makes the wall
+impermeable to species. Activity adds the source
 `AcNum*|grad(f)|` at the drop interface; it does not create wall flux.
 Here `cL` is produced species, not directly a consumed-fuel concentration.
 Absorbing, reactive or fixed-fuel walls would require a different chemical
 boundary model.
+Positive activity therefore accumulates species in these periodic,
+impermeable domains; there is no imposed chemical sink.
 
 These cases require the pinned Basilisk `v2026-08-30` and reconstruct the
-stationary embedded geometry after mesh adaptation. No contact-angle or
-wetting model is supplied: a liquid-containing cell entering a
-three-finest-cell wall/endcap band
+stationary embedded geometry after mesh adaptation. A liquid-containing
+cell entering a three-finest-cell wall band
 stops with `FAILED`. In the pipe, `volume` and `ke` omit the common `2*pi`
 factor; `ycm` is the mean radius, and `dist` measures axial displacement.
-Existing planar post-processing readers must not be used to infer pipe
-volume or transverse motion.
+This phase-exclusion treatment does not supply a contact-angle or moving
+contact-line law.
+
+Periodic centroid coordinates are unwrapped about the previous centroid,
+so a seam crossing does not create a displacement jump; logged coordinates
+may leave the principal domain. This assumes a compact single drop within
+half a period of the tracked centroid. Snapshot readers need the matching
+periodic treatment and, for the pipe, cylindrical volume weights.
 
 Software checks for geometry and species wall conditions are available via
 `bash testCases/run-embed-tests.sh`. These are implementation checks;

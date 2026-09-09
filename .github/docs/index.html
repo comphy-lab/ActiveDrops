@@ -457,7 +457,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <ul>
                 <li><strong><a
                 href="simulationCases/dropMove.c.html">dropMove.c</a></strong>
-                - - Unconfined planar reference in a finite box</li>
+                - - Planar reference, periodic in both directions</li>
                 <li><strong><a
                 href="simulationCases/dropMove-embed-pipe.c.html">dropMove-embed-pipe.c</a></strong>
                 - - Axisymmetric drop in a straight embedded pipe</li>
@@ -520,12 +520,21 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 href="testCases/test_pescan.py.html">test_pescan.py</a></strong>
                 - - Synthetic-classifier tests for PeScan.py</li>
                 <li><strong><a
+                href="testCases/test_periodic_centroid.py.html">test_periodic_centroid.py</a></strong>
+                - - Production moments across periodic seams</li>
+                <li><strong><a
+                href="testCases/test_case_boundaries.py.html">test_case_boundaries.py</a></strong>
+                - - Actual case setup and solid cleanup probes</li>
+                <li><strong><a
                 href="testCases/centroid-check.c.html">centroid-check.c</a></strong>
                 - - Centroid diagnostic on an asymmetric adaptive
                 mesh</li>
                 <li><strong><a
                 href="testCases/run-tests.sh.html">run-tests.sh</a></strong>
-                - - Runs both</li>
+                - - Runs Python contracts and the centroid check</li>
+                <li><strong><a
+                href="testCases/run-embed-tests.sh.html">run-embed-tests.sh</a></strong>
+                - - Embedded geometry, species and tracer contracts</li>
                 </ul></li>
                 <li><strong><a href=".github">.github/</a></strong> - -
                 Documentation generator, workflows, issue templates and
@@ -561,7 +570,8 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <li>A C compiler, <code>make</code>, <code>gawk</code>
                 and <code>curl</code> for the Basilisk install.</li>
                 <li>Python 3 for <code>PeScan.py</code> and the tests
-                (standard library only).</li>
+                (standard library only); the case boundary tests also
+                require the pinned Basilisk compiler.</li>
                 <li>Python 3 with <code>numpy</code>,
                 <code>pandas</code> and <code>matplotlib</code> for
                 <code>postProcess/*.py</code>.</li>
@@ -613,7 +623,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 clean surface tension <code>1/Ca</code>, interfacial
                 chemical flux.</li>
                 <li><code>L0</code> [10]: square domain size in drop
-                radii; walls are no-slip with zero concentration.</li>
+                radii; both directions are periodic.</li>
                 <li><code>tmax</code> [50], <code>tsnap</code> [0.1]:
                 observation horizon and snapshot interval.</li>
                 <li><code>threshold</code> [1]: centroid displacement in
@@ -643,28 +653,50 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 asymmetry and may be set to zero. Both example files
                 disable the displacement early stop with
                 <code>threshold=0</code>.</p>
-                <p>The embedded sidewalls are no-slip and impermeable to
-                species: <code>cL[embed] = neumann(0)</code>. The axial
-                endcaps are no-slip with <code>cL=0</code>, so the
-                finite end distance remains a model parameter. Activity
-                adds the source <code>AcNum*|grad(f)|</code> at the drop
-                interface; it does not create wall flux. Here
-                <code>cL</code> is produced species, not directly a
-                consumed-fuel concentration. Absorbing, reactive or
-                fixed-fuel walls would require a different chemical
-                boundary model.</p>
+                <p>Each confined case is a standalone simulation driver
+                with the same sections as <code>dropMove.c</code>:
+                fields and boundaries, parameters, <code>main()</code>,
+                initialisation, properties, adaptation, output and
+                diagnostics.</p>
+                <p>The channel has upper/lower no-slip, non-wetting
+                embedded walls. The pipe has an upper no-slip,
+                non-wetting embedded wall and a bottom symmetry axis.
+                Both cases are periodic left/right for every field;
+                there are no axial endcaps or concentration sinks. The
+                baseline <code>dropMove.c</code> is periodic in both
+                directions. Periodic extent controls interaction with
+                periodic images.</p>
+                <p>Non-wetting excludes the dispersed phase at the
+                solid: <code>f[embed]=dirichlet(0)</code> and
+                <code>f=0</code> in full-solid cells, where the CLSVOF
+                distance remains negative. Wall chemistry is
+                independent: <code>cL[embed]=neumann(0)</code> makes the
+                wall impermeable to species. Activity adds the source
+                <code>AcNum*|grad(f)|</code> at the drop interface; it
+                does not create wall flux. Here <code>cL</code> is
+                produced species, not directly a consumed-fuel
+                concentration. Absorbing, reactive or fixed-fuel walls
+                would require a different chemical boundary model.
+                Positive activity therefore accumulates species in these
+                periodic, impermeable domains; there is no imposed
+                chemical sink.</p>
                 <p>These cases require the pinned Basilisk
                 <code>v2026-08-30</code> and reconstruct the stationary
-                embedded geometry after mesh adaptation. No
-                contact-angle or wetting model is supplied: a
-                liquid-containing cell entering a three-finest-cell
-                wall/endcap band stops with <code>FAILED</code>. In the
-                pipe, <code>volume</code> and <code>ke</code> omit the
-                common <code>2*pi</code> factor; <code>ycm</code> is the
-                mean radius, and <code>dist</code> measures axial
-                displacement. Existing planar post-processing readers
-                must not be used to infer pipe volume or transverse
-                motion.</p>
+                embedded geometry after mesh adaptation. A
+                liquid-containing cell entering a three-finest-cell wall
+                band stops with <code>FAILED</code>. In the pipe,
+                <code>volume</code> and <code>ke</code> omit the common
+                <code>2*pi</code> factor; <code>ycm</code> is the mean
+                radius, and <code>dist</code> measures axial
+                displacement. This phase-exclusion treatment does not
+                supply a contact-angle or moving contact-line law.</p>
+                <p>Periodic centroid coordinates are unwrapped about the
+                previous centroid, so a seam crossing does not create a
+                displacement jump; logged coordinates may leave the
+                principal domain. This assumes a compact single drop
+                within half a period of the tracked centroid. Snapshot
+                readers need the matching periodic treatment and, for
+                the pipe, cylindrical volume weights.</p>
                 <p>Software checks for geometry and species wall
                 conditions are available via
                 <code>bash testCases/run-embed-tests.sh</code>. These
@@ -823,8 +855,6 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <li><a
                 href="src-local/activity.h.html">src-local/activity.h</a></li>
                 <li><a
-                href="src-local/dropMove-embed.h.html">src-local/dropMove-embed.h</a></li>
-                <li><a
                 href="src-local/embed-channel-geometry.h.html">src-local/embed-channel-geometry.h</a></li>
                 <li><a
                 href="src-local/params.h.html">src-local/params.h</a></li>
@@ -845,6 +875,10 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 href="testCases/run-embed-tests.sh.html">testCases/run-embed-tests.sh</a></li>
                 <li><a
                 href="testCases/run-tests.sh.html">testCases/run-tests.sh</a></li>
+                <li><a
+                href="testCases/test_case_boundaries.py.html">testCases/test_case_boundaries.py</a></li>
+                <li><a
+                href="testCases/test_periodic_centroid.py.html">testCases/test_periodic_centroid.py</a></li>
                 <li><a
                 href="testCases/test_pescan.py.html">testCases/test_pescan.py</a></li>
                 </ul>

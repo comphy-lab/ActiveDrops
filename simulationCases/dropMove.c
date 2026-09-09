@@ -45,7 +45,8 @@ finite-displacement convention: the centroid moved by more than
 `threshold` before `tmax`. The centroid, drop volume and kinetic energy are
 integrated with the cell volume `dv()` so that the adaptive mesh does not
 bias the classifier; displacement is measured from the centroid recorded at
-the first step.
+the first step. Periodic coordinates are unwrapped about the preceding
+centroid, so `xcm` and `ycm` may leave the principal domain.
 
 ## Author
 Vatsal Sanjay
@@ -69,22 +70,12 @@ Last updated: Sep 9, 2026
 
 `cL` is the species concentration in the outer phase (`cL.inverse = true`),
 `sigmaf` the surface tension coefficient and `KAPPA` the distance-function
-curvature used for adaptation. All walls are no-slip with zero
-concentration.
+curvature used for adaptation. Both coordinate directions are periodic for every field, including
+concentration, pressure, velocity and the CLSVOF fields.
 */
 scalar cL[], * stracers = {cL};
 scalar sigmaf[];
 scalar KAPPA[];
-
-cL[top] = dirichlet(0.);
-cL[right] = dirichlet(0.);
-cL[left] = dirichlet(0.);
-cL[bottom] = dirichlet(0.);
-
-u.t[top] = dirichlet(0.);
-u.t[right] = dirichlet(0.);
-u.t[left] = dirichlet(0.);
-u.t[bottom] = dirichlet(0.);
 
 /**
 ## Runtime parameters
@@ -106,6 +97,18 @@ static bool centroid_initialised = false;
 static bool status_printed = false;
 static int exit_status = 0;
 static double dist_last = 0., xcm_last = 0., ycm_last = 0.;
+
+/**
+### periodic_coordinate()
+
+Select the periodic image nearest the previous unwrapped centroid. The
+single drop must remain compact within half a period of that reference.
+This keeps centroid displacement continuous across the periodic seam.
+*/
+static double periodic_coordinate (double coordinate, double reference)
+{
+  return coordinate + L0*floor((reference - coordinate)/L0 + 0.5);
+}
 
 /**
 ### print_status()
@@ -183,6 +186,8 @@ int main (int argc, char const * argv[])
   stokes = true;
   L0 = L0_param;
   origin (-0.5*L0, -0.5*L0);
+  periodic (right);
+  periodic (top);
   init_grid (1 << MAXlevel);
 
   d.sigmaf = sigmaf;
@@ -267,8 +272,8 @@ event logWriting (i++) {
     double ff = clamp (f[], 0., 1.);
     ke += 0.5*rho(ff)*(sq(u.x[]) + sq(u.y[]))*dv();
     drop_volume += ff*dv();
-    x_moment += ff*x*dv();
-    y_moment += ff*y*dv();
+    x_moment += ff*periodic_coordinate(x, xcm_last)*dv();
+    y_moment += ff*periodic_coordinate(y, ycm_last)*dv();
   }
 
   if (!(drop_volume > 0.)) {
