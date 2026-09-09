@@ -4,95 +4,121 @@ Spontaneous symmetry breaking of self-propelled drops.
 
 A planar drop emits a chemical species at its interface. The species
 diffuses and is advected in the outer phase and lowers the interfacial
-tension where it accumulates. Above a critical Péclet number the
-isotropic state is unstable: a small asymmetry in the concentration field
-drives a Marangoni flow that reinforces the asymmetry, and the drop
-self-propels. The code integrates this problem in the Stokes limit with
+tension where it accumulates. Above a critical Péclet number the isotropic
+state is unstable: a small asymmetry in the concentration field drives a
+Marangoni flow that reinforces the asymmetry, and the drop self-propels.
+The code integrates this problem in the Stokes limit with
 [Basilisk](http://basilisk.fr) using the coupled level-set and
 volume-of-fluid (CLSVOF) interface method and the integral formulation of
-surface tension.
+surface tension, and provides a bracketed search for the finite-time onset
+in Pe.
 
-## Contents
+## Layout
 
-| Path | Purpose |
-|---|---|
-| `dropMove.c` | Single fixed-Pe demonstration run (Pe = 1.6, level 8). |
-| `Script/dropMove.c` | Scan driver: takes Pe on the command line and classifies the run as `MOVED`, `NOT_MOVED` or `FAILED`. |
-| `Script/PeScan.py` | Bracketed search for the finite-time onset in Pe; reports an interval, never a rounded point. |
-| `Script/tests/` | Synthetic-classifier unit tests for the scan logic and a Basilisk centroid check on an asymmetric adaptive mesh. |
-| `src-local/activity.h` | Interfacial chemical source and advection-diffusion of the species (shared by both drivers). |
-| `src-local/two-phase-clsvof-VP.h` | Experimental viscoplastic CLSVOF variant; not included by the drivers. |
-| `postProcess-contour/`, `postProcess-vectors/` | Snapshot readers (`getData`, `getFacets`, `getCM`, `getVelocity_v2`, `getDataSlice`) and plotting scripts. |
-| `runCases.sh` | Compiles and runs the fixed-Pe demonstration. |
-
-## Non-dimensional parameters
-
-The drop radius, the outer viscosity and a chemical flux scale set the
-units. The drivers fix `Oh = 1`, `Ca = 0.1` and `AcNum = 1` at compile
-time; Pe is a runtime argument.
-
-- `Oh`: Ohnesorge number, entering only through the density `rho = 4/Oh^2`.
-- `Pe`: Péclet number; the species diffusivity is `D = 1/Pe`.
-- `Ca`: the clean-interface surface tension is `1/Ca`; the local coefficient is `1/Ca + 4 c`, with `c` the species concentration.
-- `AcNum`: constant chemical flux emitted at the interface.
-
-The domain is a square of side 10 drop radii with no-slip walls and zero
-concentration on all boundaries.
+```
+├── basilisk/ - Project-local pinned Basilisk (ignored; installed by the script below)
+├── simulationCases/ - Simulation entry point and generated case folders
+│   └── dropMove.c - Single active drop; reads a key=value parameter file
+├── src-local/ - Project-specific Basilisk headers and the runtime parameter API
+│   ├── activity.h - Interfacial chemical source and species transport
+│   ├── parse_params.h - Low-level key/value parser for parameter files
+│   ├── params.h - Typed parameter accessors (param_int, param_double, ...)
+│   └── two-phase-clsvof-VP.h - Experimental viscoplastic CLSVOF variant (not used by dropMove.c)
+├── postProcess/ - Snapshot readers and plotting scripts
+│   ├── getCM.c - Volume-weighted drop centroid of a snapshot
+│   ├── getData.c - Concentration, deformation-rate norm and speed on a grid
+│   ├── getDataSlice.c - Volume fraction and velocity on a grid
+│   ├── getFacets.c - Interface segments
+│   ├── getVelocity_v2.c - Drop velocity of a snapshot
+│   ├── contour.py - Parallel per-snapshot panels (concentration, deformation rate, speed)
+│   └── vectors.py - Legacy serial velocity-vector frames
+├── testCases/ - Software tests
+│   ├── test_pescan.py - Synthetic-classifier tests for PeScan.py
+│   ├── centroid-check.c - Centroid diagnostic on an asymmetric adaptive mesh
+│   └── run-tests.sh - Runs both
+├── .github/ - Documentation generator, workflows, issue templates and the generated site
+├── runSimulation.sh - Single-case compile/run driver
+├── runParameterSweep.sh - Parameter sweep driver
+├── PeScan.py - Bracketed onset search in Pe (calls runSimulation.sh per sample)
+├── default.params - Base runtime parameters
+├── sweep.params - Example sweep definition
+├── AGENTS.md - Repository conventions and evidence classes
+├── LICENSE - GPL-3.0
+└── README.md - This file
+```
 
 ## Requirements
 
-Basilisk with `qcc`, a C compiler and the standard maths library. The
-drivers compile against Basilisk releases of August 2026 or later
-(`FILTERED` is defined with a value, reductions are listed without commas
-and the removed `dirty` attribute is no longer set). A ref-locked Basilisk
-can be installed next to this repository with the CoMPhy install script:
+- A C compiler, `make`, `gawk` and `curl` for the Basilisk install.
+- Python 3 for `PeScan.py` and the tests (standard library only).
+- Python 3 with `numpy`, `pandas` and `matplotlib` for `postProcess/*.py`.
+
+Basilisk is pinned per project. From the repository root:
 
 ```sh
 curl -sL https://raw.githubusercontent.com/comphy-lab/basilisk-C/main/reset_install_basilisk-ref-locked.sh | bash -s -- --hard
 source .project_config
 ```
 
-The resulting `basilisk/` directory and `.project_config` are ignored by
-Git.
+This installs the current comphy-lab/basilisk-C release into `basilisk/`,
+records the ref in `basilisk/.comphy-lock` and writes `.project_config`,
+which the runners source. Both paths are ignored by Git. The code was last
+built and run against release `v2026-08-30`; it requires a release of
+August 2026 or later (`FILTERED` defined with a value, comma-free
+reductions, no `dirty` attribute).
 
-## Build and run
-
-Fixed-Pe demonstration:
-
-```sh
-qcc -O2 -Wall -disable-dimensions dropMove.c -o dropMove -lm
-./dropMove
-```
-
-Scan driver, one Pe value:
+## Single case
 
 ```sh
-cd Script
-qcc -O2 -Wall -disable-dimensions dropMove.c -o dropMove -lm
-./dropMove 4 tmax=50 tsnap=1 max_level=9 threshold=1 out=runs/pe-4
+bash runSimulation.sh default.params
 ```
 
-Optional `key=value` arguments override the observation horizon `tmax`,
-the snapshot interval `tsnap`, the maximum refinement level `max_level`,
-the displacement `threshold` (in drop radii) that counts as motion, and
-the output directory `out`. The run prints exactly one `STATUS` line
-(`MOVED`, `NOT_MOVED` or `FAILED`) followed by a `SUMMARY` line with the
-parameters, the final time and the final displacement. The displacement
-history is written to `<out>/log.dat` with columns
-`i t ke dist xcm ycm volume`.
+The runner creates `simulationCases/c<CaseNo>/`, copies the parameter and
+source files there, compiles with `-I../../src-local` and runs
+`./dropMove case.params`. Snapshots go to `intermediate/snapshot-<t>` and
+diagnostics to `log.dat` with columns `i t ke dist xcm ycm volume`. The run
+prints exactly one `STATUS` line (`MOVED`, `NOT_MOVED` or `FAILED`) and one
+`SUMMARY key=value` line. Use `--threads N` for an OpenMP build and
+`--exec` to select another source in `simulationCases/`.
 
-Onset scan:
+### Parameter file keys
+
+`dropMove.c` reads these keys (defaults in brackets):
+
+- `CaseNo` [1000], must be at least 1000 so case folders sort.
+- `Pe` [1.6]: Péclet number, species diffusivity `1/Pe`.
+- `MAXlevel` [8], `MINlevel` [0]: quadtree refinement bounds.
+- `Oh` [1], `Ca` [0.1], `AcNum` [1]: density `4/Oh^2`, clean surface tension `1/Ca`, interfacial chemical flux.
+- `L0` [10]: square domain size in drop radii; walls are no-slip with zero concentration.
+- `tmax` [50], `tsnap` [0.1]: observation horizon and snapshot interval.
+- `threshold` [1]: centroid displacement in drop radii classified as `MOVED`; a value of zero or less disables the early stop.
+- `FErr`, `VelErr`, `cErr`, `KErr` [1e-3]: wavelet adaptation tolerances.
+- `keLimit` [1e3]: kinetic energy classified as `FAILED`.
+
+## Parameter sweep
 
 ```sh
-cd Script
-python3 PeScan.py 1.0 0.5 --tmax 50 --max-level 9 --tol 0.005 --out scan
+bash runParameterSweep.sh sweep.params --dry-run
+bash runParameterSweep.sh sweep.params --parallel 2
 ```
 
-`PeScan.py` first brackets the transition with one stationary and one
-moving endpoint, then bisects until the bracket is narrower than `--tol`,
-and finally takes one verification sample on each side of the bracket to
-check monotonicity. The result is written to `scan/results.json` together
-with every sampled run. Outcomes are:
+`SWEEP_*` lists in the sweep file form a Cartesian product; each case gets a
+deterministic `CaseNo` from `CASE_START`. Set `CASE_END` to assert the
+expected number of cases.
+
+## Onset scan
+
+```sh
+python3 PeScan.py 1.0 0.5 --tmax 50 --max-level 9 --tol 0.005 --tag level9
+```
+
+`PeScan.py` runs one case per sample through `runSimulation.sh` (case
+numbers from `--case-start`, default 2000), first bracketing the transition
+with one stationary and one moving endpoint, then bisecting until the
+bracket is narrower than `--tol`, then taking one verification sample on
+each side. Results, including every sampled run and the classification
+convention, are written to `simulationCases/pescan-<tag>/results.json`.
+Outcomes are:
 
 - `bracketed`: interval `[pe_lo, pe_hi]` with `pe_lo` stationary and `pe_hi` moving;
 - `undetermined`: no bracket inside `[--pe-min, --pe-max]` (all runs moved, or none did within `tmax`);
@@ -103,49 +129,66 @@ The exit status is 0 only for a bracket converged to tolerance.
 
 ## Diagnostics and classification convention
 
-The drop centroid and kinetic energy are integrated with the cell volume,
-`f*dv()`. On the adaptive mesh the cell count is not a measure of area, so
-a count-weighted centroid is biased towards refined regions; the test in
-`Script/tests/centroid-check.c` places a stationary circle on a mesh whose
-right half is refined two levels deeper and shows a count-weighted
-centroid error of about two coarse cells against below one percent of a
-coarse cell for the volume-weighted centroid. Displacement is measured
-from the centroid recorded at the first step.
+The drop centroid, drop volume and kinetic energy are integrated with the
+cell volume, `f*dv()`. On the adaptive mesh the cell count is not a measure
+of area, so a count-weighted centroid is biased towards refined regions;
+`testCases/centroid-check.c` places a circle on a mesh whose right half is
+refined two levels deeper and shows a count-weighted centroid error of
+about two coarse cells against below one percent of a coarse cell for the
+volume-weighted centroid. Displacement is measured from the centroid at the
+first step.
 
 `MOVED` means the centroid moved by more than `threshold` before `tmax`.
 This is a finite-time, finite-displacement convention: near onset the
-displacement grows slowly and can be censored by the observation window,
-so a reported interval depends on `tmax`, `threshold` and `max_level`.
-These are recorded in every `SUMMARY` line and in `results.json`. Near the
-transition, lengthen `tmax`, lower `threshold` and increase `max_level`
+displacement grows slowly and can be censored by the observation window, so
+a reported interval depends on `tmax`, `threshold` and `MAXlevel`, all of
+which are recorded in every `SUMMARY` line and in `results.json`. Near the
+transition, lengthen `tmax`, lower `threshold` and increase `MAXlevel`
 until the interval stops moving, and inspect the growth of `dist` in
 `log.dat` before quoting a value.
 
 ## Tests
 
 ```sh
-cd Script
-python3 -m unittest tests.test_pescan -v
-qcc -O2 -Wall -disable-dimensions tests/centroid-check.c -o centroid-check -lm && ./centroid-check
+bash testCases/run-tests.sh
 ```
 
-The first exercises the scan logic with synthetic classifiers
-(monotone threshold, all moving, all stationary, non-monotone window,
-numerical failure, run cap). The second is the adaptive-mesh centroid
-check described above and requires Basilisk.
+Both tests are software tests: the first exercises the scan logic with
+synthetic classifiers (monotone threshold, all moving, all stationary,
+non-monotone window, numerical failure, run cap); the second checks the
+centroid diagnostic against the exact centroid of a circle on an
+asymmetrically refined quadtree and needs `qcc`. Neither is a verification
+of convergence nor a validation against independent data; no such case
+exists in this repository yet.
 
 ## Post-processing
 
-The readers in `postProcess-contour/` and `postProcess-vectors/` compile
-with `qcc` in the same way as the drivers, for example
-
 ```sh
-cd postProcess-vectors
-qcc -O2 -Wall -disable-dimensions getCM.c -o getCM -lm
-./getCM ../Script/runs/pe-4/snapshot-10.0000
+cd postProcess
+python3 contour.py --caseToProcess ../simulationCases/c1000 --tSnap 0.1 --cpus 4
 ```
 
-`getCM` prints the volume-weighted centroid and the snapshot time.
+`contour.py` compiles `getFacets` and `getData` once with `qcc`, then
+renders one frame per snapshot in parallel (`--cpus`, alias `--CPUs`;
+`--max-frames` bounds the number of snapshots). `vectors.py` is a legacy
+serial script with hard-coded paths kept for reference. The readers compile
+individually with
+
+```sh
+qcc -O2 -Wall -disable-dimensions getCM.c -o getCM -lm
+./getCM ../simulationCases/c1000/intermediate/snapshot-10.0000
+```
+
+## Documentation site
+
+```sh
+bash .github/scripts/build.sh
+bash .github/scripts/deploy.sh
+```
+
+The generator renders the literate C and Python sources under `src-local/`,
+`simulationCases/`, `postProcess/` and `testCases/` into `.github/docs/`,
+which is committed; the GitHub Pages workflow deploys it from `main`.
 
 ## Licence
 

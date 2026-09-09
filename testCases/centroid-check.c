@@ -10,8 +10,8 @@
  * to within a fraction of the coarse cell size regardless of the
  * refinement; the cell-count centroid is biased towards the refined half.
  *
- * Compile and run from the Script directory:
- *   qcc -O2 -Wall -disable-dimensions tests/centroid-check.c -o centroid-check -lm
+ * Compile and run from the testCases directory (or use testCases/run-tests.sh):
+ *   qcc -O2 -Wall -disable-dimensions centroid-check.c -o centroid-check -lm
  *   ./centroid-check
  * Exit status 0 means both volume-weighted checks passed.
  */

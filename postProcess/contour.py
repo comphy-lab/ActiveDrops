@@ -1,7 +1,24 @@
-# Author: Vatsal Sanjay
-# vatsalsanjay@gmail.com
-# Physics of Fluids
-# Last updated: 22-Oct-2023
+"""
+# contour.py
+
+Render per-snapshot panels of the species concentration, the deformation-rate
+norm and the speed for one ActiveDrops case, in parallel over snapshots.
+
+Run from `postProcess/` with a case directory that contains
+`intermediate/snapshot-<t>` files:
+
+    python3 contour.py --caseToProcess ../simulationCases/c1000 --cpus 4
+
+The `getFacets` and `getData` helpers are compiled once with `qcc` before any
+snapshot is processed; workers share the read-only executables. Frames are
+named by the snapshot time so serial and parallel runs produce the same set.
+
+## Author
+Vatsal Sanjay
+Email: vatsal.sanjay@comphy-lab.org
+Computational Multiphase Physics (CoMPhy) Lab, Durham University
+Last updated: Sep 9, 2026
+"""
 
 import numpy as np
 import os
@@ -16,36 +33,56 @@ import multiprocessing as mp
 from functools import partial
 import sys
 import argparse
+import shutil
 
 
 matplotlib.rcParams['font.family'] = 'serif'
-matplotlib.rcParams['text.usetex'] = True
+# Use LaTeX text rendering only when a latex executable is available; otherwise mathtext.
+matplotlib.rcParams['text.usetex'] = shutil.which('latex') is not None
 
 def execute_process(exe):
     p = sp.Popen(exe, stdout=sp.PIPE, stderr=sp.PIPE)
     stdout, stderr = p.communicate()
     return stderr.decode("utf-8").split("\n")
 
+
+def compile_helpers(helpers=("getFacets", "getData")):
+    """Compile the Basilisk snapshot readers once, before any snapshot is processed."""
+    if not shutil.which("qcc"):
+        sys.exit("qcc not found; source the repository .project_config first.")
+    # qcc resolves its intermediate files relative to the working directory, so
+    # compile with relative names from the postProcess directory.
+    here = os.path.dirname(os.path.abspath(__file__))
+    for name in helpers:
+        src = os.path.join(here, f"{name}.c")
+        exe = os.path.join(here, name)
+        if os.path.exists(exe) and os.path.getmtime(exe) >= os.path.getmtime(src):
+            continue
+        cmd = ["qcc", "-O2", "-Wall", "-disable-dimensions", f"{name}.c", "-o", name, "-lm"]
+        print("Compiling:", " ".join(cmd), flush=True)
+        sp.check_call(cmd, cwd=here)
+
 def get_segs(place):
     temp2 = execute_process(["./getFacets", place])
     segs = []
-    skip = False
     temp2 = list(filter(None, temp2))
-    for n1 in range(len(temp2)):
-        temp3 = temp2[n1].split(" ")
-        if not skip:
-            temp4 = temp2[n1+1].split(" ")
-            x1, y1 = map(float, [temp3[0], temp3[1]])
-            x2, y2 = map(float, [temp4[0], temp4[1]])
-            segs.extend([((x1, y1),(x2, y2))])
-            skip = True
-        else:
-            skip = False
+    # getFacets prints segment endpoints in pairs of lines; ignore a trailing odd line.
+    for n1 in range(0, len(temp2) - 1, 2):
+        temp3 = temp2[n1].split()
+        temp4 = temp2[n1+1].split()
+        if len(temp3) < 2 or len(temp4) < 2:
+            continue
+        x1, y1 = map(float, temp3[:2])
+        x2, y2 = map(float, temp4[:2])
+        segs.append(((x1, y1), (x2, y2)))
     return segs
 
 def get_field_values(place, xmin, xmax, ymin, ymax, ny):
     temp2 = list(filter(None, execute_process(["./getData", place, str(xmin), str(ymin), str(xmax), str(ymax), str(ny)])))
-    data = np.array([line.split() for line in temp2], dtype=float)
+    rows = [line.split() for line in temp2]
+    if not rows or any(len(r) != 5 for r in rows) or len(rows) % ny != 0:
+        return None
+    data = np.array(rows, dtype=float)
     nx = data.shape[0] // ny
     X = data[:,0].reshape((nx, ny)).transpose()
     Y = data[:,1].reshape((nx, ny)).transpose()
@@ -98,15 +135,19 @@ def process_file(ti, params):
         return None
 
     segs = get_segs(place)
-    X, Y, T, D2, Vel, nz = get_field_values(
-        place, 
-        params['xmin'], 
-        params['xmax'], 
-        params['ymin'], 
-        params['ymax'], 
+    fields = get_field_values(
+        place,
+        params['xmin'],
+        params['xmax'],
+        params['ymin'],
+        params['ymax'],
         params['ny']
     )
-    
+    if fields is None:
+        print(f"{place} incomplete field output; skipped")
+        return None
+    X, Y, T, D2, Vel, nz = fields
+
     plot_graphics(
         t, name, 
         params['xmin'], params['xmax'], 
@@ -119,17 +160,30 @@ def process_file(ti, params):
 
 def main():
     # Set up command-line argument parser
-    parser = argparse.ArgumentParser(description='Make videos of standing waves')
-    parser.add_argument('--num_workers', type=int, default=4, help='Number of workers')
+    parser = argparse.ArgumentParser(description='Render concentration, deformation-rate and speed panels per snapshot')
+    parser.add_argument('--cpus', '--CPUs', '--num_workers', dest='cpus', type=int, default=4,
+                        help='Number of parallel workers (default 4)')
     parser.add_argument('--tSnap', type=float, default=0.1, help='Snapshot time interval')
     parser.add_argument('--L0', type=float, default=10.0, help='Length of the domain')
-    parser.add_argument('--caseToProcess', type=str, default='../', help='Case to process')
-    parser.add_argument('--folderToSave', type=str, default='Video', help='Folder to save the video')
+    parser.add_argument('--caseToProcess', type=str, default='../simulationCases/c1000',
+                        help='Case directory containing intermediate/ (default ../simulationCases/c1000)')
+    parser.add_argument('--folderToSave', type=str, default='Video', help='Folder for the rendered frames')
+    parser.add_argument('--max-frames', type=int, default=500,
+                        help='Maximum number of snapshots to consider (default 500)')
 
     args = parser.parse_args()
+    if args.cpus <= 0:
+        parser.error('--cpus must be a positive integer')
+    if args.max_frames <= 0:
+        parser.error('--max-frames must be a positive integer')
 
-    nGFS = 500
-    num_workers = min(args.num_workers, mp.cpu_count())
+    os.environ.setdefault('OMP_NUM_THREADS', '1')
+    compile_helpers()
+    here = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(here)
+
+    nGFS = args.max_frames
+    num_workers = min(args.cpus, mp.cpu_count())
     folder = args.folderToSave
     os.makedirs(folder, exist_ok=True)
 

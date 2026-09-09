@@ -1,23 +1,30 @@
 #!/usr/bin/env python3
 """Bracketed search for the finite-time onset of self-propulsion in Pe.
 
-The driver ``dropMove`` classifies one run as ``MOVED`` (the drop centroid
-moved by more than ``threshold`` before ``tmax``), ``NOT_MOVED`` (it did not
-within the observation window) or ``FAILED`` (the run stopped on a numerical
-failure). This script first establishes a bracket, one ``NOT_MOVED`` and one
-``MOVED`` endpoint, and only then bisects it. It reports the transition as
-an interval ``[pe_lo, pe_hi]`` with ``pe_lo`` stationary and ``pe_hi``
-moving, never as a rounded point value. If no bracket exists inside
-``[pe_min, pe_max]`` the result is explicitly ``undetermined``.
+Each sample is one case run through ``runSimulation.sh`` with a generated
+parameter file (the base file plus ``CaseNo``, ``Pe``, ``tmax``,
+``MAXlevel``, ``tsnap`` and ``threshold``), so every scan case lives in
+``simulationCases/c<CaseNo>/`` exactly like a hand-run case. The driver
+classifies a run as ``MOVED`` (the drop centroid moved by more than
+``threshold`` before ``tmax``), ``NOT_MOVED`` (it did not within the
+observation window) or ``FAILED`` (the run stopped on a numerical failure).
 
-Every run is recorded (Pe, status, final time, final displacement and the
-driver's SUMMARY line) in a JSON results file so that the classification
-convention, resolution and observation horizon travel with the number.
+The search first establishes a bracket, one ``NOT_MOVED`` and one ``MOVED``
+endpoint, then bisects it, then takes verification samples outside the
+bracket. It reports the transition as an interval ``[pe_lo, pe_hi]`` with
+``pe_lo`` stationary and ``pe_hi`` moving, never as a rounded point value.
+If no bracket exists inside ``[pe_min, pe_max]`` the result is explicitly
+``undetermined``.
+
+Every run is recorded (Pe, CaseNo, status, final time, final displacement
+and the driver's SUMMARY line) in a JSON results file so that the
+classification convention, resolution and observation horizon travel with
+the number.
 
 The classification is a finite-time, finite-displacement convention: near
 onset slow growth can be censored by ``tmax``. Refine ``tmax``,
-``threshold`` and ``max_level`` near the transition and inspect
-``<out>/log.dat`` for the displacement history before quoting a value.
+``threshold`` and ``MAXlevel`` near the transition and inspect each case's
+``log.dat`` for the displacement history before quoting a value.
 """
 
 from __future__ import annotations
@@ -26,7 +33,7 @@ import argparse
 import dataclasses
 import json
 import math
-import shutil
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -37,12 +44,15 @@ NOT_MOVED = "NOT_MOVED"
 FAILED = "FAILED"
 STATUSES = (MOVED, NOT_MOVED, FAILED)
 
+REPO_ROOT = Path(__file__).resolve().parent
+
 
 @dataclasses.dataclass
 class Sample:
     pe: float
     status: str
     summary: Optional[Dict[str, str]] = None
+    case_no: Optional[int] = None
 
 
 @dataclasses.dataclass
@@ -97,48 +107,81 @@ def parse_driver_output(out: str) -> Sample:
     if status is None:
         tail = "\n".join(out.splitlines()[-20:])
         raise RuntimeError(f"Did not find STATUS line in output.\n--- tail ---\n{tail}")
-    pe = float(summary["Pe"]) if summary and "Pe" in summary else math.nan
+    pe = math.nan
+    if summary and "Pe" in summary:
+        try:
+            pe = float(summary["Pe"])
+        except ValueError as exc:
+            raise RuntimeError(f"Unparsable SUMMARY Pe value '{summary['Pe']}'") from exc
     return Sample(pe=pe, status=status, summary=summary)
 
 
-def make_subprocess_classifier(exec_name: str, tmax: float, tsnap: float,
-                               max_level: int, threshold: float,
-                               out_root: Path, verbose: bool = True) -> Classifier:
+def write_case_params(base: Path, target: Path, overrides: Dict[str, object]) -> None:
+    """Copy ``base`` to ``target`` with ``key=value`` overrides applied.
+
+    Existing keys are replaced in place; missing keys are appended. Comments
+    and unrelated lines are preserved.
+    """
+    lines = base.read_text().splitlines()
+    remaining = dict(overrides)
+    out: List[str] = []
+    for line in lines:
+        m = re.match(r"^\s*([A-Za-z0-9_]+)\s*=", line)
+        if m and m.group(1) in remaining:
+            key = m.group(1)
+            out.append(f"{key}={remaining.pop(key)}")
+        else:
+            out.append(line)
+    for key, value in remaining.items():
+        out.append(f"{key}={value}")
+    target.write_text("\n".join(out) + "\n")
+
+
+def make_runner_classifier(base_params: Path, case_start: int, tmax: float, tsnap: float,
+                           max_level: int, threshold: float, exec_name: str,
+                           threads: int, scan_dir: Path, verbose: bool = True) -> Classifier:
+    """Classifier that runs one case per Pe through ``runSimulation.sh``.
+
+    Case numbers start at ``case_start`` and increase by one per sample; the
+    generated parameter files are kept in ``scan_dir`` next to the results.
+    """
+    state = {"case_no": case_start}
+    runner = REPO_ROOT / "runSimulation.sh"
+
     def classify(pe: float) -> Sample:
-        out_dir = out_root / f"pe-{pe:.6g}"
-        cmd = [exec_name, f"{pe:.10g}", f"tmax={tmax:.10g}", f"tsnap={tsnap:.10g}",
-               f"max_level={max_level}", f"threshold={threshold:.10g}",
-               f"out={out_dir}"]
+        case_no = state["case_no"]
+        state["case_no"] += 1
+        params = scan_dir / f"case_{case_no}.params"
+        write_case_params(base_params, params, {
+            "CaseNo": case_no, "Pe": f"{pe:.10g}", "tmax": f"{tmax:.10g}",
+            "tsnap": f"{tsnap:.10g}", "MAXlevel": max_level,
+            "threshold": f"{threshold:.10g}",
+        })
+        cmd = ["bash", str(runner), str(params), "--exec", exec_name,
+               "--threads", str(threads)]
         proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                              universal_newlines=True)
-        (out_dir).mkdir(parents=True, exist_ok=True)
-        (out_dir / "stdout.txt").write_text(proc.stdout)
-        (out_dir / "stderr.txt").write_text(proc.stderr)
+                              universal_newlines=True, cwd=REPO_ROOT)
+        (scan_dir / f"case_{case_no}.stdout.txt").write_text(proc.stdout)
+        (scan_dir / f"case_{case_no}.stderr.txt").write_text(proc.stderr)
         try:
             sample = parse_driver_output(proc.stdout)
         except RuntimeError as exc:
             # A crashed or unparsable run is not classifiable. Record it as FAILED so
-            # the search stops with every earlier sample intact in results.json.
-            print(f"Pe={pe:.6g} -> unparsable driver output (exit {proc.returncode}: {exc}); "
-                  f"recorded as {FAILED}, see {out_dir}/stderr.txt", flush=True)
-            return Sample(pe=pe, status=FAILED,
-                          summary={"error": f"exit={proc.returncode}", "stderr": str(out_dir / "stderr.txt")})
+            # the search stops with every earlier sample intact in the results file.
+            print(f"Pe={pe:.6g} (case {case_no}) -> unparsable driver output "
+                  f"(exit {proc.returncode}: {exc}); recorded as {FAILED}, see "
+                  f"{scan_dir / f'case_{case_no}.stderr.txt'}", flush=True)
+            return Sample(pe=pe, status=FAILED, case_no=case_no,
+                          summary={"error": f"exit={proc.returncode}"})
         sample.pe = pe
+        sample.case_no = case_no
         if verbose:
             t_end = sample.summary.get("t_end", "?") if sample.summary else "?"
             d_end = sample.summary.get("dist_end", "?") if sample.summary else "?"
-            print(f"Pe={pe:.6g} -> {sample.status} (t_end={t_end}, dist_end={d_end})",
-                  flush=True)
+            print(f"Pe={pe:.6g} (case {case_no}) -> {sample.status} "
+                  f"(t_end={t_end}, dist_end={d_end})", flush=True)
         return sample
     return classify
-
-
-def compile_program(src: str, exec_name: str) -> None:
-    if not shutil.which("qcc"):
-        raise RuntimeError("qcc not found; install Basilisk or pass --no-compile")
-    cmd = ["qcc", "-O2", "-Wall", "-disable-dimensions", src, "-o", exec_name, "-lm"]
-    print("Compiling:", " ".join(cmd), flush=True)
-    subprocess.check_call(cmd)
 
 
 def find_transition(classify: Classifier, pe_start: float, step: float, tol: float,
@@ -222,10 +265,6 @@ def find_transition(classify: Classifier, pe_start: float, step: float, tol: flo
         s = record(candidate)
         if s.status == FAILED:
             return finalise_failure(s)
-        if not consistent():
-            return result("nonmonotone",
-                          "a stationary sample lies above a moving sample; the response is "
-                          "not monotone in Pe under this classification convention")
         pe = candidate
         current_step *= growth
 
@@ -246,12 +285,14 @@ def find_transition(classify: Classifier, pe_start: float, step: float, tol: flo
 
     # ---- Phase 3: bounded monotonicity verification outside the bracket --
     sampled = {x.pe for x in samples}
+    verified = 0
     for k in range(1, verify + 1):
         for candidate in (max(stationary) - k*step, min(moving) + k*step):
             candidate = min(max(candidate, pe_min), pe_max)
             if candidate in sampled or len(samples) >= max_runs:
                 continue
             sampled.add(candidate)
+            verified += 1
             s = record(candidate)
             if s.status == FAILED:
                 return finalise_failure(s)
@@ -263,7 +304,7 @@ def find_transition(classify: Classifier, pe_start: float, step: float, tol: flo
     lo, hi = max(stationary), min(moving)
     return result("bracketed",
                   f"transition bracketed to width {hi - lo:.6g} <= tol={tol:g}; "
-                  f"{2*verify} verification samples consistent",
+                  f"{verified} verification samples consistent",
                   tol_ok=tol_ok)
 
 
@@ -283,44 +324,62 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--verify", type=int, default=1,
                    help="extra samples per side outside the converged bracket used to check "
                         "monotonicity (default 1)")
+    p.add_argument("--base", default="default.params",
+                   help="base parameter file copied into every case (default default.params)")
+    p.add_argument("--case-start", type=int, default=2000,
+                   help="CaseNo of the first scan case; increments by one per run (default 2000)")
     p.add_argument("--tmax", type=float, default=50.0,
-                   help="observation horizon passed to the driver (default 50)")
+                   help="observation horizon written into every case (default 50)")
     p.add_argument("--tsnap", type=float, default=1.0,
-                   help="snapshot interval passed to the driver (default 1)")
+                   help="snapshot interval written into every case (default 1)")
     p.add_argument("--max-level", type=int, default=9,
-                   help="maximum refinement level passed to the driver (default 9)")
+                   help="MAXlevel written into every case (default 9)")
     p.add_argument("--threshold", type=float, default=1.0,
                    help="centroid displacement, in drop radii, that counts as MOVED (default 1)")
-    p.add_argument("--exec", default="./dropMove", help="driver executable")
-    p.add_argument("--src", default="dropMove.c", help="driver source for --compile")
-    p.add_argument("--no-compile", action="store_true",
-                   help="do not compile the driver before scanning")
-    p.add_argument("--out", default="scan", help="root directory for per-run outputs")
-    p.add_argument("--results", default=None,
-                   help="results JSON path (default <out>/results.json)")
+    p.add_argument("--exec", default="dropMove.c",
+                   help="simulation source in simulationCases/ (default dropMove.c)")
+    p.add_argument("--threads", type=int, default=1,
+                   help="OpenMP threads per case passed to runSimulation.sh (default 1)")
+    p.add_argument("--tag", default="pescan",
+                   help="name of the scan; results go to simulationCases/pescan-<tag>/ (default pescan)")
     return p
 
 
 def main(argv: Optional[List[str]] = None) -> int:
     args = build_parser().parse_args(argv)
-    out_root = Path(args.out)
-    out_root.mkdir(parents=True, exist_ok=True)
-    results_path = Path(args.results) if args.results else out_root / "results.json"
+    if args.case_start < 1000:
+        print("--case-start must be >= 1000 (runner convention)", file=sys.stderr)
+        return 2
+    if args.threads < 1:
+        print("--threads must be a positive integer", file=sys.stderr)
+        return 2
+    base = Path(args.base)
+    if not base.is_absolute():
+        base = REPO_ROOT / base
+    if not base.is_file():
+        print(f"base parameter file not found: {base}", file=sys.stderr)
+        return 2
+    scan_dir = REPO_ROOT / "simulationCases" / f"pescan-{args.tag}"
+    scan_dir.mkdir(parents=True, exist_ok=True)
+    results_path = scan_dir / "results.json"
 
-    if not args.no_compile:
-        compile_program(args.src, args.exec)
-
-    classify = make_subprocess_classifier(args.exec, args.tmax, args.tsnap,
-                                          args.max_level, args.threshold, out_root)
+    classify = make_runner_classifier(base, args.case_start, args.tmax, args.tsnap,
+                                      args.max_level, args.threshold, args.exec,
+                                      args.threads, scan_dir)
     result = find_transition(classify, args.pe_start, args.step, args.tol,
                              args.pe_min, args.pe_max, args.max_runs,
                              verify=args.verify)
 
+    try:
+        base_label = str(base.relative_to(REPO_ROOT))
+    except ValueError:
+        base_label = str(base)
     payload = result.to_dict()
     payload["convention"] = {
-        "tmax": args.tmax, "threshold": args.threshold, "max_level": args.max_level,
+        "tmax": args.tmax, "threshold": args.threshold, "MAXlevel": args.max_level,
         "tsnap": args.tsnap, "pe_min": args.pe_min, "pe_max": args.pe_max,
-        "tol": args.tol, "exec": args.exec,
+        "tol": args.tol, "exec": args.exec, "base_params": base_label,
+        "case_start": args.case_start,
     }
     results_path.write_text(json.dumps(payload, indent=2))
 
@@ -333,7 +392,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         print(f"Smallest moving Pe:    {result.pe_hi:.6g}")
     if result.outcome == "bracketed":
         print(f"Finite-time transition interval (tmax={args.tmax:g}, threshold={args.threshold:g}, "
-              f"max_level={args.max_level}): [{result.pe_lo:.6g}, {result.pe_hi:.6g}], "
+              f"MAXlevel={args.max_level}): [{result.pe_lo:.6g}, {result.pe_hi:.6g}], "
               f"width {result.width:.6g}")
     print(f"Runs: {len(result.samples)}; results written to {results_path}")
     return 0 if result.outcome == "bracketed" and result.tolerance_reached else 1

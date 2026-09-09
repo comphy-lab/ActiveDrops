@@ -7,9 +7,9 @@
 #include "utils.h"
 #include "output.h"
 
-vector u;
+vector u[];
 
-char filename[80];
+char filename[512];
 int nx, ny, len;
 double xmin, ymin, xmax, ymax, Deltax, Deltay;
 scalar * list = NULL;
@@ -17,10 +17,21 @@ scalar cL[], D2c[], f[], vel[];
 
 int main(int a, char const *arguments[])
 {
-  sprintf (filename, "%s", arguments[1]);
+  if (a != 7) {
+    fprintf (stderr, "usage: getData <snapshot> xmin ymin xmax ymax ny\n");
+    return 1;
+  }
+  if (snprintf (filename, sizeof(filename), "%s", arguments[1]) >= (int) sizeof(filename)) {
+    fprintf (stderr, "error: snapshot path longer than %zu characters\n", sizeof(filename) - 1);
+    return 1;
+  }
   xmin = atof(arguments[2]); ymin = atof(arguments[3]);
   xmax = atof(arguments[4]); ymax = atof(arguments[5]);
   ny = atoi(arguments[6]);
+  if (ny <= 0 || !(xmax > xmin) || !(ymax > ymin)) {
+    fprintf (stderr, "error: need xmax > xmin, ymax > ymin and positive ny\n");
+    return 1;
+  }
 
   list = list_add (list, cL);
   list = list_add (list, D2c);
@@ -29,7 +40,10 @@ int main(int a, char const *arguments[])
   /*
   Actual run and codes!
   */
-  restore (file = filename);
+  if (!restore (file = filename)) {
+    fprintf (stderr, "error: could not restore %s\n", filename);
+    return 1;
+  }
 
   foreach(){
     double ff = clamp(f[], 0., 1.);
@@ -85,6 +99,6 @@ int main(int a, char const *arguments[])
     }
   }
   fflush (fp);
-  fclose (fp);
+  return 0;
   matrix_free (field);
 }

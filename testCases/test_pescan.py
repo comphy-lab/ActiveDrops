@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Synthetic-classifier tests for PeScan.find_transition.
 
-Run from the Script directory:  python3 -m unittest tests.test_pescan -v
+Run from the repository root:  python3 -m unittest discover -s testCases -p 'test_*.py' -v
 No Basilisk installation is required.
 """
 

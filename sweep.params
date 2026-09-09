@@ -1,0 +1,8 @@
+# Sweep configuration for runParameterSweep.sh
+BASE_CONFIG=default.params
+CASE_START=1000
+
+# Sweep variables of interest (comma separated). The Cartesian product of all
+# SWEEP_* lists is generated; set CASE_END to assert the expected count.
+SWEEP_Pe=0.8,1.6,4.0
+SWEEP_MAXlevel=8

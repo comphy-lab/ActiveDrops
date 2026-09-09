@@ -1,7 +1,7 @@
 #include "navier-stokes/centered.h"
 #include "fractions.h"
 
-char filename[80];
+char filename[512];
 double xcm1 , ycm2;
 
 scalar f[];
@@ -9,9 +9,18 @@ scalar f[];
 
 int main(int a, char const *arguments[])
 {
-  sprintf (filename, "%s", arguments[1]);
-
-  restore (file = filename);
+  if (a != 2) {
+    fprintf (stderr, "usage: getCM <snapshot>\n");
+    return 1;
+  }
+  if (snprintf (filename, sizeof(filename), "%s", arguments[1]) >= (int) sizeof(filename)) {
+    fprintf (stderr, "error: snapshot path longer than %zu characters\n", sizeof(filename) - 1);
+    return 1;
+  }
+  if (!restore (file = filename)) {
+    fprintf (stderr, "error: could not restore %s\n", filename);
+    return 1;
+  }
   f.prolongation = fraction_refine;
   boundary((scalar *){f, u.x, u.y});
 
@@ -37,5 +46,5 @@ int main(int a, char const *arguments[])
   fprintf(fp, "%f %f %f\n", xcm1, ycm2, t);
 
   fflush (fp);
-  fclose (fp);
+  return 0;
 }

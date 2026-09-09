@@ -54,9 +54,10 @@ def gettingVcm(filename):
     exe = ["./getVelocity_v2", filename]
     p = sp.Popen(exe, stdout=sp.PIPE, stderr=sp.PIPE)
     stdout, stderr = p.communicate()
-    temp1 = stderr.decode("utf-8")
-    temp2 = temp1.split(" ")
-    return temp2
+    if p.returncode != 0:
+        return None
+    temp2 = stderr.decode("utf-8").split()
+    return temp2 if len(temp2) >= 3 else None
 
 def gettingCM(filename):
     exe = ["./getCM", filename]
@@ -87,6 +88,8 @@ def gettingfield(filename):
                 Utemp.append(float(temp3[3]))
                 Vtemp.append(float(temp3[4]))
 
+        if len(Xtemp) != (nx + 1)*(ny + 1):
+            return None, None, None, None, None
         X = np.asarray(Xtemp)
         Y = np.asarray(Ytemp)
         f = np.asarray(ftemp)
@@ -102,7 +105,7 @@ def gettingfield(filename):
         print('Got Field values')
         return X, Y, f, U, V
     else:
-        return Xtemp, Ytemp, ftemp, Utemp, Vtemp
+        return None, None, None, None, None
     
 def get_field_values(place, xmin, xmax, ymin, ymax, ny):
     temp2 = list(filter(None, execute_process(["./getData", place, str(xmin), str(ymin), str(xmax), str(ymax), str(ny)])))
@@ -150,8 +153,14 @@ for ti in range(nGFS):
             xmin, xmax, ymin, ymax = [-5.0 + CMx, 5.0 + CMx, -5 + CMy, 5 + CMy]
 
             X, Y, f, U, V = gettingfield(place)
+            if X is None:
+                print("Incomplete field output for %s; skipped" % place)
+                continue
             facets = gettingFacets(place, 1)
             vcm = gettingVcm(place)
+            if vcm is None:
+                print("getVelocity_v2 failed for %s; skipped" % place)
+                continue
             T = get_field_values(place,xmin, xmax, ymin, ymax, ny)
 
             if (len(facets)):
