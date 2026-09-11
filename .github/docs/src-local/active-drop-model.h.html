@@ -484,6 +484,30 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 whole-field numerical extension, with diffusion weighted
                 toward the outer phase.</p>
                 <h2 id="mobility-diagnostics">Mobility diagnostics</h2>
+                <p>For a circular planar drop with pure Marangoni
+                forcing, choose the classical mobility scales</p>
+                <p><span class="math display">\[
+                M_{2D}=\frac{R_0\gamma_C}{2(\mu_i+\mu_o)},\qquad
+                U_M=\frac{A_0M_{2D}}{D},\qquad C_A=\frac{A_0R_0}{D}.
+                \]</span></p>
+                <p>If <span class="math inline">\(U_0=U_M\)</span> and
+                <span class="math inline">\(C_*=C_A\)</span>, then <span
+                class="math inline">\(A_c=1\)</span> and</p>
+                <p><span class="math display">\[
+                \Gamma_c=\frac{\gamma_C C_A}{\mu_oU_M}
+                =\frac{R_0\gamma_C}{\mu_oM_{2D}}=2(1+\lambda).
+                \]</span></p>
+                <p>The value four therefore follows from equal
+                viscosities in this planar normalization. It is
+                independent of the spherical instability threshold <span
+                class="math inline">\(Pe_M=4\)</span>. The positive
+                slope follows from choosing an emitted product that
+                raises surface tension; mobility normalization
+                determines its magnitude. The associated unit
+                outward-gradient condition is <span
+                class="math inline">\(-\partial_n c=1\)</span>, so its
+                dimensionless flux is <span
+                class="math inline">\(1/Pe\)</span>, not one.</p>
                 <p>The material coupling <span
                 class="math inline">\(\Gamma_c\)</span> is independent
                 of geometry. Geometry enters only when comparing the
@@ -511,8 +535,36 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <p>The reference-tension Ohnesorge number is derived,
                 never independently specified:</p>
                 <p><span class="math display">\[
-                Oh = \sqrt{Ca/Re}.
+                Oh=\frac{\mu_o}{\sqrt{\rho_o\gamma_0R_0}}
+                =\sqrt{Ca/Re},\qquad Re=\frac{Ca}{Oh^2}.
                 \]</span></p>
+                <p>This identity follows directly from the reference
+                scales. The momentum coefficient is <span
+                class="math inline">\(Re\)</span>; a coefficient <span
+                class="math inline">\(4/Oh^2\)</span> would not follow
+                from this definition of <span
+                class="math inline">\(Oh\)</span> except at <span
+                class="math inline">\(Ca=4\)</span>. The planar mobility
+                factor belongs in the velocity and concentration
+                normalization, not in an extra density factor.</p>
+                <p>With <span
+                class="math inline">\(\rho_r=1+(r_\rho-1)f\)</span> and
+                <span
+                class="math inline">\(\mu_r=1+(\lambda-1)f\)</span>, the
+                momentum equation used by the drivers is</p>
+                <p><span class="math display">\[
+                Re\,\rho_r(\partial_t\mathbf u+\mathbf
+                u\cdot\nabla\mathbf u)
+                =-\nabla p+\nabla\cdot[\mu_r(\nabla\mathbf
+                u+\nabla\mathbf u^T)]
+                +\mathbf f_\gamma,\qquad \nabla\cdot\mathbf u=0.
+                \]</span></p>
+                <p>Here <span class="math inline">\(\mathbf
+                f_\gamma\)</span> is the interfacial surface-stress
+                force. Both inertia terms are retained. A comparison
+                with an unsteady-Stokes approximation must account for
+                its omission of convective inertia, even at the same
+                <span class="math inline">\(Re\)</span>.</p>
                 <h2 id="evidence-boundary">Evidence boundary</h2>
                 <p>The scales follow Michelin (2023), equations (2)–(5),
                 and the planar mobility used by Li &amp; Koch (2022),
@@ -524,7 +576,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef ACTIVE_DROP_MODEL_H</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define ACTIVE_DROP_MODEL_H
-</span><span class="dv">79</span><span class="pp">
+</span><span class="dv">120</span><span class="pp">
 </span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;math.h&gt;</span></span>

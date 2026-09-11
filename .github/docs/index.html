@@ -479,6 +479,9 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 href="src-local/active-drop-model.h.html">active-drop-model.h</a></strong>
                 - - Scales and mobility diagnostics</li>
                 <li><strong><a
+                href="src-local/embed-channel-geometry.h.html">embed-channel-geometry.h</a></strong>
+                - - Embedded wall fractions and metrics</li>
+                <li><strong><a
                 href="src-local/parse_params.h.html">parse_params.h</a></strong>
                 - - Low-level key/value parser for parameter files</li>
                 <li><strong><a
@@ -709,8 +712,19 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 file containing it fails explicitly.</p>
                 <p><code>GammaSlope</code> is a material coupling under
                 these scales and has the same default, 4, in all
-                geometries. The mobility comparison is reported
-                separately:</p>
+                geometries. Its planar provenance is explicit: choosing
+                <span
+                class="math inline">\(M=R_0\gamma_C/[2(\mu_i+\mu_o)]\)</span>,
+                <span class="math inline">\(U_0=A_0M/D\)</span> and
+                <span class="math inline">\(C_*=A_0R_0/D\)</span> gives
+                <code>AcNum=1</code> and <span
+                class="math inline">\(\mathit{GammaSlope}=2(1+\lambda)=4\)</span>
+                at equal viscosities. The same choice gives a unit
+                normal concentration gradient and a flux coefficient
+                <span class="math inline">\(1/Pe\)</span>. It does not
+                insert four into the inertia coefficient, which is <span
+                class="math inline">\(Re=Ca/Oh^2\)</span>. The mobility
+                comparison is reported separately:</p>
                 <p><span class="math display">\[
                 \chi=\frac{U_M}{U_0}=\frac{AcNum\,GammaSlope}{G},\qquad
                 Pe_M=\chi Pe,
@@ -728,9 +742,9 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 the pipe. Changing only the pipe slope to 5 would
                 normalize its spherical mobility while changing the
                 material coupling under the same reference scales. The
-                derivation and evidence limits are in
-                <code>src-local/active-drop-model.h</code>; the planar
-                comparison follows <a
+                derivation and evidence limits are in <a
+                href="src-local/active-drop-model.h.html">src-local/active-drop-model.h</a>;
+                the planar comparison follows <a
                 href="https://doi.org/10.1017/jfm.2022.891">Li &amp;
                 Koch (2022)</a>.</p>
                 <h3 id="parameter-file-keys">Parameter file keys</h3>

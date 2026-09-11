@@ -26,6 +26,7 @@ bracketed search for the finite-time onset in `Pe`.
 ├── src-local/ - Project-specific Basilisk headers and the runtime parameter API
 │   ├── activity.h - Interfacial chemical source and species transport
 │   ├── active-drop-model.h - Scales and mobility diagnostics
+│   ├── embed-channel-geometry.h - Embedded wall fractions and metrics
 │   ├── parse_params.h - Low-level key/value parser for parameter files
 │   ├── params.h - Typed parameter accessors (param_int, param_double, ...)
 │   └── two-phase-clsvof-VP.h - Experimental viscoplastic CLSVOF variant (not used by dropMove.c)
@@ -119,7 +120,12 @@ The reference-tension Ohnesorge number is derived as $Oh=\sqrt{Ca/Re}$. `Oh` is
 no longer an input, and a parameter file containing it fails explicitly.
 
 `GammaSlope` is a material coupling under these scales and has the same
-default, 4, in all geometries. The mobility comparison is reported separately:
+default, 4, in all geometries. Its planar provenance is explicit: choosing
+$M=R_0\gamma_C/[2(\mu_i+\mu_o)]$, $U_0=A_0M/D$ and $C_*=A_0R_0/D$
+gives `AcNum=1` and $\mathit{GammaSlope}=2(1+\lambda)=4$ at equal
+viscosities. The same choice gives a unit normal concentration gradient
+and a flux coefficient $1/Pe$. It does not insert four into the inertia
+coefficient, which is $Re=Ca/Oh^2$. The mobility comparison is reported separately:
 
 $$
 \chi=\frac{U_M}{U_0}=\frac{AcNum\,GammaSlope}{G},\qquad Pe_M=\chi Pe,
@@ -131,7 +137,7 @@ with $\lambda=\mu_i/\mu_o$. At `AcNum=1`, `GammaSlope=4` and
 Changing only the pipe slope to 5 would normalize its spherical mobility
 while changing the material coupling under the same reference scales.
 The derivation and evidence limits are in
-`src-local/active-drop-model.h`; the planar comparison follows
+[src-local/active-drop-model.h](src-local/active-drop-model.h); the planar comparison follows
 [Li & Koch (2022)](https://doi.org/10.1017/jfm.2022.891).
 
 ### Parameter file keys

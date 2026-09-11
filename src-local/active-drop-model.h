@@ -42,6 +42,28 @@ weighted toward the outer phase.
 
 ## Mobility diagnostics
 
+For a circular planar drop with pure Marangoni forcing, choose the classical
+mobility scales
+
+$$
+M_{2D}=\frac{R_0\gamma_C}{2(\mu_i+\mu_o)},\qquad
+U_M=\frac{A_0M_{2D}}{D},\qquad C_A=\frac{A_0R_0}{D}.
+$$
+
+If $U_0=U_M$ and $C_*=C_A$, then $A_c=1$ and
+
+$$
+\Gamma_c=\frac{\gamma_C C_A}{\mu_oU_M}
+=\frac{R_0\gamma_C}{\mu_oM_{2D}}=2(1+\lambda).
+$$
+
+The value four therefore follows from equal viscosities in this planar
+normalization. It is independent of the spherical instability threshold
+$Pe_M=4$. The positive slope follows from choosing an emitted product that
+raises surface tension; mobility normalization determines its magnitude.
+The associated unit outward-gradient condition is $-\partial_n c=1$,
+so its dimensionless flux is $1/Pe$, not one.
+
 The material coupling $\Gamma_c$ is independent of geometry.  Geometry enters
 only when comparing the chosen velocity scale with the classical mobility
 scale.  For a circular planar drop and a spherical drop, respectively,
@@ -63,8 +85,27 @@ and $Pe_M$ rather than silently changing the material in the pipe.
 The reference-tension Ohnesorge number is derived, never independently specified:
 
 $$
-Oh = \sqrt{Ca/Re}.
+Oh=\frac{\mu_o}{\sqrt{\rho_o\gamma_0R_0}}
+=\sqrt{Ca/Re},\qquad Re=\frac{Ca}{Oh^2}.
 $$
+
+This identity follows directly from the reference scales. The momentum
+coefficient is $Re$; a coefficient $4/Oh^2$ would not follow from this
+definition of $Oh$ except at $Ca=4$. The planar mobility factor belongs in
+the velocity and concentration normalization, not in an extra density factor.
+
+With $\rho_r=1+(r_\rho-1)f$ and $\mu_r=1+(\lambda-1)f$, the momentum
+equation used by the drivers is
+
+$$
+Re\,\rho_r(\partial_t\mathbf u+\mathbf u\cdot\nabla\mathbf u)
+=-\nabla p+\nabla\cdot[\mu_r(\nabla\mathbf u+\nabla\mathbf u^T)]
++\mathbf f_\gamma,\qquad \nabla\cdot\mathbf u=0.
+$$
+
+Here $\mathbf f_\gamma$ is the interfacial surface-stress force. Both inertia
+terms are retained. A comparison with an unsteady-Stokes approximation must
+account for its omission of convective inertia, even at the same $Re$.
 
 ## Evidence boundary
 
