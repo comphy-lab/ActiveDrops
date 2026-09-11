@@ -13,13 +13,21 @@ for building and running.
   line. Generated case folders `simulationCases/c<CaseNo>/` and
   `simulationCases/pescan-<tag>/` are ignored by Git.
 - `simulationCases/dropMove-embed-pipe.c` and `dropMove-embed-channel.c`:
-  confined axisymmetric and planar cases, sharing `src-local/dropMove-embed.h`.
-  Use their matching `embed-*.params` files. Inert embedded walls impose
-  no slip and zero species flux; no wetting/contact model is provided.
+  standalone axisymmetric and planar cases, each with its own fields,
+  parameters, `main()` and events, following the structure of `dropMove.c`.
+  Keep simulation drivers in these `.c` files rather than a shared header.
+  Use their matching `embed-*.params` files. Embedded walls impose no slip,
+  dispersed-phase exclusion (`f=0`) and zero species flux. Full-solid
+  distance values remain negative; no contact-line evolution law is provided.
+- Boundary topology: `dropMove.c` is periodic in both directions; channel
+  and pipe are periodic only left/right. The channel has upper/lower solid
+  walls; the pipe has an upper solid wall and bottom symmetry axis.
 - `src-local/`: `activity.h` (interfacial chemical source and species
-  transport), `parse_params.h` and `params.h` (the single runtime-parameter
-  pathway), `two-phase-clsvof-VP.h` (experimental viscoplastic variant, not
-  included by the driver).
+  transport), `active-drop-model.h` (dimensionless scales and mobility
+  diagnostics), `embed-channel-geometry.h` (`confined_geometry()` reconstructs
+  embedded wall fractions and metrics), `parse_params.h` and `params.h`
+  (the single runtime-parameter pathway), `two-phase-clsvof-VP.h`
+  (experimental viscoplastic variant, not included by the driver).
 - `postProcess/`: snapshot readers (`get*.c`, compiled with `qcc`) and the
   plotting scripts `contour.py` and `vectors.py`.
 - `testCases/`: software tests only (see evidence classes below).
@@ -35,6 +43,12 @@ for building and running.
   file passed as `argv[1]`; do not add `key=value` command-line parsing or a
   second parser. New parameters get a default in the relevant driver, a line in
   `default.params` and a row in the driver's header table.
+- Dimensionless contract. Use `Re`, `Ca`, `Pe`, `GammaSlope`, `AcNum`,
+  `viscosityRatio` and `densityRatio`. Map the diffuse source as `AcNum/Pe`.
+  `Oh=sqrt(Ca/Re)` and the mobility-based Péclet number are derived outputs.
+  Reject the retired `Oh` input rather than guessing a conversion. Keep the
+  same `GammaSlope` for the same material in planar and spherical geometries;
+  geometry belongs in the reported mobility ratio.
 - Cases run in their own directory. `runSimulation.sh` copies the source and
   parameter file into `simulationCases/c<CaseNo>/`, compiles with
   `-I../../src-local` and executes there. `CaseNo >= 1000`.
@@ -43,7 +57,9 @@ for building and running.
   `PeScan.py`, which calls `runSimulation.sh` per sample.
 - Diagnostics use volume weights. Centroid, drop volume and kinetic energy
   are reduced with `f*dv()`; a cell-count weighted sum is a defect on an
-  adaptive mesh. Displacement is measured from the initial centroid.
+  adaptive mesh. Unwrap periodic coordinates about the previous centroid
+  before taking moments. Displacement is measured from the initial centroid;
+  pipe displacement is axial only.
 - Classification is a convention, not a critical value. `MOVED` means the
   centroid displacement exceeded `threshold` before `tmax` at the given
   `MAXlevel`. Any quoted transition interval must carry those three values;
@@ -62,8 +78,16 @@ for building and running.
   against synthetic classifiers (monotone threshold, all moving, all
   stationary, non-monotone window, numerical failure, run cap).
   `centroid-check.c` checks the centroid diagnostic against the exact
-  centroid of a circle on a deliberately asymmetric adaptive mesh. Both
-  establish implementation contracts only.
+  centroid of a circle on a deliberately asymmetric adaptive mesh.
+  `test_periodic_centroid.py` exercises the actual driver moment formulas
+  through periodic seams; `test_case_boundaries.py` checks the actual case
+  setup and solid cleanup without advancing a timestep.
+  `test_dimensionless_model.py` checks the production parameter mapping and
+  retired-`Oh` rejection. `embed-contract.c` covers geometry and species
+  diffusion, `activity-phase-contract.c` covers temporary tracer phase
+  assignment and `activity-source-budget.c` checks geometric source support,
+  its integral and bounded circle/sphere area convergence. These establish
+  implementation contracts only.
 - No verification or validation case exists yet. A single-drop run that
   reports `MOVED` demonstrates that the code runs and that the instability
   develops at that resolution; it does not verify convergence to the
