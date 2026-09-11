@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!-- 
+  <!--
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -205,7 +205,7 @@
   <meta name="description" content="A unit sphere starts on the symmetry axis y=0. The coordinate x is axial and y is radial; axisymmetry excludes transverse migration. The straight embedded pi...">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="axi.h, curvature, dropmove, embed, embed-channel-geometry.h, errno.h, integral.h, navier-stokes/centered.h, pipe, two-phase-clsvof.h">
+  <meta name="keywords" content="activity.h, axi.h, curvature, dropmove, embed, embed-channel-geometry.h, integral.h, navier-stokes/centered.h, params.h, pipe">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
@@ -444,11 +444,12 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 boundaries are periodic for every field. The embedded
                 walls are no-slip, non-wetting to the drop and
                 impermeable to chemical species.</p>
-                <p>The Stokes/CLSVOF/integral surface-tension model is
-                the same as <code>dropMove.c</code>: <span
+                <p>The Navier–Stokes/CLSVOF/integral surface-tension
+                model is the same as <code>dropMove.c</code>: <span
                 class="math inline">\(D=1/Pe\)</span>, <span
-                class="math inline">\(\sigma=1/Ca+4c_L\)</span> and
-                source <span class="math inline">\(A|\nabla f|\)</span>.
+                class="math inline">\(\sigma=1/Ca+\mathit{GammaSlope}\,c_L\)</span>
+                and geometric PLIC source <span
+                class="math inline">\((AcNum/Pe)\delta_{\Gamma,h}\)</span>.
                 Positive <code>AcNum</code> produces species, not
                 consumed fuel. Activity adds no solid-wall chemical
                 flux.</p>
@@ -487,10 +488,21 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <td>Quadtree refinement bounds</td>
                 </tr>
                 <tr>
-                <td><code>Oh</code>, <code>Ca</code>,
-                <code>AcNum</code></td>
-                <td>1, 0.1, 1</td>
-                <td>Fixed non-dimensional groups</td>
+                <td><code>Re</code>, <code>Ca</code></td>
+                <td>0.01, 0.1</td>
+                <td>Inertia and reference tension</td>
+                </tr>
+                <tr>
+                <td><code>GammaSlope</code>, <code>AcNum</code></td>
+                <td>4, 1</td>
+                <td>Surface-tension coupling and interfacial gradient
+                magnitude</td>
+                </tr>
+                <tr>
+                <td><code>viscosityRatio</code>,
+                <code>densityRatio</code></td>
+                <td>1, 1</td>
+                <td>Inner-to-outer property ratios</td>
                 </tr>
                 <tr>
                 <td><code>L0</code></td>
@@ -565,12 +577,15 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/embed.h" title="Link to Basilisk source for embed.h"><span class="im">"embed.h"</span></a></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/axi.h" title="Link to Basilisk source for axi.h"><span class="im">"axi.h"</span></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/navier-stokes/centered.h" title="Link to Basilisk source for navier-stokes/centered.h"><span class="im">"navier-stokes/centered.h"</span></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#define FILTERED </span><span class="dv">1</span><span class="pp"></span><span class="dv">58</span><span class="pp"></span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#define FILTERED </span><span class="dv">1</span><span class="pp">
+</span><span class="dv">61</span><span class="pp">
+</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/two-phase-clsvof.h" title="Link to Basilisk source for two-phase-clsvof.h"><span class="im">"two-phase-clsvof.h"</span></a></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/integral.h" title="Link to Basilisk source for integral.h"><span class="im">"integral.h"</span></a></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/activity.h.html" title="Link to local documentation for activity.h"><span class="im">"activity.h"</span></a></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/params.h.html" title="Link to local documentation for params.h"><span class="im">"params.h"</span></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/embed-channel-geometry.h.html" title="Link to local documentation for embed-channel-geometry.h"><span class="im">"embed-channel-geometry.h"</span></a><span class="pp"></span></span></code></pre></div></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/embed-channel-geometry.h.html" title="Link to local documentation for embed-channel-geometry.h"><span class="im">"embed-channel-geometry.h"</span></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/active-drop-model.h.html" title="Link to local documentation for active-drop-model.h"><span class="im">"active-drop-model.h"</span></a><span class="pp"></span></span></code></pre></div></div>
                 <h2 id="fields-and-boundary-conditions">Fields and
                 boundary conditions</h2>
                 <p><code>cL</code> is the species concentration in the
@@ -604,15 +619,17 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <h2 id="runtime-parameters-1">Runtime parameters</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> CaseNo <span class="op">=</span> <span class="dv">1001</span><span class="op">;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Pe <span class="op">=</span> <span class="fl">1.6</span><span class="op">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Re <span class="op">=</span> <span class="fl">0.01</span><span class="op">,</span> Ca <span class="op">=</span> <span class="fl">0.1</span><span class="op">,</span> Pe <span class="op">=</span> <span class="fl">1.6</span><span class="op">;</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> MAXlevel <span class="op">=</span> <span class="dv">8</span><span class="op">,</span> MINlevel <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Oh <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> Ca <span class="op">=</span> <span class="fl">0.1</span><span class="op">,</span> AcNum <span class="op">=</span> <span class="fl">1.</span><span class="op">;</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> tmax <span class="op">=</span> <span class="fl">50.</span><span class="op">,</span> tsnap <span class="op">=</span> <span class="fl">0.1</span><span class="op">;</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> movement_threshold <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> wallHalfWidth <span class="op">=</span> <span class="fl">2.53</span><span class="op">,</span> initialDipole <span class="op">=</span> <span class="fl">1e-3</span><span class="op">;</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> dropOffset <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> FErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">,</span> VelErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">,</span> cErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">,</span> KErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">;</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> keLimit <span class="op">=</span> <span class="fl">1e3</span><span class="op">;</span></span></code></pre></div></div>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> GammaSlope <span class="op">=</span> <span class="fl">4.</span><span class="op">,</span> AcNum <span class="op">=</span> <span class="fl">1.</span><span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> viscosityRatio <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> densityRatio <span class="op">=</span> <span class="fl">1.</span><span class="op">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> OhDerived<span class="op">,</span> mobilityScaleRatio<span class="op">,</span> PeMobility<span class="op">;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> tmax <span class="op">=</span> <span class="fl">50.</span><span class="op">,</span> tsnap <span class="op">=</span> <span class="fl">0.1</span><span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> movement_threshold <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> wallHalfWidth <span class="op">=</span> <span class="fl">2.53</span><span class="op">,</span> initialDipole <span class="op">=</span> <span class="fl">1e-3</span><span class="op">;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> dropOffset <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> FErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">,</span> VelErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">,</span> cErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">,</span> KErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> keLimit <span class="op">=</span> <span class="fl">1e3</span><span class="op">;</span></span></code></pre></div></div>
                 <h2 id="classifier-state">Classifier state</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">double</span> x0_cm <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> y0_cm <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
@@ -642,13 +659,16 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  status_printed <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  fprintf <span class="op">(</span>stdout<span class="op">,</span> <span class="st">&quot;STATUS </span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span> status<span class="op">);</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  fprintf <span class="op">(</span>stdout<span class="op">,</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;SUMMARY CaseNo=</span><span class="sc">%d</span><span class="st"> Pe=</span><span class="sc">%g</span><span class="st"> max_level=</span><span class="sc">%d</span><span class="st"> tmax=</span><span class="sc">%g</span><span class="st"> threshold=</span><span class="sc">%g</span><span class="st">&quot;</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot; t_end=</span><span class="sc">%g</span><span class="st"> i_end=</span><span class="sc">%d</span><span class="st"> dist_end=</span><span class="sc">%.8e</span><span class="st"> xcm_end=</span><span class="sc">%.8e</span><span class="st"> ycm_end=</span><span class="sc">%.8e</span><span class="st">&quot;</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot; status=</span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>           CaseNo<span class="op">,</span> Pe<span class="op">,</span> MAXlevel<span class="op">,</span> tmax<span class="op">,</span> movement_threshold<span class="op">,</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>           t_now<span class="op">,</span> i_now<span class="op">,</span> dist_last<span class="op">,</span> xcm_last<span class="op">,</span> ycm_last<span class="op">,</span> status<span class="op">);</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  fflush <span class="op">(</span>stdout<span class="op">);</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;SUMMARY CaseNo=</span><span class="sc">%d</span><span class="st"> Re=</span><span class="sc">%g</span><span class="st"> Ca=</span><span class="sc">%g</span><span class="st"> Pe=</span><span class="sc">%g</span><span class="st"> GammaSlope=</span><span class="sc">%g</span><span class="st"> AcNum=</span><span class="sc">%g</span><span class="st">&quot;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot; viscosityRatio=</span><span class="sc">%g</span><span class="st"> densityRatio=</span><span class="sc">%g</span><span class="st"> Oh=</span><span class="sc">%g</span><span class="st"> mobilityScaleRatio=</span><span class="sc">%g</span><span class="st"> PeMobility=</span><span class="sc">%g</span><span class="st">&quot;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot; max_level=</span><span class="sc">%d</span><span class="st"> tmax=</span><span class="sc">%g</span><span class="st"> threshold=</span><span class="sc">%g</span><span class="st">&quot;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot; t_end=</span><span class="sc">%g</span><span class="st"> i_end=</span><span class="sc">%d</span><span class="st"> dist_end=</span><span class="sc">%.8e</span><span class="st"> xcm_end=</span><span class="sc">%.8e</span><span class="st"> ycm_end=</span><span class="sc">%.8e</span><span class="st">&quot;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot; status=</span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>           CaseNo<span class="op">,</span> Re<span class="op">,</span> Ca<span class="op">,</span> Pe<span class="op">,</span> GammaSlope<span class="op">,</span> AcNum<span class="op">,</span> viscosityRatio<span class="op">,</span> densityRatio<span class="op">,</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>           OhDerived<span class="op">,</span> mobilityScaleRatio<span class="op">,</span> PeMobility<span class="op">,</span> MAXlevel<span class="op">,</span> tmax<span class="op">,</span> movement_threshold<span class="op">,</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>           t_now<span class="op">,</span> i_now<span class="op">,</span> dist_last<span class="op">,</span> xcm_last<span class="op">,</span> ycm_last<span class="op">,</span> status<span class="op">);</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  fflush <span class="op">(</span>stdout<span class="op">);</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h3 id="ensure_directory">ensure_directory()</h3>
                 <p>Creates <code>path</code> with <code>mkdir(2)</code>;
                 an existing directory is accepted.</p>
@@ -669,92 +689,114 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  params_init_from_argv <span class="op">(</span>argc<span class="op">,</span> argv<span class="op">);</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  CaseNo <span class="op">=</span> param_int <span class="op">(</span><span class="st">&quot;CaseNo&quot;</span><span class="op">,</span> CaseNo<span class="op">);</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  Pe <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;Pe&quot;</span><span class="op">,</span> Pe<span class="op">);</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  wallHalfWidth <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;wallHalfWidth&quot;</span><span class="op">,</span> wallHalfWidth<span class="op">);</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  dropOffset <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;dropOffset&quot;</span><span class="op">,</span> dropOffset<span class="op">);</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  initialDipole <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;initialDipole&quot;</span><span class="op">,</span> initialDipole<span class="op">);</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  MAXlevel <span class="op">=</span> param_int <span class="op">(</span><span class="st">&quot;MAXlevel&quot;</span><span class="op">,</span> MAXlevel<span class="op">);</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  MINlevel <span class="op">=</span> param_int <span class="op">(</span><span class="st">&quot;MINlevel&quot;</span><span class="op">,</span> MINlevel<span class="op">);</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  Oh <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;Oh&quot;</span><span class="op">,</span> Oh<span class="op">);</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  Ca <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;Ca&quot;</span><span class="op">,</span> Ca<span class="op">);</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  AcNum <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;AcNum&quot;</span><span class="op">,</span> AcNum<span class="op">);</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> L0_param <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;L0&quot;</span><span class="op">,</span> <span class="fl">10.</span><span class="op">);</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  tmax <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;tmax&quot;</span><span class="op">,</span> tmax<span class="op">);</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  tsnap <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;tsnap&quot;</span><span class="op">,</span> tsnap<span class="op">);</span></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  movement_threshold <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;threshold&quot;</span><span class="op">,</span> movement_threshold<span class="op">);</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  FErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;FErr&quot;</span><span class="op">,</span> FErr<span class="op">);</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  VelErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;VelErr&quot;</span><span class="op">,</span> VelErr<span class="op">);</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  cErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;cErr&quot;</span><span class="op">,</span> cErr<span class="op">);</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  KErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;KErr&quot;</span><span class="op">,</span> KErr<span class="op">);</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  keLimit <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;keLimit&quot;</span><span class="op">,</span> keLimit<span class="op">);</span></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!(</span>Pe <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>Oh <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>Ca <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>L0_param <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>tmax <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>tsnap <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>keLimit <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>      MAXlevel <span class="op">&lt;</span> <span class="dv">1</span> <span class="op">||</span> MAXlevel <span class="op">&gt;</span> <span class="dv">20</span> <span class="op">||</span> MINlevel <span class="op">&lt;</span> <span class="dv">0</span> <span class="op">||</span> MINlevel <span class="op">&gt;</span> MAXlevel<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;Invalid parameters: Pe, Oh, Ca, L0, tmax, tsnap and keLimit&quot;</span></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot; must be positive and 0 &lt;= MINlevel &lt;= MAXlevel &lt;= 20.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> dx <span class="op">=</span> L0_param<span class="op">/(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> MAXlevel<span class="op">);</span></span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>  <span class="co">// A face-aligned wall has no cut-cell fragment for embedded no-slip flux.</span></span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> wall_index <span class="op">=</span> wallHalfWidth<span class="op">/</span>dx<span class="op">;</span></span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>isfinite<span class="op">(</span>wall_index<span class="op">)</span> <span class="op">&amp;&amp;</span> fabs<span class="op">(</span>wall_index <span class="op">-</span> round<span class="op">(</span>wall_index<span class="op">))</span> <span class="op">&lt;</span> <span class="fl">1e-8</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;wallHalfWidth places a wall on a finest-grid face. &quot;</span></span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;Choose a nonaligned value (default 2.53 for L0=10).</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!</span>isfinite<span class="op">(</span>wallHalfWidth<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>dropOffset<span class="op">)</span> <span class="op">||</span></span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>initialDipole<span class="op">)</span> <span class="op">||</span> initialDipole <span class="op">&lt;</span> <span class="fl">0.</span> <span class="op">||</span></span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>AcNum<span class="op">)</span> <span class="op">||</span> AcNum <span class="op">&lt;</span> <span class="fl">0.</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>L0_param<span class="op">)</span> <span class="op">||</span></span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>wallHalfWidth <span class="op">&gt;</span> <span class="fl">1.</span> <span class="op">+</span> fabs<span class="op">(</span>dropOffset<span class="op">)</span> <span class="op">+</span> <span class="fl">4.</span><span class="op">*</span>dx<span class="op">)</span> <span class="op">||</span></span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>L0_param<span class="op">/</span><span class="fl">2.</span> <span class="op">&gt;</span> <span class="fl">1.</span> <span class="op">+</span> <span class="fl">4.</span><span class="op">*</span>dx<span class="op">)</span> <span class="op">||</span></span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>      dropOffset <span class="op">!=</span> <span class="fl">0.</span> <span class="op">||</span> <span class="op">!(</span>wallHalfWidth <span class="op">&lt;</span> L0_param <span class="op">-</span> <span class="fl">2.</span><span class="op">*</span>dx<span class="op">)</span> <span class="op">||</span></span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>FErr <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>VelErr <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>cErr <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>KErr <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>Pe<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>Oh<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>Ca<span class="op">)</span> <span class="op">||</span></span>
-<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>tmax<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>tsnap<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>keLimit<span class="op">)</span> <span class="op">||</span></span>
-<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>movement_threshold<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>FErr<span class="op">)</span> <span class="op">||</span></span>
-<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>VelErr<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>cErr<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>KErr<span class="op">))</span> <span class="op">{</span></span>
-<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;Invalid embedded geometry, dipole or adaptation tolerance. &quot;</span></span>
-<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;Keep the unit drop at least four finest cells from walls and the initial periodic-image midpoint; &quot;</span></span>
-<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;pipe dropOffset must be zero.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
-<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
-<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>ensure_directory <span class="op">(</span><span class="st">&quot;intermediate&quot;</span><span class="op">))</span> <span class="op">{</span></span>
-<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;Cannot create output directory &#39;intermediate&#39;.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
-<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
-<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>  stokes <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
-<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>  L0 <span class="op">=</span> L0_param<span class="op">;</span></span>
-<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>  origin <span class="op">(-</span><span class="fl">0.5</span><span class="op">*</span>L0<span class="op">,</span> <span class="fl">0.</span><span class="op">);</span></span>
-<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>  periodic <span class="op">(</span>right<span class="op">);</span></span>
-<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>  init_grid <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> MAXlevel<span class="op">);</span></span>
-<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>  d<span class="op">.</span>sigmaf <span class="op">=</span> sigmaf<span class="op">;</span></span>
-<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>  rho1 <span class="op">=</span> <span class="fl">4.</span><span class="op">/</span>sq<span class="op">(</span>Oh<span class="op">);</span> rho2 <span class="op">=</span> <span class="fl">4.</span><span class="op">/</span>sq<span class="op">(</span>Oh<span class="op">);</span></span>
-<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>  mu1 <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span> mu2 <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
-<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>  cL<span class="op">.</span>inverse <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
-<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a>  cL<span class="op">.</span>A <span class="op">=</span> AcNum<span class="op">;</span></span>
-<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a>  cL<span class="op">.</span>D <span class="op">=</span> <span class="fl">1.</span><span class="op">/</span>Pe<span class="op">;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>param_present<span class="op">(</span><span class="st">&quot;Oh&quot;</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;Parameter &#39;Oh&#39; is retired. Supply Re and Ca; &quot;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;the code reports Oh=sqrt(Ca/Re).</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  CaseNo <span class="op">=</span> param_int <span class="op">(</span><span class="st">&quot;CaseNo&quot;</span><span class="op">,</span> CaseNo<span class="op">);</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  Re <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;Re&quot;</span><span class="op">,</span> Re<span class="op">);</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  Pe <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;Pe&quot;</span><span class="op">,</span> Pe<span class="op">);</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  wallHalfWidth <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;wallHalfWidth&quot;</span><span class="op">,</span> wallHalfWidth<span class="op">);</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  dropOffset <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;dropOffset&quot;</span><span class="op">,</span> dropOffset<span class="op">);</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  initialDipole <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;initialDipole&quot;</span><span class="op">,</span> initialDipole<span class="op">);</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  MAXlevel <span class="op">=</span> param_int <span class="op">(</span><span class="st">&quot;MAXlevel&quot;</span><span class="op">,</span> MAXlevel<span class="op">);</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  MINlevel <span class="op">=</span> param_int <span class="op">(</span><span class="st">&quot;MINlevel&quot;</span><span class="op">,</span> MINlevel<span class="op">);</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  Ca <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;Ca&quot;</span><span class="op">,</span> Ca<span class="op">);</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  GammaSlope <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;GammaSlope&quot;</span><span class="op">,</span> GammaSlope<span class="op">);</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  AcNum <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;AcNum&quot;</span><span class="op">,</span> AcNum<span class="op">);</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  viscosityRatio <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;viscosityRatio&quot;</span><span class="op">,</span> viscosityRatio<span class="op">);</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  densityRatio <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;densityRatio&quot;</span><span class="op">,</span> densityRatio<span class="op">);</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> L0_param <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;L0&quot;</span><span class="op">,</span> <span class="fl">10.</span><span class="op">);</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  tmax <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;tmax&quot;</span><span class="op">,</span> tmax<span class="op">);</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  tsnap <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;tsnap&quot;</span><span class="op">,</span> tsnap<span class="op">);</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  movement_threshold <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;threshold&quot;</span><span class="op">,</span> movement_threshold<span class="op">);</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  FErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;FErr&quot;</span><span class="op">,</span> FErr<span class="op">);</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  VelErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;VelErr&quot;</span><span class="op">,</span> VelErr<span class="op">);</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  cErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;cErr&quot;</span><span class="op">,</span> cErr<span class="op">);</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  KErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;KErr&quot;</span><span class="op">,</span> KErr<span class="op">);</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>  keLimit <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;keLimit&quot;</span><span class="op">,</span> keLimit<span class="op">);</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!(</span>Re <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>Pe <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>Ca <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>L0_param <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>GammaSlope <span class="op">&gt;=</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>AcNum <span class="op">&gt;=</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>viscosityRatio <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>densityRatio <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>tmax <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>tsnap <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>keLimit <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>Re<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>Pe<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>Ca<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>GammaSlope<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>AcNum<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>viscosityRatio<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>densityRatio<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>      MAXlevel <span class="op">&lt;</span> <span class="dv">1</span> <span class="op">||</span> MAXlevel <span class="op">&gt;</span> <span class="dv">20</span> <span class="op">||</span> MINlevel <span class="op">&lt;</span> <span class="dv">0</span> <span class="op">||</span> MINlevel <span class="op">&gt;</span> MAXlevel<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;Invalid dimensionless parameters or refinement levels. &quot;</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;Require Re, Ca, Pe, viscosityRatio and densityRatio &gt; 0; &quot;</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;GammaSlope and AcNum &gt;= 0; and 0 &lt;= MINlevel &lt;= MAXlevel &lt;= 20.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> dx <span class="op">=</span> L0_param<span class="op">/(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> MAXlevel<span class="op">);</span></span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>  <span class="co">// A face-aligned wall has no cut-cell fragment for embedded no-slip flux.</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> wall_index <span class="op">=</span> wallHalfWidth<span class="op">/</span>dx<span class="op">;</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>isfinite<span class="op">(</span>wall_index<span class="op">)</span> <span class="op">&amp;&amp;</span> fabs<span class="op">(</span>wall_index <span class="op">-</span> round<span class="op">(</span>wall_index<span class="op">))</span> <span class="op">&lt;</span> <span class="fl">1e-8</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;wallHalfWidth places a wall on a finest-grid face. &quot;</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;Choose a nonaligned value (default 2.53 for L0=10).</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!</span>isfinite<span class="op">(</span>wallHalfWidth<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>dropOffset<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>initialDipole<span class="op">)</span> <span class="op">||</span> initialDipole <span class="op">&lt;</span> <span class="fl">0.</span> <span class="op">||</span></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>L0_param<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>wallHalfWidth <span class="op">&gt;</span> <span class="fl">1.</span> <span class="op">+</span> fabs<span class="op">(</span>dropOffset<span class="op">)</span> <span class="op">+</span> <span class="fl">4.</span><span class="op">*</span>dx<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>L0_param<span class="op">/</span><span class="fl">2.</span> <span class="op">&gt;</span> <span class="fl">1.</span> <span class="op">+</span> <span class="fl">4.</span><span class="op">*</span>dx<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>      dropOffset <span class="op">!=</span> <span class="fl">0.</span> <span class="op">||</span> <span class="op">!(</span>wallHalfWidth <span class="op">&lt;</span> L0_param <span class="op">-</span> <span class="fl">2.</span><span class="op">*</span>dx<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>FErr <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>VelErr <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>cErr <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>KErr <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>Pe<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>Ca<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>tmax<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>tsnap<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>keLimit<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>movement_threshold<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>FErr<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>VelErr<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>cErr<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>KErr<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;Invalid embedded geometry, dipole or adaptation tolerance. &quot;</span></span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;Keep the unit drop at least four finest cells from walls and the initial periodic-image midpoint; &quot;</span></span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;pipe dropOffset must be zero.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>ensure_directory <span class="op">(</span><span class="st">&quot;intermediate&quot;</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;Cannot create output directory &#39;intermediate&#39;.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span></span>
-<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;CaseNo=</span><span class="sc">%d</span><span class="st"> Pe=</span><span class="sc">%g</span><span class="st"> MAXlevel=</span><span class="sc">%d</span><span class="st"> MINlevel=</span><span class="sc">%d</span><span class="st"> Oh=</span><span class="sc">%g</span><span class="st"> Ca=</span><span class="sc">%g</span><span class="st"> AcNum=</span><span class="sc">%g</span><span class="st">&quot;</span></span>
-<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot; L0=</span><span class="sc">%g</span><span class="st"> tmax=</span><span class="sc">%g</span><span class="st"> tsnap=</span><span class="sc">%g</span><span class="st"> threshold=</span><span class="sc">%g\n</span><span class="st">&quot;</span><span class="op">,</span></span>
-<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a>             CaseNo<span class="op">,</span> Pe<span class="op">,</span> MAXlevel<span class="op">,</span> MINlevel<span class="op">,</span> Oh<span class="op">,</span> Ca<span class="op">,</span> AcNum<span class="op">,</span> L0<span class="op">,</span> tmax<span class="op">,</span> tsnap<span class="op">,</span></span>
-<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a>             movement_threshold<span class="op">);</span></span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a>  stokes <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a>  L0 <span class="op">=</span> L0_param<span class="op">;</span></span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a>  origin <span class="op">(-</span><span class="fl">0.5</span><span class="op">*</span>L0<span class="op">,</span> <span class="fl">0.</span><span class="op">);</span></span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a>  periodic <span class="op">(</span>right<span class="op">);</span></span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a>  init_grid <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> MAXlevel<span class="op">);</span></span>
 <span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span></span>
-<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;geometry=</span><span class="sc">%s</span><span class="st"> wallHalfWidth=</span><span class="sc">%g</span><span class="st"> dropOffset=</span><span class="sc">%g</span><span class="st"> initialDipole=</span><span class="sc">%g\n</span><span class="st">&quot;</span><span class="op">,</span></span>
-<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;pipe&quot;</span><span class="op">,</span> wallHalfWidth<span class="op">,</span></span>
-<span id="cb8-87"><a href="#cb8-87" aria-hidden="true" tabindex="-1"></a>            dropOffset<span class="op">,</span> initialDipole<span class="op">);</span></span>
-<span id="cb8-88"><a href="#cb8-88" aria-hidden="true" tabindex="-1"></a>  run<span class="op">();</span></span>
-<span id="cb8-89"><a href="#cb8-89" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> exit_status<span class="op">;</span></span>
-<span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a>  d<span class="op">.</span>sigmaf <span class="op">=</span> sigmaf<span class="op">;</span></span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a>  rho1 <span class="op">=</span> densityRatio<span class="op">*</span>Re<span class="op">;</span> rho2 <span class="op">=</span> Re<span class="op">;</span></span>
+<span id="cb8-87"><a href="#cb8-87" aria-hidden="true" tabindex="-1"></a>  mu1 <span class="op">=</span> viscosityRatio<span class="op">;</span>   mu2 <span class="op">=</span> <span class="fl">1.</span><span class="op">;</span></span>
+<span id="cb8-88"><a href="#cb8-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-89"><a href="#cb8-89" aria-hidden="true" tabindex="-1"></a>  cL<span class="op">.</span>inverse <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a>  cL<span class="op">.</span>A <span class="op">=</span> AcNum<span class="op">/</span>Pe<span class="op">;</span></span>
+<span id="cb8-91"><a href="#cb8-91" aria-hidden="true" tabindex="-1"></a>  cL<span class="op">.</span>D <span class="op">=</span> <span class="fl">1.</span><span class="op">/</span>Pe<span class="op">;</span></span>
+<span id="cb8-92"><a href="#cb8-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-93"><a href="#cb8-93" aria-hidden="true" tabindex="-1"></a>  OhDerived <span class="op">=</span> active_drop_ohnesorge<span class="op">(</span>Re<span class="op">,</span> Ca<span class="op">);</span></span>
+<span id="cb8-94"><a href="#cb8-94" aria-hidden="true" tabindex="-1"></a>  mobilityScaleRatio <span class="op">=</span> active_drop_velocity_scale_ratio</span>
+<span id="cb8-95"><a href="#cb8-95" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span>AcNum<span class="op">,</span> GammaSlope<span class="op">,</span> viscosityRatio<span class="op">,</span> <span class="kw">true</span><span class="op">);</span></span>
+<span id="cb8-96"><a href="#cb8-96" aria-hidden="true" tabindex="-1"></a>  PeMobility <span class="op">=</span> mobilityScaleRatio<span class="op">*</span>Pe<span class="op">;</span></span>
+<span id="cb8-97"><a href="#cb8-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb8-99"><a href="#cb8-99" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;CaseNo=</span><span class="sc">%d</span><span class="st"> Re=</span><span class="sc">%g</span><span class="st"> Ca=</span><span class="sc">%g</span><span class="st"> Pe=</span><span class="sc">%g</span><span class="st"> GammaSlope=</span><span class="sc">%g</span><span class="st"> AcNum=</span><span class="sc">%g</span><span class="st"> &quot;</span></span>
+<span id="cb8-100"><a href="#cb8-100" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;viscosityRatio=</span><span class="sc">%g</span><span class="st"> densityRatio=</span><span class="sc">%g</span><span class="st"> Oh=</span><span class="sc">%g</span><span class="st"> mobilityScaleRatio=</span><span class="sc">%g</span><span class="st"> &quot;</span></span>
+<span id="cb8-101"><a href="#cb8-101" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;PeMobility=</span><span class="sc">%g</span><span class="st"> MAXlevel=</span><span class="sc">%d</span><span class="st"> MINlevel=</span><span class="sc">%d</span><span class="st"> L0=</span><span class="sc">%g</span><span class="st"> tmax=</span><span class="sc">%g</span><span class="st"> tsnap=</span><span class="sc">%g</span><span class="st"> &quot;</span></span>
+<span id="cb8-102"><a href="#cb8-102" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;threshold=</span><span class="sc">%g\n</span><span class="st">&quot;</span><span class="op">,</span> CaseNo<span class="op">,</span> Re<span class="op">,</span> Ca<span class="op">,</span> Pe<span class="op">,</span> GammaSlope<span class="op">,</span> AcNum<span class="op">,</span></span>
+<span id="cb8-103"><a href="#cb8-103" aria-hidden="true" tabindex="-1"></a>             viscosityRatio<span class="op">,</span> densityRatio<span class="op">,</span> OhDerived<span class="op">,</span> mobilityScaleRatio<span class="op">,</span> PeMobility<span class="op">,</span></span>
+<span id="cb8-104"><a href="#cb8-104" aria-hidden="true" tabindex="-1"></a>             MAXlevel<span class="op">,</span> MINlevel<span class="op">,</span> L0<span class="op">,</span> tmax<span class="op">,</span> tsnap<span class="op">,</span> movement_threshold<span class="op">);</span></span>
+<span id="cb8-105"><a href="#cb8-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-106"><a href="#cb8-106" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb8-107"><a href="#cb8-107" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;geometry=</span><span class="sc">%s</span><span class="st"> wallHalfWidth=</span><span class="sc">%g</span><span class="st"> dropOffset=</span><span class="sc">%g</span><span class="st"> initialDipole=</span><span class="sc">%g\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;pipe&quot;</span><span class="op">,</span> wallHalfWidth<span class="op">,</span></span>
+<span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a>            dropOffset<span class="op">,</span> initialDipole<span class="op">);</span></span>
+<span id="cb8-110"><a href="#cb8-110" aria-hidden="true" tabindex="-1"></a>  run<span class="op">();</span></span>
+<span id="cb8-111"><a href="#cb8-111" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> exit_status<span class="op">;</span></span>
+<span id="cb8-112"><a href="#cb8-112" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h2 id="initialisation">Initialisation</h2>
                 <p>The unit drop is a sphere centred on the axis. The
                 optional nonnegative concentration dipole breaks
@@ -770,7 +812,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    u<span class="op">.</span>y<span class="op">[]</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    cL<span class="op">[]</span> <span class="op">=</span> cs<span class="op">[]</span> <span class="op">&gt;</span> <span class="fl">0.</span> <span class="op">&amp;&amp;</span> radius <span class="op">&gt;</span> <span class="fl">1.</span> <span class="op">?</span></span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>      initialDipole<span class="op">*(</span><span class="fl">1.</span> <span class="op">+</span> sin<span class="op">(</span><span class="fl">2.</span><span class="op">*</span>pi<span class="op">*</span>x<span class="op">/</span>L0<span class="op">))*</span>exp<span class="op">(</span><span class="fl">1.</span> <span class="op">-</span> radius<span class="op">)</span> <span class="op">:</span> <span class="fl">0.</span><span class="op">;</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    sigmaf<span class="op">[]</span> <span class="op">=</span> <span class="fl">1.</span><span class="op">/</span>Ca <span class="op">+</span> <span class="fl">4.</span><span class="op">*</span>cL<span class="op">[];</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    sigmaf<span class="op">[]</span> <span class="op">=</span> <span class="fl">1.</span><span class="op">/</span>Ca <span class="op">+</span> GammaSlope<span class="op">*</span>cL<span class="op">[];</span></span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h2
@@ -779,7 +821,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>event properties <span class="op">(</span>i<span class="op">++)</span> <span class="op">{</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  foreach<span class="op">()</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    sigmaf<span class="op">[]</span> <span class="op">=</span> <span class="fl">1.</span><span class="op">/</span>Ca <span class="op">+</span> <span class="fl">4.</span><span class="op">*</span>cL<span class="op">[];</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    sigmaf<span class="op">[]</span> <span class="op">=</span> <span class="fl">1.</span><span class="op">/</span>Ca <span class="op">+</span> GammaSlope<span class="op">*</span>cL<span class="op">[];</span></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h2 id="adaptation">Adaptation</h2>
                 <p>Wavelet adaptation on the volume fraction, velocity,
@@ -950,7 +992,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
               </a>
             </div>
           </footer>
-    </div>  
+    </div>
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -978,17 +1020,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-        
+
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-        
+
         // Add the button to the container
         container.appendChild(button);
-        
+
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-            
+
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1001,10 +1043,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-                    
+
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    
+
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -1017,7 +1059,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -1027,7 +1069,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-        
+
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

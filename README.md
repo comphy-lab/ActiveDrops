@@ -2,17 +2,18 @@
 
 Spontaneous symmetry breaking of self-propelled drops.
 
-A planar drop emits a chemical species at its interface. The species
-diffuses and is advected in the outer phase. The implemented constitutive
-law is `sigma = 1/Ca + 4*cL`: positive concentration increases surface
+A planar drop emits a coarse-grained product at its interface. The product
+diffuses and is advected in the outer phase. The constitutive law
+`sigma = 1/Ca + GammaSlope*cL` makes positive product raise surface
 tension. Above a critical Péclet number the isotropic
 state is unstable: a small asymmetry in the concentration field drives a
 Marangoni flow that reinforces the asymmetry, and the drop self-propels.
-The code integrates this problem in the Stokes limit with
+The code integrates the dimensionless two-fluid Navier--Stokes equations with
 [Basilisk](http://basilisk.fr) using the coupled level-set and
 volume-of-fluid (CLSVOF) interface method and the integral formulation of
-surface tension, and provides a bracketed search for the finite-time onset
-in Pe.
+surface tension. The default `Re=0.01` is small, but creeping-flow behaviour
+requires a Reynolds-number convergence study. The code also provides a
+bracketed search for the finite-time onset in `Pe`.
 
 ## Layout
 
@@ -24,6 +25,7 @@ in Pe.
 │   └── dropMove-embed-channel.c - Planar drop between embedded walls
 ├── src-local/ - Project-specific Basilisk headers and the runtime parameter API
 │   ├── activity.h - Interfacial chemical source and species transport
+│   ├── active-drop-model.h - Scales and mobility diagnostics
 │   ├── parse_params.h - Low-level key/value parser for parameter files
 │   ├── params.h - Typed parameter accessors (param_int, param_double, ...)
 │   └── two-phase-clsvof-VP.h - Experimental viscoplastic CLSVOF variant (not used by dropMove.c)
@@ -39,7 +41,9 @@ in Pe.
 │   ├── test_pescan.py - Synthetic-classifier tests for PeScan.py
 │   ├── test_periodic_centroid.py - Production moments across periodic seams
 │   ├── test_case_boundaries.py - Actual case setup and solid cleanup probes
+│   ├── test_dimensionless_model.py - Production scale mapping and legacy-input rejection
 │   ├── centroid-check.c - Centroid diagnostic on an asymmetric adaptive mesh
+│   ├── activity-source-budget.c - Discrete interfacial source budget
 │   ├── run-tests.sh - Runs Python contracts and the centroid check
 │   └── run-embed-tests.sh - Embedded geometry, species and tracer contracts
 ├── .github/ - Documentation generator, workflows, issue templates and the generated site
@@ -88,14 +92,60 @@ prints exactly one `STATUS` line (`MOVED`, `NOT_MOVED` or `FAILED`) and one
 `SUMMARY key=value` line. Use `--threads N` for an OpenMP build and
 `--exec` to select another source in `simulationCases/`.
 
+## Model and dimensional scales
+
+The initial radius $R_0$, chosen velocity $U_0$ and chosen product
+concentration $C_*$ are independent scales. Viscosity is scaled by $\mu_o$,
+pressure and stress by $\mu_oU_0/R_0$, and surface tension by $\mu_oU_0$.
+The inputs map to the solver as follows.
+
+| Input | Definition | Solver coefficient |
+|---|---|---|
+| `Re` | $\rho_oU_0R_0/\mu_o$ | $\rho_o=Re$ |
+| `Ca` | $\mu_oU_0/\gamma_0$ | reference tension $1/Ca$ |
+| `Pe` | $U_0R_0/D$ | product diffusivity $1/Pe$ |
+| `GammaSlope` | $\gamma_C C_*/(\mu_oU_0)$ | slope in $1/Ca+\mathit{GammaSlope}\,c_L$ |
+| `AcNum` | $A_0R_0/(DC_*)$ | PLIC surface-source coefficient `AcNum/Pe` |
+| `viscosityRatio` | $\mu_i/\mu_o$ | $\mu_i=\mathit{viscosityRatio}$ |
+| `densityRatio` | $\rho_i/\rho_o$ | $\rho_i=Re\,\mathit{densityRatio}$ |
+
+This is the emitted, surface-tension-increasing interpretation of a
+solubilizing drop discussed by
+[Michelin (2023)](https://doi.org/10.1146/annurev-fluid-120720-012204).
+It does not resolve micelle kinetics, finite fuel or solubilization-driven
+drop mass loss; CLSVOF approximately conserves the drop phase.
+
+The reference-tension Ohnesorge number is derived as $Oh=\sqrt{Ca/Re}$. `Oh` is
+no longer an input, and a parameter file containing it fails explicitly.
+
+`GammaSlope` is a material coupling under these scales and has the same
+default, 4, in all geometries. The mobility comparison is reported separately:
+
+$$
+\chi=\frac{U_M}{U_0}=\frac{AcNum\,GammaSlope}{G},\qquad Pe_M=\chi Pe,
+$$
+
+where $G=2(1+\lambda)$ for a planar circle and $G=2+3\lambda$ for a sphere,
+with $\lambda=\mu_i/\mu_o$. At `AcNum=1`, `GammaSlope=4` and
+`viscosityRatio=1`, $\chi=1$ for the planar cases and $0.8$ for the pipe.
+Changing only the pipe slope to 5 would normalize its spherical mobility
+while changing the material coupling under the same reference scales.
+The derivation and evidence limits are in
+`src-local/active-drop-model.h`; the planar comparison follows
+[Li & Koch (2022)](https://doi.org/10.1017/jfm.2022.891).
+
 ### Parameter file keys
 
 `dropMove.c` reads these keys (defaults in brackets):
 
 - `CaseNo` [1000], must be at least 1000 so case folders sort.
-- `Pe` [1.6]: Péclet number, species diffusivity `1/Pe`.
+- `Re` [0.01]: outer-fluid Reynolds number.
+- `Pe` [1.6]: emitted-product Péclet number, diffusivity `1/Pe`.
 - `MAXlevel` [8], `MINlevel` [0]: quadtree refinement bounds.
-- `Oh` [1], `Ca` [0.1], `AcNum` [1]: density `4/Oh^2`, clean surface tension `1/Ca`, interfacial chemical flux.
+- `Ca` [0.1]: reference surface tension `1/Ca`.
+- `GammaSlope` [4]: positive surface-tension sensitivity.
+- `AcNum` [1]: outward normal-gradient magnitude; source `AcNum/Pe`.
+- `viscosityRatio`, `densityRatio` [1, 1]: inner-to-outer property ratios.
 - `L0` [10]: square domain size in drop radii; both directions are periodic.
 - `tmax` [50], `tsnap` [0.1]: observation horizon and snapshot interval.
 - `threshold` [1]: centroid displacement in drop radii classified as `MOVED`; a value of zero or less disables the early stop.
@@ -131,13 +181,65 @@ both directions. Periodic extent controls interaction with periodic images.
 Non-wetting excludes the dispersed phase at the solid: `f[embed]=dirichlet(0)`
 and `f=0` in full-solid cells, where the CLSVOF distance remains negative.
 Wall chemistry is independent: `cL[embed]=neumann(0)` makes the wall
-impermeable to species. Activity adds the source
-`AcNum*|grad(f)|` at the drop interface; it does not create wall flux.
+impermeable to species. Activity adds
+$(AcNum/Pe)\,\delta_{\Gamma,h}$ on the reconstructed drop interface; it does
+not create wall flux. Pure drop cells and full solids receive no source.
 Here `cL` is produced species, not directly a consumed-fuel concentration.
 Absorbing, reactive or fixed-fuel walls would require a different chemical
 boundary model.
 Positive activity therefore accumulates species in these periodic,
 impermeable domains; there is no imposed chemical sink.
+
+## Version migration
+
+Replace the retired input block
+
+```ini
+Oh=1
+Ca=0.1
+Pe=1.6
+AcNum=1
+```
+
+with an explicit scale contract, for example
+
+```ini
+Re=0.01
+Ca=0.1
+Pe=1.6
+GammaSlope=4
+AcNum=1
+viscosityRatio=1
+densityRatio=1
+```
+
+These examples are not numerically equivalent. The earlier code used
+`rho=4/Oh^2`, treated `AcNum` as the diffuse source coefficient and fixed the
+tension slope at 4. Historical outputs must retain their original code and
+parameter interpretation; they cannot be relabelled with the new groups.
+
+## Model limits
+
+- Product concentration is stored through the two-phase transport
+  construction while diffusion is weighted toward the outer phase. A sharp
+  exterior-flux limit has not been verified.
+- The source uses a geometric PLIC interface measure, including the radial
+  metric in axisymmetry. Its planar-circle and spherical-area convergence is
+  checked as a software benchmark; a sharp exterior-flux verification remains
+  open.
+- A spatially uniform product changes the absolute tension and effective
+  deformability, although only gradients produce Marangoni stress.
+- Periodic impermeable domains retain emitted product. Long-time steady states
+  need separate evidence or an explicit chemical relaxation mechanism.
+- `stokes=false` retains unsteady and convective inertia consistently. A small
+  input `Re` does not replace a Reynolds-number convergence study.
+- `MOVED` is a finite-time classifier, not the theoretical $Pe_M=4$ threshold
+  for an unbounded, nondeforming sphere.
+- Embedded cases stop before contact and contain no moving-contact-line model.
+
+Finite exterior fuel, uptake arrest and delayed chemical sensing belong to
+the sister `active-drops-with-memory` programme. Its existing delayed-sampling
+PR is independent of this model change.
 
 These cases require the pinned Basilisk `v2026-08-30` and reconstruct the
 stationary embedded geometry after mesh adaptation. A liquid-containing

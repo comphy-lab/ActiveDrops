@@ -86,6 +86,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://comphy-lab.org/ActiveDrops/src-local/active-drop-model.h.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://comphy-lab.org/ActiveDrops/src-local/activity.h.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -121,6 +126,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://comphy-lab.org/ActiveDrops/testCases/activity-source-budget.c.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://comphy-lab.org/ActiveDrops/testCases/centroid-check.c.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -142,6 +152,11 @@
   </url>
   <url>
     <loc>https://comphy-lab.org/ActiveDrops/testCases/test_case_boundaries.py.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://comphy-lab.org/ActiveDrops/testCases/test_dimensionless_model.py.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

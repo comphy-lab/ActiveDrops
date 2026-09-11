@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!-- 
+  <!--
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -59,20 +59,20 @@
       --color-primary: #0066cc;
       --color-secondary: #036;
       --color-accent: #0099ff;
-      
+
       /* UI elements */
       --color-header-bg: #f5f5f5;
       --color-footer-bg: #2d2e33;
       --color-border: #e0e0e0;
       --color-input-bg: #f9f9f9;
-      
+
       /* Component colors */
       --color-preloader-bg: #ffffff;
       --color-loader: #0066cc;
       --color-card-bg: #ffffff;
       --color-code-bg: #f5f5f5;
     }
-    
+
     /* Dark theme variables applied via media query when JS is disabled */
     @media (prefers-color-scheme: dark) {
       :root:not(.theme-set) {
@@ -82,13 +82,13 @@
         --color-primary: #4d9fff;
         --color-secondary: #88ccff;
         --color-accent: #00bfff;
-        
+
         /* UI elements - dark mode */
         --color-header-bg: #121212;
         --color-footer-bg: #121212;
         --color-border: #333;
         --color-input-bg: #2d2d2d;
-        
+
         /* Component colors - dark mode */
         --color-preloader-bg: #1a1a1a;
         --color-loader: #4d9fff;
@@ -96,7 +96,7 @@
         --color-code-bg: #2d2d2d;
       }
     }
-    
+
     /* When JS sets the theme explicitly via data attribute */
     [data-theme="dark"] {
       /* Base colors - dark mode */
@@ -105,36 +105,36 @@
       --color-primary: #4d9fff;
       --color-secondary: #88ccff;
       --color-accent: #00bfff;
-      
+
       /* UI elements - dark mode */
       --color-header-bg: #121212;
       --color-footer-bg: #121212;
       --color-border: #333;
       --color-input-bg: #2d2d2d;
-      
+
       /* Component colors - dark mode */
       --color-preloader-bg: #1a1a1a;
       --color-loader: #4d9fff;
       --color-card-bg: #222;
       --color-code-bg: #2d2d2d;
     }
-    
+
     /* Prevent transition flashes during initial load */
     html:not(.transitions-enabled) * {
       transition: none !important;
     }
-    
+
     /* Apply theme to preloader and early elements */
     #preloader {
       background-color: var(--color-preloader-bg);
       color: var(--color-text);
     }
-    
+
     #loader {
       border-color: var(--color-loader);
       border-top-color: transparent;
     }
-    
+
     /* Noscript warning */
     .noscript-warning {
       background-color: var(--color-primary);
@@ -147,7 +147,7 @@
       right: 0;
       z-index: 1000;
     }
-    
+
     /* Theme indicator for no-JS */
     .theme-indicator {
       padding: 5px 10px;
@@ -156,12 +156,12 @@
       color: var(--color-text);
       text-align: center;
     }
-    
+
     /* Hide JS-only elements when no JS */
     .no-js .js-only {
       display: none !important;
     }
-    
+
     /* Show no-JS alternatives */
     .js .no-js-only {
       display: none !important;
@@ -172,7 +172,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
   <title>ActiveDrops | ActiveDrops</title>
-  
+
   <!-- Critical CSS for fastest paint -->
   <style>
       .s-intro__title {
@@ -182,19 +182,19 @@
       .s-header {
           visibility: visible;
       }
-      
+
       /* Ensure theme toggle properly styled immediately */
       .theme-toggle {
           background-color: var(--color-background);
           color: var(--color-text);
       }
-      
+
       /* Control SVG visibility based on theme */
       [data-theme="dark"] .theme-toggle-icon.sun,
       :root:not([data-theme="dark"]) .theme-toggle-icon.moon {
           display: block;
       }
-      
+
       [data-theme="dark"] .theme-toggle-icon.moon,
       :root:not([data-theme="dark"]) .theme-toggle-icon.sun {
           display: none;
@@ -256,7 +256,7 @@
   <script defer src="./assets/js/main.js"></script>
   <script defer src="./assets/js/theme-toggle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
-  
+
   <!-- Optimize page load performance -->
   <script>
     // Preconnect to critical domains
@@ -264,21 +264,21 @@
       'https://cdnjs.cloudflare.com',
       'https://cdn.jsdelivr.net'
     ];
-    
+
     preconnectDomains.forEach(domain => {
       const link = document.createElement('link');
       link.rel = 'preconnect';
       link.href = domain;
       link.crossOrigin = 'anonymous';
       document.head.appendChild(link);
-      
+
       // Also add DNS prefetch as fallback
       const dnsLink = document.createElement('link');
       dnsLink.rel = 'dns-prefetch';
       dnsLink.href = domain;
       document.head.appendChild(dnsLink);
     });
-    
+
     // Detect when document is fully loaded to remove preloader
     window.addEventListener('load', function() {
       const preloader = document.getElementById('preloader');
@@ -305,11 +305,11 @@
         document.head.appendChild(link);
         return link;
       }
-      
+
       // Check if we're on localhost
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         // Use hardcoded version numbers for reliable loading
-        
+
         // Load Font Awesome using multiple CDNs to maximize reliability for local development
         loadStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css');
         // Backup CDN if the first one fails
@@ -330,7 +330,7 @@
       // Mark page as JS-enabled and manage transitions
       document.documentElement.classList.remove('no-js');
       document.documentElement.classList.add('js');
-      
+
       // Allow CSS transitions after initial load to prevent transition flashes
       window.addEventListener('DOMContentLoaded', () => {
           setTimeout(() => {
@@ -421,30 +421,32 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 
         <!-- Main content -->
         <main class="content">
-            
+
             <div class="page-content">
-                
-                                
-                                
-                
+
+
+
+
                 <h1 id="activedrops">ActiveDrops</h1>
                 <p>Spontaneous symmetry breaking of self-propelled
                 drops.</p>
-                <p>A planar drop emits a chemical species at its
-                interface. The species diffuses and is advected in the
-                outer phase. The implemented constitutive law is
-                <code>sigma = 1/Ca + 4*cL</code>: positive concentration
-                increases surface tension. Above a critical Péclet
+                <p>A planar drop emits a coarse-grained product at its
+                interface. The product diffuses and is advected in the
+                outer phase. The constitutive law
+                <code>sigma = 1/Ca + GammaSlope*cL</code> makes positive
+                product raise surface tension. Above a critical Péclet
                 number the isotropic state is unstable: a small
                 asymmetry in the concentration field drives a Marangoni
                 flow that reinforces the asymmetry, and the drop
-                self-propels. The code integrates this problem in the
-                Stokes limit with <a
+                self-propels. The code integrates the dimensionless
+                two-fluid Navier–Stokes equations with <a
                 href="http://basilisk.fr">Basilisk</a> using the coupled
                 level-set and volume-of-fluid (CLSVOF) interface method
-                and the integral formulation of surface tension, and
-                provides a bracketed search for the finite-time onset in
-                Pe.</p>
+                and the integral formulation of surface tension. The
+                default <code>Re=0.01</code> is small, but creeping-flow
+                behaviour requires a Reynolds-number convergence study.
+                The code also provides a bracketed search for the
+                finite-time onset in <code>Pe</code>.</p>
                 <h2 id="layout">Layout</h2>
                 <div class="repository-structure">
                 <ul>
@@ -473,6 +475,9 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 href="src-local/activity.h.html">activity.h</a></strong>
                 - - Interfacial chemical source and species
                 transport</li>
+                <li><strong><a
+                href="src-local/active-drop-model.h.html">active-drop-model.h</a></strong>
+                - - Scales and mobility diagnostics</li>
                 <li><strong><a
                 href="src-local/parse_params.h.html">parse_params.h</a></strong>
                 - - Low-level key/value parser for parameter files</li>
@@ -526,9 +531,16 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 href="testCases/test_case_boundaries.py.html">test_case_boundaries.py</a></strong>
                 - - Actual case setup and solid cleanup probes</li>
                 <li><strong><a
+                href="testCases/test_dimensionless_model.py.html">test_dimensionless_model.py</a></strong>
+                - - Production scale mapping and legacy-input
+                rejection</li>
+                <li><strong><a
                 href="testCases/centroid-check.c.html">centroid-check.c</a></strong>
                 - - Centroid diagnostic on an asymmetric adaptive
                 mesh</li>
+                <li><strong><a
+                href="testCases/activity-source-budget.c.html">activity-source-budget.c</a></strong>
+                - - Discrete interfacial source budget</li>
                 <li><strong><a
                 href="testCases/run-tests.sh.html">run-tests.sh</a></strong>
                 - - Runs Python contracts and the centroid check</li>
@@ -608,20 +620,140 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <code>--threads N</code> for an OpenMP build and
                 <code>--exec</code> to select another source in
                 <code>simulationCases/</code>.</p>
+                <h2 id="model-and-dimensional-scales">Model and
+                dimensional scales</h2>
+                <p>The initial radius <span
+                class="math inline">\(R_0\)</span>, chosen velocity
+                <span class="math inline">\(U_0\)</span> and chosen
+                product concentration <span
+                class="math inline">\(C_*\)</span> are independent
+                scales. Viscosity is scaled by <span
+                class="math inline">\(\mu_o\)</span>, pressure and
+                stress by <span
+                class="math inline">\(\mu_oU_0/R_0\)</span>, and surface
+                tension by <span
+                class="math inline">\(\mu_oU_0\)</span>. The inputs map
+                to the solver as follows.</p>
+                <table>
+                <colgroup>
+                <col style="width: 33%" />
+                <col style="width: 33%" />
+                <col style="width: 33%" />
+                </colgroup>
+                <thead>
+                <tr>
+                <th>Input</th>
+                <th>Definition</th>
+                <th>Solver coefficient</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                <td><code>Re</code></td>
+                <td><span
+                class="math inline">\(\rho_oU_0R_0/\mu_o\)</span></td>
+                <td><span class="math inline">\(\rho_o=Re\)</span></td>
+                </tr>
+                <tr>
+                <td><code>Ca</code></td>
+                <td><span
+                class="math inline">\(\mu_oU_0/\gamma_0\)</span></td>
+                <td>reference tension <span
+                class="math inline">\(1/Ca\)</span></td>
+                </tr>
+                <tr>
+                <td><code>Pe</code></td>
+                <td><span class="math inline">\(U_0R_0/D\)</span></td>
+                <td>product diffusivity <span
+                class="math inline">\(1/Pe\)</span></td>
+                </tr>
+                <tr>
+                <td><code>GammaSlope</code></td>
+                <td><span class="math inline">\(\gamma_C
+                C_*/(\mu_oU_0)\)</span></td>
+                <td>slope in <span
+                class="math inline">\(1/Ca+\mathit{GammaSlope}\,c_L\)</span></td>
+                </tr>
+                <tr>
+                <td><code>AcNum</code></td>
+                <td><span
+                class="math inline">\(A_0R_0/(DC_*)\)</span></td>
+                <td>PLIC surface-source coefficient
+                <code>AcNum/Pe</code></td>
+                </tr>
+                <tr>
+                <td><code>viscosityRatio</code></td>
+                <td><span
+                class="math inline">\(\mu_i/\mu_o\)</span></td>
+                <td><span
+                class="math inline">\(\mu_i=\mathit{viscosityRatio}\)</span></td>
+                </tr>
+                <tr>
+                <td><code>densityRatio</code></td>
+                <td><span
+                class="math inline">\(\rho_i/\rho_o\)</span></td>
+                <td><span
+                class="math inline">\(\rho_i=Re\,\mathit{densityRatio}\)</span></td>
+                </tr>
+                </tbody>
+                </table>
+                <p>This is the emitted, surface-tension-increasing
+                interpretation of a solubilizing drop discussed by <a
+                href="https://doi.org/10.1146/annurev-fluid-120720-012204">Michelin
+                (2023)</a>. It does not resolve micelle kinetics, finite
+                fuel or solubilization-driven drop mass loss; CLSVOF
+                approximately conserves the drop phase.</p>
+                <p>The reference-tension Ohnesorge number is derived as
+                <span class="math inline">\(Oh=\sqrt{Ca/Re}\)</span>.
+                <code>Oh</code> is no longer an input, and a parameter
+                file containing it fails explicitly.</p>
+                <p><code>GammaSlope</code> is a material coupling under
+                these scales and has the same default, 4, in all
+                geometries. The mobility comparison is reported
+                separately:</p>
+                <p><span class="math display">\[
+                \chi=\frac{U_M}{U_0}=\frac{AcNum\,GammaSlope}{G},\qquad
+                Pe_M=\chi Pe,
+                \]</span></p>
+                <p>where <span
+                class="math inline">\(G=2(1+\lambda)\)</span> for a
+                planar circle and <span
+                class="math inline">\(G=2+3\lambda\)</span> for a
+                sphere, with <span
+                class="math inline">\(\lambda=\mu_i/\mu_o\)</span>. At
+                <code>AcNum=1</code>, <code>GammaSlope=4</code> and
+                <code>viscosityRatio=1</code>, <span
+                class="math inline">\(\chi=1\)</span> for the planar
+                cases and <span class="math inline">\(0.8\)</span> for
+                the pipe. Changing only the pipe slope to 5 would
+                normalize its spherical mobility while changing the
+                material coupling under the same reference scales. The
+                derivation and evidence limits are in
+                <code>src-local/active-drop-model.h</code>; the planar
+                comparison follows <a
+                href="https://doi.org/10.1017/jfm.2022.891">Li &amp;
+                Koch (2022)</a>.</p>
                 <h3 id="parameter-file-keys">Parameter file keys</h3>
                 <p><code>dropMove.c</code> reads these keys (defaults in
                 brackets):</p>
                 <ul>
                 <li><code>CaseNo</code> [1000], must be at least 1000 so
                 case folders sort.</li>
-                <li><code>Pe</code> [1.6]: Péclet number, species
-                diffusivity <code>1/Pe</code>.</li>
+                <li><code>Re</code> [0.01]: outer-fluid Reynolds
+                number.</li>
+                <li><code>Pe</code> [1.6]: emitted-product Péclet
+                number, diffusivity <code>1/Pe</code>.</li>
                 <li><code>MAXlevel</code> [8], <code>MINlevel</code>
                 [0]: quadtree refinement bounds.</li>
-                <li><code>Oh</code> [1], <code>Ca</code> [0.1],
-                <code>AcNum</code> [1]: density <code>4/Oh^2</code>,
-                clean surface tension <code>1/Ca</code>, interfacial
-                chemical flux.</li>
+                <li><code>Ca</code> [0.1]: reference surface tension
+                <code>1/Ca</code>.</li>
+                <li><code>GammaSlope</code> [4]: positive
+                surface-tension sensitivity.</li>
+                <li><code>AcNum</code> [1]: outward normal-gradient
+                magnitude; source <code>AcNum/Pe</code>.</li>
+                <li><code>viscosityRatio</code>,
+                <code>densityRatio</code> [1, 1]: inner-to-outer
+                property ratios.</li>
                 <li><code>L0</code> [10]: square domain size in drop
                 radii; both directions are periodic.</li>
                 <li><code>tmax</code> [50], <code>tsnap</code> [0.1]:
@@ -671,15 +803,71 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <code>f=0</code> in full-solid cells, where the CLSVOF
                 distance remains negative. Wall chemistry is
                 independent: <code>cL[embed]=neumann(0)</code> makes the
-                wall impermeable to species. Activity adds the source
-                <code>AcNum*|grad(f)|</code> at the drop interface; it
-                does not create wall flux. Here <code>cL</code> is
-                produced species, not directly a consumed-fuel
-                concentration. Absorbing, reactive or fixed-fuel walls
-                would require a different chemical boundary model.
-                Positive activity therefore accumulates species in these
-                periodic, impermeable domains; there is no imposed
-                chemical sink.</p>
+                wall impermeable to species. Activity adds <span
+                class="math inline">\((AcNum/Pe)\,\delta_{\Gamma,h}\)</span>
+                on the reconstructed drop interface; it does not create
+                wall flux. Pure drop cells and full solids receive no
+                source. Here <code>cL</code> is produced species, not
+                directly a consumed-fuel concentration. Absorbing,
+                reactive or fixed-fuel walls would require a different
+                chemical boundary model. Positive activity therefore
+                accumulates species in these periodic, impermeable
+                domains; there is no imposed chemical sink.</p>
+                <h2 id="version-migration">Version migration</h2>
+                <p>Replace the retired input block</p>
+                <div class="code-block-container"><div class="code-block-container"><pre
+                class="sourceCode ini"><code class="sourceCode ini"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">Oh</span><span class="ot">=</span><span class="dv">1</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Ca</span><span class="ot">=</span><span class="fl">0.1</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">Pe</span><span class="ot">=</span><span class="fl">1.6</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">AcNum</span><span class="ot">=</span><span class="dv">1</span></span></code></pre></div></div>
+                <p>with an explicit scale contract, for example</p>
+                <div class="code-block-container"><div class="code-block-container"><pre
+                class="sourceCode ini"><code class="sourceCode ini"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">Re</span><span class="ot">=</span><span class="fl">0.01</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Ca</span><span class="ot">=</span><span class="fl">0.1</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="dt">Pe</span><span class="ot">=</span><span class="fl">1.6</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="dt">GammaSlope</span><span class="ot">=</span><span class="dv">4</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="dt">AcNum</span><span class="ot">=</span><span class="dv">1</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="dt">viscosityRatio</span><span class="ot">=</span><span class="dv">1</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="dt">densityRatio</span><span class="ot">=</span><span class="dv">1</span></span></code></pre></div></div>
+                <p>These examples are not numerically equivalent. The
+                earlier code used <code>rho=4/Oh^2</code>, treated
+                <code>AcNum</code> as the diffuse source coefficient and
+                fixed the tension slope at 4. Historical outputs must
+                retain their original code and parameter interpretation;
+                they cannot be relabelled with the new groups.</p>
+                <h2 id="model-limits">Model limits</h2>
+                <ul>
+                <li>Product concentration is stored through the
+                two-phase transport construction while diffusion is
+                weighted toward the outer phase. A sharp exterior-flux
+                limit has not been verified.</li>
+                <li>The source uses a geometric PLIC interface measure,
+                including the radial metric in axisymmetry. Its
+                planar-circle and spherical-area convergence is checked
+                as a software benchmark; a sharp exterior-flux
+                verification remains open.</li>
+                <li>A spatially uniform product changes the absolute
+                tension and effective deformability, although only
+                gradients produce Marangoni stress.</li>
+                <li>Periodic impermeable domains retain emitted product.
+                Long-time steady states need separate evidence or an
+                explicit chemical relaxation mechanism.</li>
+                <li><code>stokes=false</code> retains unsteady and
+                convective inertia consistently. A small input
+                <code>Re</code> does not replace a Reynolds-number
+                convergence study.</li>
+                <li><code>MOVED</code> is a finite-time classifier, not
+                the theoretical <span
+                class="math inline">\(Pe_M=4\)</span> threshold for an
+                unbounded, nondeforming sphere.</li>
+                <li>Embedded cases stop before contact and contain no
+                moving-contact-line model.</li>
+                </ul>
+                <p>Finite exterior fuel, uptake arrest and delayed
+                chemical sensing belong to the sister
+                <code>active-drops-with-memory</code> programme. Its
+                existing delayed-sampling PR is independent of this
+                model change.</p>
                 <p>These cases require the pinned Basilisk
                 <code>v2026-08-30</code> and reconstruct the stationary
                 embedded geometry after mesh adaptation. A
@@ -704,8 +892,8 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 attraction or repulsion require separate study.</p>
                 <h2 id="parameter-sweep">Parameter sweep</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params <span class="at">--dry-run</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params <span class="at">--parallel</span> 2</span></code></pre></div></div>
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params <span class="at">--dry-run</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params <span class="at">--parallel</span> 2</span></code></pre></div></div>
                 <p><code>SWEEP_*</code> lists in the sweep file form a
                 Cartesian product; each case gets a deterministic
                 <code>CaseNo</code> from <code>CASE_START</code>. Set
@@ -713,7 +901,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 cases.</p>
                 <h2 id="onset-scan">Onset scan</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> PeScan.py 1.0 0.5 <span class="at">--tmax</span> 50 <span class="at">--max-level</span> 9 <span class="at">--tol</span> 0.005 <span class="at">--tag</span> level9</span></code></pre></div></div>
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> PeScan.py 1.0 0.5 <span class="at">--tmax</span> 50 <span class="at">--max-level</span> 9 <span class="at">--tol</span> 0.005 <span class="at">--tag</span> level9</span></code></pre></div></div>
                 <p><code>PeScan.py</code> runs one case per sample
                 through <code>runSimulation.sh</code> (case numbers from
                 <code>--case-start</code>, default 2000), first
@@ -769,7 +957,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 a value.</p>
                 <h2 id="tests">Tests</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> testCases/run-tests.sh</span></code></pre></div></div>
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> testCases/run-tests.sh</span></code></pre></div></div>
                 <p>Both tests are software tests: the first exercises
                 the scan logic with synthetic classifiers (monotone
                 threshold, all moving, all stationary, non-monotone
@@ -781,8 +969,8 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 no such case exists in this repository yet.</p>
                 <h2 id="post-processing">Post-processing</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> postProcess</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> contour.py <span class="at">--caseToProcess</span> ../simulationCases/c1000 <span class="at">--tSnap</span> 0.1 <span class="at">--cpus</span> 4</span></code></pre></div></div>
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> postProcess</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> contour.py <span class="at">--caseToProcess</span> ../simulationCases/c1000 <span class="at">--tSnap</span> 0.1 <span class="at">--cpus</span> 4</span></code></pre></div></div>
                 <p><code>contour.py</code> compiles
                 <code>getFacets</code> and <code>getData</code> once
                 with <code>qcc</code>, then renders one frame per
@@ -792,12 +980,12 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 legacy serial script with hard-coded paths kept for
                 reference. The readers compile individually with</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">qcc</span> <span class="at">-O2</span> <span class="at">-Wall</span> <span class="at">-disable-dimensions</span> getCM.c <span class="at">-o</span> getCM <span class="at">-lm</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./getCM</span> ../simulationCases/c1000/intermediate/snapshot-10.0000</span></code></pre></div></div>
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">qcc</span> <span class="at">-O2</span> <span class="at">-Wall</span> <span class="at">-disable-dimensions</span> getCM.c <span class="at">-o</span> getCM <span class="at">-lm</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./getCM</span> ../simulationCases/c1000/intermediate/snapshot-10.0000</span></code></pre></div></div>
                 <h2 id="documentation-site">Documentation site</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> .github/scripts/build.sh</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> .github/scripts/deploy.sh</span></code></pre></div></div>
+                class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> .github/scripts/build.sh</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> .github/scripts/deploy.sh</span></code></pre></div></div>
                 <p>The generator renders the literate C and Python
                 sources under <code>src-local/</code>,
                 <code>simulationCases/</code>, <code>postProcess/</code>
@@ -853,6 +1041,8 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <h3 id="src-local">src-local</h3>
                 <ul>
                 <li><a
+                href="src-local/active-drop-model.h.html">src-local/active-drop-model.h</a></li>
+                <li><a
                 href="src-local/activity.h.html">src-local/activity.h</a></li>
                 <li><a
                 href="src-local/embed-channel-geometry.h.html">src-local/embed-channel-geometry.h</a></li>
@@ -868,6 +1058,8 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <li><a
                 href="testCases/activity-phase-contract.c.html">testCases/activity-phase-contract.c</a></li>
                 <li><a
+                href="testCases/activity-source-budget.c.html">testCases/activity-source-budget.c</a></li>
+                <li><a
                 href="testCases/centroid-check.c.html">testCases/centroid-check.c</a></li>
                 <li><a
                 href="testCases/embed-contract.c.html">testCases/embed-contract.c</a></li>
@@ -877,6 +1069,8 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 href="testCases/run-tests.sh.html">testCases/run-tests.sh</a></li>
                 <li><a
                 href="testCases/test_case_boundaries.py.html">testCases/test_case_boundaries.py</a></li>
+                <li><a
+                href="testCases/test_dimensionless_model.py.html">testCases/test_dimensionless_model.py</a></li>
                 <li><a
                 href="testCases/test_periodic_centroid.py.html">testCases/test_periodic_centroid.py</a></li>
                 <li><a
@@ -928,7 +1122,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
               </a>
             </div>
           </footer>
-    </div>  
+    </div>
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -956,17 +1150,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-        
+
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-        
+
         // Add the button to the container
         container.appendChild(button);
-        
+
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-            
+
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -979,10 +1173,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-                    
+
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    
+
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -995,7 +1189,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -1005,7 +1199,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-        
+
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

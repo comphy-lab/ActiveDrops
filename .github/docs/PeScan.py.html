@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!-- 
+  <!--
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -59,20 +59,20 @@
       --color-primary: #0066cc;
       --color-secondary: #036;
       --color-accent: #0099ff;
-      
+
       /* UI elements */
       --color-header-bg: #f5f5f5;
       --color-footer-bg: #2d2e33;
       --color-border: #e0e0e0;
       --color-input-bg: #f9f9f9;
-      
+
       /* Component colors */
       --color-preloader-bg: #ffffff;
       --color-loader: #0066cc;
       --color-card-bg: #ffffff;
       --color-code-bg: #f5f5f5;
     }
-    
+
     /* Dark theme variables applied via media query when JS is disabled */
     @media (prefers-color-scheme: dark) {
       :root:not(.theme-set) {
@@ -82,13 +82,13 @@
         --color-primary: #4d9fff;
         --color-secondary: #88ccff;
         --color-accent: #00bfff;
-        
+
         /* UI elements - dark mode */
         --color-header-bg: #121212;
         --color-footer-bg: #121212;
         --color-border: #333;
         --color-input-bg: #2d2d2d;
-        
+
         /* Component colors - dark mode */
         --color-preloader-bg: #1a1a1a;
         --color-loader: #4d9fff;
@@ -96,7 +96,7 @@
         --color-code-bg: #2d2d2d;
       }
     }
-    
+
     /* When JS sets the theme explicitly via data attribute */
     [data-theme="dark"] {
       /* Base colors - dark mode */
@@ -105,36 +105,36 @@
       --color-primary: #4d9fff;
       --color-secondary: #88ccff;
       --color-accent: #00bfff;
-      
+
       /* UI elements - dark mode */
       --color-header-bg: #121212;
       --color-footer-bg: #121212;
       --color-border: #333;
       --color-input-bg: #2d2d2d;
-      
+
       /* Component colors - dark mode */
       --color-preloader-bg: #1a1a1a;
       --color-loader: #4d9fff;
       --color-card-bg: #222;
       --color-code-bg: #2d2d2d;
     }
-    
+
     /* Prevent transition flashes during initial load */
     html:not(.transitions-enabled) * {
       transition: none !important;
     }
-    
+
     /* Apply theme to preloader and early elements */
     #preloader {
       background-color: var(--color-preloader-bg);
       color: var(--color-text);
     }
-    
+
     #loader {
       border-color: var(--color-loader);
       border-top-color: transparent;
     }
-    
+
     /* Noscript warning */
     .noscript-warning {
       background-color: var(--color-primary);
@@ -147,7 +147,7 @@
       right: 0;
       z-index: 1000;
     }
-    
+
     /* Theme indicator for no-JS */
     .theme-indicator {
       padding: 5px 10px;
@@ -156,12 +156,12 @@
       color: var(--color-text);
       text-align: center;
     }
-    
+
     /* Hide JS-only elements when no JS */
     .no-js .js-only {
       display: none !important;
     }
-    
+
     /* Show no-JS alternatives */
     .js .no-js-only {
       display: none !important;
@@ -172,7 +172,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
   <title>PeScan.py | ActiveDrops</title>
-  
+
   <!-- Critical CSS for fastest paint -->
   <style>
       .s-intro__title {
@@ -182,19 +182,19 @@
       .s-header {
           visibility: visible;
       }
-      
+
       /* Ensure theme toggle properly styled immediately */
       .theme-toggle {
           background-color: var(--color-background);
           color: var(--color-text);
       }
-      
+
       /* Control SVG visibility based on theme */
       [data-theme="dark"] .theme-toggle-icon.sun,
       :root:not([data-theme="dark"]) .theme-toggle-icon.moon {
           display: block;
       }
-      
+
       [data-theme="dark"] .theme-toggle-icon.moon,
       :root:not([data-theme="dark"]) .theme-toggle-icon.sun {
           display: none;
@@ -205,7 +205,7 @@
   <meta name="description" content="Bracketed search for the finite-time onset of self-propulsion in Pe. Each sample is one case run through runSimulation.sh with a generated parameter file (th...">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="build_parser, class, consistent, find_transition, main, make_runner_classifier, parse_driver_output, result, to_dict, width">
+  <meta name="keywords" content="build_parser, class, consistent, finalise_failure, find_transition, main, parse_driver_output, record, width, write_case_params">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
@@ -256,7 +256,7 @@
   <script defer src="./assets/js/main.js"></script>
   <script defer src="./assets/js/theme-toggle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
-  
+
   <!-- Optimize page load performance -->
   <script>
     // Preconnect to critical domains
@@ -264,21 +264,21 @@
       'https://cdnjs.cloudflare.com',
       'https://cdn.jsdelivr.net'
     ];
-    
+
     preconnectDomains.forEach(domain => {
       const link = document.createElement('link');
       link.rel = 'preconnect';
       link.href = domain;
       link.crossOrigin = 'anonymous';
       document.head.appendChild(link);
-      
+
       // Also add DNS prefetch as fallback
       const dnsLink = document.createElement('link');
       dnsLink.rel = 'dns-prefetch';
       dnsLink.href = domain;
       document.head.appendChild(dnsLink);
     });
-    
+
     // Detect when document is fully loaded to remove preloader
     window.addEventListener('load', function() {
       const preloader = document.getElementById('preloader');
@@ -305,11 +305,11 @@
         document.head.appendChild(link);
         return link;
       }
-      
+
       // Check if we're on localhost
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         // Use hardcoded version numbers for reliable loading
-        
+
         // Load Font Awesome using multiple CDNs to maximize reliability for local development
         loadStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css');
         // Backup CDN if the first one fails
@@ -330,7 +330,7 @@
       // Mark page as JS-enabled and manage transitions
       document.documentElement.classList.remove('no-js');
       document.documentElement.classList.add('js');
-      
+
       // Allow CSS transitions after initial load to prevent transition flashes
       window.addEventListener('DOMContentLoaded', () => {
           setTimeout(() => {
@@ -421,18 +421,18 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 
         <!-- Main content -->
         <main class="content">
-            
+
             <div class="page-content">
-                
+
                                 <h1 class="page-title">PeScan.py</h1>
-                
-                                
+
+
                                 <div class="raw-file-button-container">
                     <a href="https://github.com/comphy-lab/ActiveDrops/raw/main/PeScan.py" class="raw-file-button" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-github"></i> See raw file
                     </a>
                 </div>
-                
+
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env python3</span></span></code></pre></div></div>
                 <p>Bracketed search for the finite-time onset of
@@ -460,10 +460,13 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 exists inside <code>[pe_min, pe_max]</code> the result
                 is explicitly <code>undetermined</code>.</p>
                 <p>Every run is recorded (Pe, CaseNo, status, final
-                time, final displacement and the driver’s SUMMARY line)
-                in a JSON results file so that the classification
-                convention, resolution and observation horizon travel
-                with the number.</p>
+                time, final displacement and the driver’s complete
+                scale-aware SUMMARY line) in a JSON results file so that
+                the classification convention, resolution, material
+                coupling and observation horizon travel with the number.
+                The scan varies <code>Pe</code>; interpret it as the
+                mobility-based <code>PeMobility</code> only when the
+                fixed base-file scale ratio is one.</p>
                 <p>The classification is a finite-time,
                 finite-displacement convention: near onset slow growth
                 can be censored by <code>tmax</code>. Refine
@@ -811,47 +814,52 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 <span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> base.is_file():</span>
 <span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;base parameter file not found: </span><span class="sc">{</span>base<span class="sc">}</span><span class="ss">&quot;</span>, <span class="bu">file</span><span class="op">=</span>sys.stderr)</span>
 <span id="cb6-161"><a href="#cb6-161" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">2</span></span>
-<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>    scan_dir <span class="op">=</span> REPO_ROOT <span class="op">/</span> <span class="st">&quot;simulationCases&quot;</span> <span class="op">/</span> <span class="ss">f&quot;pescan-</span><span class="sc">{</span>args<span class="sc">.</span>tag<span class="sc">}</span><span class="ss">&quot;</span></span>
-<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a>    scan_dir.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>    results_path <span class="op">=</span> scan_dir <span class="op">/</span> <span class="st">&quot;results.json&quot;</span></span>
-<span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a>    classify <span class="op">=</span> make_runner_classifier(base, args.case_start, args.tmax, args.tsnap,</span>
-<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a>                                      args.max_level, args.threshold, args.<span class="bu">exec</span>,</span>
-<span id="cb6-168"><a href="#cb6-168" aria-hidden="true" tabindex="-1"></a>                                      args.threads, scan_dir)</span>
-<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> find_transition(classify, args.pe_start, args.step, args.tol,</span>
-<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a>                             args.pe_min, args.pe_max, args.max_runs,</span>
-<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>                             verify<span class="op">=</span>args.verify)</span>
-<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
-<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a>        base_label <span class="op">=</span> <span class="bu">str</span>(base.relative_to(REPO_ROOT))</span>
-<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ValueError</span>:</span>
-<span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a>        base_label <span class="op">=</span> <span class="bu">str</span>(base)</span>
-<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a>    payload <span class="op">=</span> result.to_dict()</span>
-<span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a>    payload[<span class="st">&quot;convention&quot;</span>] <span class="op">=</span> {</span>
-<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;tmax&quot;</span>: args.tmax, <span class="st">&quot;threshold&quot;</span>: args.threshold, <span class="st">&quot;MAXlevel&quot;</span>: args.max_level,</span>
-<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;tsnap&quot;</span>: args.tsnap, <span class="st">&quot;pe_min&quot;</span>: args.pe_min, <span class="st">&quot;pe_max&quot;</span>: args.pe_max,</span>
-<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;tol&quot;</span>: args.tol, <span class="st">&quot;exec&quot;</span>: args.<span class="bu">exec</span>, <span class="st">&quot;base_params&quot;</span>: base_label,</span>
-<span id="cb6-182"><a href="#cb6-182" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;case_start&quot;</span>: args.case_start,</span>
-<span id="cb6-183"><a href="#cb6-183" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-184"><a href="#cb6-184" aria-hidden="true" tabindex="-1"></a>    results_path.write_text(json.dumps(payload, indent<span class="op">=</span><span class="dv">2</span>))</span>
-<span id="cb6-185"><a href="#cb6-185" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-186"><a href="#cb6-186" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span>
-<span id="cb6-187"><a href="#cb6-187" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Outcome: </span><span class="sc">{</span>result<span class="sc">.</span>outcome<span class="sc">}</span><span class="ss">&quot;</span>)</span>
-<span id="cb6-188"><a href="#cb6-188" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Reason:  </span><span class="sc">{</span>result<span class="sc">.</span>reason<span class="sc">}</span><span class="ss">&quot;</span>)</span>
-<span id="cb6-189"><a href="#cb6-189" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> result.pe_lo <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
-<span id="cb6-190"><a href="#cb6-190" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;Largest stationary Pe: </span><span class="sc">{</span>result<span class="sc">.</span>pe_lo<span class="sc">:.6g}</span><span class="ss">&quot;</span>)</span>
-<span id="cb6-191"><a href="#cb6-191" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> result.pe_hi <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
-<span id="cb6-192"><a href="#cb6-192" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;Smallest moving Pe:    </span><span class="sc">{</span>result<span class="sc">.</span>pe_hi<span class="sc">:.6g}</span><span class="ss">&quot;</span>)</span>
-<span id="cb6-193"><a href="#cb6-193" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> result.outcome <span class="op">==</span> <span class="st">&quot;bracketed&quot;</span>:</span>
-<span id="cb6-194"><a href="#cb6-194" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;Finite-time transition interval (tmax=</span><span class="sc">{</span>args<span class="sc">.</span>tmax<span class="sc">:g}</span><span class="ss">, threshold=</span><span class="sc">{</span>args<span class="sc">.</span>threshold<span class="sc">:g}</span><span class="ss">, &quot;</span></span>
-<span id="cb6-195"><a href="#cb6-195" aria-hidden="true" tabindex="-1"></a>              <span class="ss">f&quot;MAXlevel=</span><span class="sc">{</span>args<span class="sc">.</span>max_level<span class="sc">}</span><span class="ss">): [</span><span class="sc">{</span>result<span class="sc">.</span>pe_lo<span class="sc">:.6g}</span><span class="ss">, </span><span class="sc">{</span>result<span class="sc">.</span>pe_hi<span class="sc">:.6g}</span><span class="ss">], &quot;</span></span>
-<span id="cb6-196"><a href="#cb6-196" aria-hidden="true" tabindex="-1"></a>              <span class="ss">f&quot;width </span><span class="sc">{</span>result<span class="sc">.</span>width<span class="sc">:.6g}</span><span class="ss">&quot;</span>)</span>
-<span id="cb6-197"><a href="#cb6-197" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Runs: </span><span class="sc">{</span><span class="bu">len</span>(result.samples)<span class="sc">}</span><span class="ss">; results written to </span><span class="sc">{</span>results_path<span class="sc">}</span><span class="ss">&quot;</span>)</span>
-<span id="cb6-198"><a href="#cb6-198" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span> <span class="cf">if</span> result.outcome <span class="op">==</span> <span class="st">&quot;bracketed&quot;</span> <span class="kw">and</span> result.tolerance_reached <span class="cf">else</span> <span class="dv">1</span></span>
-<span id="cb6-199"><a href="#cb6-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-200"><a href="#cb6-200" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-201"><a href="#cb6-201" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
-<span id="cb6-202"><a href="#cb6-202" aria-hidden="true" tabindex="-1"></a>    sys.exit(main())</span></code></pre></div></div>
+<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> line <span class="kw">in</span> base.read_text().splitlines():</span>
+<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> re.match(<span class="vs">r&quot;</span><span class="dv">^\s</span><span class="op">*</span><span class="vs">Oh</span><span class="dv">\s</span><span class="op">*</span><span class="vs">=&quot;</span>, line):</span>
+<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">&quot;parameter &#39;Oh&#39; is retired; supply Re and Ca in the base file&quot;</span>,</span>
+<span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a>                  <span class="bu">file</span><span class="op">=</span>sys.stderr)</span>
+<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="dv">2</span></span>
+<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a>    scan_dir <span class="op">=</span> REPO_ROOT <span class="op">/</span> <span class="st">&quot;simulationCases&quot;</span> <span class="op">/</span> <span class="ss">f&quot;pescan-</span><span class="sc">{</span>args<span class="sc">.</span>tag<span class="sc">}</span><span class="ss">&quot;</span></span>
+<span id="cb6-168"><a href="#cb6-168" aria-hidden="true" tabindex="-1"></a>    scan_dir.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a>    results_path <span class="op">=</span> scan_dir <span class="op">/</span> <span class="st">&quot;results.json&quot;</span></span>
+<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>    classify <span class="op">=</span> make_runner_classifier(base, args.case_start, args.tmax, args.tsnap,</span>
+<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a>                                      args.max_level, args.threshold, args.<span class="bu">exec</span>,</span>
+<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a>                                      args.threads, scan_dir)</span>
+<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> find_transition(classify, args.pe_start, args.step, args.tol,</span>
+<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a>                             args.pe_min, args.pe_max, args.max_runs,</span>
+<span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a>                             verify<span class="op">=</span>args.verify)</span>
+<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a>        base_label <span class="op">=</span> <span class="bu">str</span>(base.relative_to(REPO_ROOT))</span>
+<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">ValueError</span>:</span>
+<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a>        base_label <span class="op">=</span> <span class="bu">str</span>(base)</span>
+<span id="cb6-182"><a href="#cb6-182" aria-hidden="true" tabindex="-1"></a>    payload <span class="op">=</span> result.to_dict()</span>
+<span id="cb6-183"><a href="#cb6-183" aria-hidden="true" tabindex="-1"></a>    payload[<span class="st">&quot;convention&quot;</span>] <span class="op">=</span> {</span>
+<span id="cb6-184"><a href="#cb6-184" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;tmax&quot;</span>: args.tmax, <span class="st">&quot;threshold&quot;</span>: args.threshold, <span class="st">&quot;MAXlevel&quot;</span>: args.max_level,</span>
+<span id="cb6-185"><a href="#cb6-185" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;tsnap&quot;</span>: args.tsnap, <span class="st">&quot;pe_min&quot;</span>: args.pe_min, <span class="st">&quot;pe_max&quot;</span>: args.pe_max,</span>
+<span id="cb6-186"><a href="#cb6-186" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;tol&quot;</span>: args.tol, <span class="st">&quot;exec&quot;</span>: args.<span class="bu">exec</span>, <span class="st">&quot;base_params&quot;</span>: base_label,</span>
+<span id="cb6-187"><a href="#cb6-187" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;case_start&quot;</span>: args.case_start,</span>
+<span id="cb6-188"><a href="#cb6-188" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-189"><a href="#cb6-189" aria-hidden="true" tabindex="-1"></a>    results_path.write_text(json.dumps(payload, indent<span class="op">=</span><span class="dv">2</span>))</span>
+<span id="cb6-190"><a href="#cb6-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-191"><a href="#cb6-191" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span>
+<span id="cb6-192"><a href="#cb6-192" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Outcome: </span><span class="sc">{</span>result<span class="sc">.</span>outcome<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb6-193"><a href="#cb6-193" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Reason:  </span><span class="sc">{</span>result<span class="sc">.</span>reason<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb6-194"><a href="#cb6-194" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> result.pe_lo <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb6-195"><a href="#cb6-195" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;Largest stationary Pe: </span><span class="sc">{</span>result<span class="sc">.</span>pe_lo<span class="sc">:.6g}</span><span class="ss">&quot;</span>)</span>
+<span id="cb6-196"><a href="#cb6-196" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> result.pe_hi <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb6-197"><a href="#cb6-197" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;Smallest moving Pe:    </span><span class="sc">{</span>result<span class="sc">.</span>pe_hi<span class="sc">:.6g}</span><span class="ss">&quot;</span>)</span>
+<span id="cb6-198"><a href="#cb6-198" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> result.outcome <span class="op">==</span> <span class="st">&quot;bracketed&quot;</span>:</span>
+<span id="cb6-199"><a href="#cb6-199" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;Finite-time transition interval (tmax=</span><span class="sc">{</span>args<span class="sc">.</span>tmax<span class="sc">:g}</span><span class="ss">, threshold=</span><span class="sc">{</span>args<span class="sc">.</span>threshold<span class="sc">:g}</span><span class="ss">, &quot;</span></span>
+<span id="cb6-200"><a href="#cb6-200" aria-hidden="true" tabindex="-1"></a>              <span class="ss">f&quot;MAXlevel=</span><span class="sc">{</span>args<span class="sc">.</span>max_level<span class="sc">}</span><span class="ss">): [</span><span class="sc">{</span>result<span class="sc">.</span>pe_lo<span class="sc">:.6g}</span><span class="ss">, </span><span class="sc">{</span>result<span class="sc">.</span>pe_hi<span class="sc">:.6g}</span><span class="ss">], &quot;</span></span>
+<span id="cb6-201"><a href="#cb6-201" aria-hidden="true" tabindex="-1"></a>              <span class="ss">f&quot;width </span><span class="sc">{</span>result<span class="sc">.</span>width<span class="sc">:.6g}</span><span class="ss">&quot;</span>)</span>
+<span id="cb6-202"><a href="#cb6-202" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Runs: </span><span class="sc">{</span><span class="bu">len</span>(result.samples)<span class="sc">}</span><span class="ss">; results written to </span><span class="sc">{</span>results_path<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb6-203"><a href="#cb6-203" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span> <span class="cf">if</span> result.outcome <span class="op">==</span> <span class="st">&quot;bracketed&quot;</span> <span class="kw">and</span> result.tolerance_reached <span class="cf">else</span> <span class="dv">1</span></span>
+<span id="cb6-204"><a href="#cb6-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-205"><a href="#cb6-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-206"><a href="#cb6-206" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
+<span id="cb6-207"><a href="#cb6-207" aria-hidden="true" tabindex="-1"></a>    sys.exit(main())</span></code></pre></div></div>
             </div>
         </main>
 
@@ -898,7 +906,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
               </a>
             </div>
           </footer>
-    </div>  
+    </div>
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -926,17 +934,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-        
+
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-        
+
         // Add the button to the container
         container.appendChild(button);
-        
+
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-            
+
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -949,10 +957,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-                    
+
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    
+
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -965,7 +973,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -975,7 +983,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-        
+
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

@@ -1,21 +1,29 @@
 /**
 # dropMove.c: onset of self-propulsion of a chemically active drop
 
-A single planar drop emits a chemical species at its interface. The species
-is advected and diffuses in the outer phase. The implemented law
-`sigma = 1/Ca + 4*cL` increases surface tension with concentration.
+A single planar drop emits a coarse-grained chemical product at its interface.
+The product is advected and diffuses in the outer phase. The implemented law
+`sigma = 1/Ca + GammaSlope*cL` increases surface tension with concentration.
 Above a critical Péclet number the isotropic
-state is unstable and the drop self-propels. The problem is integrated in
-the Stokes limit with the coupled level-set and volume-of-fluid (CLSVOF)
+state is unstable and the drop self-propels. The problem uses the full
+dimensionless Navier--Stokes equations with the coupled level-set and volume-of-fluid (CLSVOF)
 interface method and the integral formulation of surface tension.
 
 ## Non-dimensional groups
 
-- `Oh`: Ohnesorge number, entering only through the density $\rho = 4/Oh^2$.
-- `Pe`: Péclet number; the species diffusivity is $D = 1/Pe$.
-- `Ca`: the clean-interface surface tension is $1/Ca$; the local coefficient
-  is $1/Ca + 4c$ with $c$ the species concentration.
-- `AcNum`: constant chemical flux emitted at the interface.
+- `Re`: outer-fluid Reynolds number; the outer density is `Re` when the outer
+  viscosity, velocity and radius scales are one.
+- `Ca`: clean-interface capillary number; the reference tension is $1/Ca$.
+- `Pe`: product Péclet number; its diffusivity is $1/Pe$.
+- `GammaSlope`: dimensionless surface-tension sensitivity; the local tension
+  is $1/Ca + \mathit{GammaSlope}\,c$.
+- `AcNum`: dimensionless outward normal-gradient magnitude. The PLIC
+  surface-source coefficient is `AcNum/Pe`.
+- `viscosityRatio`, `densityRatio`: inner-to-outer material-property ratios.
+
+The reference-tension Ohnesorge number is derived as $Oh=\sqrt{Ca/Re}$. See
+[the model contract](../src-local/active-drop-model.h) for the dimensional
+scales and mobility diagnostics.
 
 ## Runtime parameters
 
@@ -27,7 +35,9 @@ argument (default `case.params`) through `src-local/params.h`:
 | `CaseNo` | 1000 | Case identifier used by the runner |
 | `Pe` | 1.6 | Péclet number |
 | `MAXlevel`, `MINlevel` | 8, 0 | Quadtree refinement bounds |
-| `Oh`, `Ca`, `AcNum` | 1, 0.1, 1 | Fixed non-dimensional groups |
+| `Re`, `Ca` | 0.01, 0.1 | Inertia and reference tension |
+| `GammaSlope`, `AcNum` | 4, 1 | Surface-tension coupling and interfacial gradient magnitude |
+| `viscosityRatio`, `densityRatio` | 1, 1 | Inner-to-outer property ratios |
 | `L0` | 10 | Square domain size in drop radii |
 | `tmax`, `tsnap` | 50, 0.1 | Observation horizon and snapshot interval |
 | `threshold` | 1 | Centroid displacement, in drop radii, classified as `MOVED`; `<= 0` disables the early stop |
@@ -64,6 +74,7 @@ Last updated: Sep 9, 2026
 #include "integral.h"
 #include "activity.h"
 #include "params.h"
+#include "active-drop-model.h"
 
 /**
 ## Fields and boundary conditions
@@ -81,9 +92,11 @@ scalar KAPPA[];
 ## Runtime parameters
 */
 int CaseNo = 1000;
-double Pe = 1.6;
+double Re = 0.01, Ca = 0.1, Pe = 1.6;
 int MAXlevel = 8, MINlevel = 0;
-double Oh = 1., Ca = 0.1, AcNum = 1.;
+double GammaSlope = 4., AcNum = 1.;
+double viscosityRatio = 1., densityRatio = 1.;
+double OhDerived, mobilityScaleRatio, PeMobility;
 double tmax = 50., tsnap = 0.1;
 double movement_threshold = 1.0;
 double FErr = 1e-3, VelErr = 1e-3, cErr = 1e-3, KErr = 1e-3;
@@ -122,10 +135,13 @@ static void print_status (const char * status, int i_now, double t_now)
   status_printed = true;
   fprintf (stdout, "STATUS %s\n", status);
   fprintf (stdout,
-           "SUMMARY CaseNo=%d Pe=%g max_level=%d tmax=%g threshold=%g"
+           "SUMMARY CaseNo=%d Re=%g Ca=%g Pe=%g GammaSlope=%g AcNum=%g"
+           " viscosityRatio=%g densityRatio=%g Oh=%g mobilityScaleRatio=%g PeMobility=%g"
+           " max_level=%d tmax=%g threshold=%g"
            " t_end=%g i_end=%d dist_end=%.8e xcm_end=%.8e ycm_end=%.8e"
            " status=%s\n",
-           CaseNo, Pe, MAXlevel, tmax, movement_threshold,
+           CaseNo, Re, Ca, Pe, GammaSlope, AcNum, viscosityRatio, densityRatio,
+           OhDerived, mobilityScaleRatio, PeMobility, MAXlevel, tmax, movement_threshold,
            t_now, i_now, dist_last, xcm_last, ycm_last, status);
   fflush (stdout);
 }
@@ -153,13 +169,22 @@ int main (int argc, char const * argv[])
 {
   params_init_from_argv (argc, argv);
 
+  if (param_present("Oh")) {
+    fprintf(stderr, "Parameter 'Oh' is retired. Supply Re and Ca; "
+            "the code reports Oh=sqrt(Ca/Re).\n");
+    return 2;
+  }
+
   CaseNo = param_int ("CaseNo", CaseNo);
+  Re = param_double ("Re", Re);
   Pe = param_double ("Pe", Pe);
   MAXlevel = param_int ("MAXlevel", MAXlevel);
   MINlevel = param_int ("MINlevel", MINlevel);
-  Oh = param_double ("Oh", Oh);
   Ca = param_double ("Ca", Ca);
+  GammaSlope = param_double ("GammaSlope", GammaSlope);
   AcNum = param_double ("AcNum", AcNum);
+  viscosityRatio = param_double ("viscosityRatio", viscosityRatio);
+  densityRatio = param_double ("densityRatio", densityRatio);
   double L0_param = param_double ("L0", 10.);
   tmax = param_double ("tmax", tmax);
   tsnap = param_double ("tsnap", tsnap);
@@ -170,11 +195,17 @@ int main (int argc, char const * argv[])
   KErr = param_double ("KErr", KErr);
   keLimit = param_double ("keLimit", keLimit);
 
-  if (!(Pe > 0.) || !(Oh > 0.) || !(Ca > 0.) || !(L0_param > 0.) ||
+  if (!(Re > 0.) || !(Pe > 0.) || !(Ca > 0.) || !(L0_param > 0.) ||
+      !(GammaSlope >= 0.) || !(AcNum >= 0.) ||
+      !(viscosityRatio > 0.) || !(densityRatio > 0.) ||
       !(tmax > 0.) || !(tsnap > 0.) || !(keLimit > 0.) ||
+      !isfinite(Re) || !isfinite(Pe) || !isfinite(Ca) ||
+      !isfinite(GammaSlope) || !isfinite(AcNum) ||
+      !isfinite(viscosityRatio) || !isfinite(densityRatio) ||
       MAXlevel < 1 || MAXlevel > 20 || MINlevel < 0 || MINlevel > MAXlevel) {
-    fprintf (stderr, "Invalid parameters: Pe, Oh, Ca, L0, tmax, tsnap and keLimit"
-             " must be positive and 0 <= MINlevel <= MAXlevel <= 20.\n");
+    fprintf (stderr, "Invalid dimensionless parameters or refinement levels. "
+             "Require Re, Ca, Pe, viscosityRatio and densityRatio > 0; "
+             "GammaSlope and AcNum >= 0; and 0 <= MINlevel <= MAXlevel <= 20.\n");
     return 2;
   }
 
@@ -183,7 +214,7 @@ int main (int argc, char const * argv[])
     return 2;
   }
 
-  stokes = true;
+  stokes = false;
   L0 = L0_param;
   origin (-0.5*L0, -0.5*L0);
   periodic (right);
@@ -192,18 +223,25 @@ int main (int argc, char const * argv[])
 
   d.sigmaf = sigmaf;
 
-  rho1 = 4./sq(Oh); rho2 = 4./sq(Oh);
-  mu1 = 1.0; mu2 = 1.0;
+  rho1 = densityRatio*Re; rho2 = Re;
+  mu1 = viscosityRatio;   mu2 = 1.;
 
   cL.inverse = true;
-  cL.A = AcNum;
+  cL.A = AcNum/Pe;
   cL.D = 1./Pe;
 
+  OhDerived = active_drop_ohnesorge(Re, Ca);
+  mobilityScaleRatio = active_drop_velocity_scale_ratio
+    (AcNum, GammaSlope, viscosityRatio, false);
+  PeMobility = mobilityScaleRatio*Pe;
+
   if (pid() == 0)
-    fprintf (stderr, "CaseNo=%d Pe=%g MAXlevel=%d MINlevel=%d Oh=%g Ca=%g AcNum=%g"
-             " L0=%g tmax=%g tsnap=%g threshold=%g\n",
-             CaseNo, Pe, MAXlevel, MINlevel, Oh, Ca, AcNum, L0, tmax, tsnap,
-             movement_threshold);
+    fprintf (stderr, "CaseNo=%d Re=%g Ca=%g Pe=%g GammaSlope=%g AcNum=%g "
+             "viscosityRatio=%g densityRatio=%g Oh=%g mobilityScaleRatio=%g "
+             "PeMobility=%g MAXlevel=%d MINlevel=%d L0=%g tmax=%g tsnap=%g "
+             "threshold=%g\n", CaseNo, Re, Ca, Pe, GammaSlope, AcNum,
+             viscosityRatio, densityRatio, OhDerived, mobilityScaleRatio, PeMobility,
+             MAXlevel, MINlevel, L0, tmax, tsnap, movement_threshold);
 
   run();
   return exit_status;
@@ -221,7 +259,7 @@ event init (i = 0) {
     u.x[] = 0.0;
     u.y[] = 0.0;
     cL[] = 0.;
-    sigmaf[] = 1./Ca + 4.*cL[];
+    sigmaf[] = 1./Ca + GammaSlope*cL[];
   }
 }
 
@@ -230,7 +268,7 @@ event init (i = 0) {
 */
 event properties (i++) {
   foreach()
-    sigmaf[] = 1./Ca + 4.*cL[];
+    sigmaf[] = 1./Ca + GammaSlope*cL[];
 }
 
 /**

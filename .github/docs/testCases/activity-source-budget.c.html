@@ -171,7 +171,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
-  <title>sweep.params | ActiveDrops</title>
+  <title>testCases/activity-source-budget.c | ActiveDrops</title>
 
   <!-- Critical CSS for fastest paint -->
   <style>
@@ -202,25 +202,25 @@
   </style>
 
   <!-- Critical Meta Tags -->
-  <meta name="description" content="BASECONFIG=default.params CASESTART=1000">
+  <meta name="description" content="Check the production PLIC source on uniform grids against the analytical circumference of a planar circle and surface area of a sphere. The axisymmetric area...">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="sweep">
+  <meta name="keywords" content="activity, activity.h, budget, grid/multigrid.h, run.h, source, vof.h">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
 
   <!-- Preload critical resources -->
-  <link rel="preload" href="./assets/js/main.js" as="script">
-  <link rel="preload" href="./assets/css/fontello/css/fontello.css" as="style">
-  <link rel="preload" href="./assets/css/academicons-1.7.0/css/academicons.min.css" as="style">
+  <link rel="preload" href="../assets/js/main.js" as="script">
+  <link rel="preload" href="../assets/css/fontello/css/fontello.css" as="style">
+  <link rel="preload" href="../assets/css/academicons-1.7.0/css/academicons.min.css" as="style">
 
   <!-- Base stylesheets -->
-  <link rel="stylesheet" href="./assets/css/styles.css">
-  <link rel="stylesheet" href="./assets/css/custom_styles.css">
-  <link rel="stylesheet" href="./assets/css/command-palette.css">
-  <link rel="stylesheet" href="./assets/css/fontello/css/fontello.css">
-  <link rel="stylesheet" href="./assets/css/academicons-1.7.0/css/academicons.min.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/custom_styles.css">
+  <link rel="stylesheet" href="../assets/css/command-palette.css">
+  <link rel="stylesheet" href="../assets/css/fontello/css/fontello.css">
+  <link rel="stylesheet" href="../assets/css/academicons-1.7.0/css/academicons.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 
   <!-- Font optimization -->
@@ -233,28 +233,28 @@
   </style>
 
   <!-- Favicon -->
-  <link rel="apple-touch-icon" sizes="180x180" href="./assets/favicon/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="./assets/favicon/favicon-96x96.png">
-  <link rel="icon" type="image/svg+xml" href="./assets/favicon/favicon.svg">
-  <link rel="shortcut icon" href="./assets/favicon/favicon.ico">
-  <link rel="manifest" href="./assets/favicon/site.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="../assets/favicon/favicon-96x96.png">
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon/favicon.svg">
+  <link rel="shortcut icon" href="../assets/favicon/favicon.ico">
+  <link rel="manifest" href="../assets/favicon/site.webmanifest">
 
   <!-- Scripts with proper loading attributes -->
   <script>
-    window.ASSET_PATH_PREFIX = ".";
+    window.ASSET_PATH_PREFIX = "..";
   </script>
-  <script src="./assets/js/jquery.min.js"></script>
-  <script src="./assets/js/jquery-ui.packed.js"></script>
-  <script src="./assets/js/plots.js"></script>
+  <script src="../assets/js/jquery.min.js"></script>
+  <script src="../assets/js/jquery-ui.packed.js"></script>
+  <script src="../assets/js/plots.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
   <!-- Config script must load before other scripts -->
-  <script src="./assets/js/config.js"></script>
-  <script defer src="./assets/js/html-sanitizer.js"></script>
-  <script defer src="./assets/js/search-helper.js"></script>
-  <script defer src="./assets/js/command-palette.js"></script>
-  <script defer src="./assets/js/command-data.js"></script>
-  <script defer src="./assets/js/main.js"></script>
-  <script defer src="./assets/js/theme-toggle.js"></script>
+  <script src="../assets/js/config.js"></script>
+  <script defer src="../assets/js/html-sanitizer.js"></script>
+  <script defer src="../assets/js/search-helper.js"></script>
+  <script defer src="../assets/js/command-palette.js"></script>
+  <script defer src="../assets/js/command-data.js"></script>
+  <script defer src="../assets/js/main.js"></script>
+  <script defer src="../assets/js/theme-toggle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
 
   <!-- Optimize page load performance -->
@@ -362,7 +362,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
         <header class="s-header">
             <div class="s-header__logo">
                 <a class="logo" href="/">
-                    <img src="./assets/logos/CoMPhy-Lab-no-name.png" alt="CoMPhy Lab">
+                    <img src="../assets/logos/CoMPhy-Lab-no-name.png" alt="CoMPhy Lab">
                 </a>
                 <a class="documentation-button" href="/ActiveDrops">
                     <i class="fa-solid fa-book-open"></i>
@@ -424,43 +424,127 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 
             <div class="page-content">
 
-                                <h1 class="page-title">sweep.params</h1>
+                                <h1 class="page-title">testCases/activity-source-budget.c</h1>
 
 
                                 <div class="raw-file-button-container">
-                    <a href="https://github.com/comphy-lab/ActiveDrops/raw/main/sweep.params" class="raw-file-button" target="_blank" rel="noopener noreferrer">
+                    <a href="https://github.com/comphy-lab/ActiveDrops/raw/main/testCases/activity-source-budget.c" class="raw-file-button" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-github"></i> See raw file
                     </a>
                 </div>
 
-                <h1 id="sweep.params">sweep.params</h1>
+                <h1 id="geometric-activity-source-budget">Geometric
+                activity-source budget</h1>
+                <p>Check the production PLIC source on uniform grids
+                against the analytical circumference of a planar circle
+                and surface area of a sphere. The axisymmetric area
+                omits the common azimuthal factor, consistently with the
+                solver metric. Pure drop cells and full solids must
+                receive no source.</p>
+                <p>An exactly face-aligned pure-phase interface provides
+                a separate fallback check because it contains no mixed
+                PLIC cell. These are bounded software and
+                geometric-convergence checks, not verification of the
+                coupled transport.</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode ini"><code class="sourceCode ini"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sweep configuration for runParameterSweep.sh</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">BASE_CONFIG</span><span class="ot">=</span><span class="st">default.params</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dt">CASE_START</span><span class="ot">=</span><span class="dv">1000</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Sweep variables of interest (comma separated). The Cartesian product of all</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># SWEEP_* lists is generated; set CASE_END to assert the expected count.</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="dt">SWEEP_Pe</span><span class="ot">=</span><span class="st">0.8,1.6,4.0</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dt">SWEEP_Re</span><span class="ot">=</span><span class="fl">0.01</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="dt">SWEEP_GammaSlope</span><span class="ot">=</span><span class="fl">4.0</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="dt">SWEEP_MAXlevel</span><span class="ot">=</span><span class="dv">8</span></span></code></pre></div></div>
+                class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/grid/multigrid.h" title="Link to Basilisk source for grid/multigrid.h"><span class="im">"grid/multigrid.h"</span></a></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#if TEST_PIPE</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="pp"># include </span><span class="im">&quot;axi.h&quot;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/run.h" title="Link to Basilisk source for run.h"><span class="im">"run.h"</span></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/vof.h" title="Link to Basilisk source for vof.h"><span class="im">"vof.h"</span></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>scalar f<span class="op">[],</span> <span class="op">*</span> interfaces <span class="op">=</span> <span class="op">{</span>f<span class="op">};</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>scalar p<span class="op">[];</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>face vector uf<span class="op">[];</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/activity.h.html" title="Link to local documentation for activity.h"><span class="im">"activity.h"</span></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>scalar concentration<span class="op">[],</span> <span class="op">*</span> stracers <span class="op">=</span> <span class="op">{</span>concentration<span class="op">};</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">int</span> failed <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">double</span> previous_error <span class="op">=</span> HUGE<span class="op">;</span></span></code></pre></div></div>
+                <p>Apply one source-only update and return the produced
+                mass divided by <code>dt*concentration.A</code>. The
+                same pass checks that the production source has no
+                support in pure inner-phase cells.</p>
+                <div class="code-block-container"><div class="code-block-container"><pre
+                class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">double</span> source_area <span class="op">(</span><span class="dt">int</span> <span class="op">*</span> bad_support<span class="op">)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  foreach<span class="op">()</span> concentration<span class="op">[]</span> <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  foreach_face<span class="op">()</span> uf<span class="op">.</span>x<span class="op">[]</span> <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  boundary<span class="op">({</span>f<span class="op">,</span> concentration<span class="op">,</span> uf<span class="op">});</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  dt <span class="op">=</span> <span class="fl">0.025</span><span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  concentration<span class="op">.</span>inverse <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  concentration<span class="op">.</span>A <span class="op">=</span> <span class="fl">0.15</span><span class="op">;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  concentration<span class="op">.</span>D <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  event<span class="op">(</span><span class="st">&quot;vof&quot;</span><span class="op">);</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  event<span class="op">(</span><span class="st">&quot;tracer_diffusion&quot;</span><span class="op">);</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> mass <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> inner_source <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  foreach<span class="op">(</span>reduction<span class="op">(+:</span>mass<span class="op">)</span> reduction<span class="op">(+:</span>inner_source<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    mass <span class="op">+=</span> concentration<span class="op">[]*</span>dv<span class="op">();</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>f<span class="op">[]</span> <span class="op">&gt;=</span> <span class="fl">1.</span> <span class="op">-</span> <span class="fl">1e-6</span> <span class="op">&amp;&amp;</span> ActivityFlux<span class="op">[]</span> <span class="op">!=</span> <span class="fl">0.</span><span class="op">)</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>      inner_source<span class="op">++;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="op">*</span>bad_support <span class="op">=</span> inner_source<span class="op">;</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> mass<span class="op">/(</span>dt<span class="op">*</span>concentration<span class="op">.</span>A<span class="op">);</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  size<span class="op">(</span><span class="fl">4.</span><span class="op">);</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  origin<span class="op">(-</span><span class="fl">2.</span><span class="op">,</span> TEST_PIPE <span class="op">?</span> <span class="fl">0.</span> <span class="op">:</span> <span class="op">-</span><span class="fl">2.</span><span class="op">);</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span>N <span class="op">=</span> <span class="dv">32</span><span class="op">;</span> N <span class="op">&lt;=</span> <span class="dv">128</span><span class="op">;</span> N <span class="op">*=</span> <span class="dv">2</span><span class="op">)</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    run<span class="op">();</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> failed<span class="op">;</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>event init <span class="op">(</span>i <span class="op">=</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  fraction<span class="op">(</span>f<span class="op">,</span> <span class="fl">1.</span> <span class="op">-</span> sqrt<span class="op">(</span>sq<span class="op">(</span>x<span class="op">)</span> <span class="op">+</span> sq<span class="op">(</span>y<span class="op">)));</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> bad_support <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> measured <span class="op">=</span> source_area<span class="op">(&amp;</span>bad_support<span class="op">);</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="dt">const</span> <span class="dt">double</span> exact <span class="op">=</span> TEST_PIPE <span class="op">?</span> <span class="fl">2.</span> <span class="op">:</span> <span class="fl">2.</span><span class="op">*</span>pi<span class="op">;</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> error <span class="op">=</span> fabs<span class="op">(</span>measured <span class="op">-</span> exact<span class="op">);</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> bad <span class="op">=</span> <span class="op">!</span>isfinite<span class="op">(</span>measured<span class="op">)</span> <span class="op">||</span> bad_support <span class="op">||</span> error <span class="op">&gt;</span> <span class="fl">0.2</span> <span class="op">||</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span>N <span class="op">&gt;</span> <span class="dv">32</span> <span class="op">&amp;&amp;</span> error <span class="op">&gt;</span> <span class="fl">1.05</span><span class="op">*</span>previous_error<span class="op">);</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>N <span class="op">==</span> <span class="dv">128</span><span class="op">)</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    bad <span class="op">|=</span> error <span class="op">&gt;</span> <span class="fl">0.03</span><span class="op">;</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  previous_error <span class="op">=</span> error<span class="op">;</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  failed <span class="op">|=</span> bad<span class="op">;</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;geometric-source pipe=</span><span class="sc">%d</span><span class="st"> N=</span><span class="sc">%d</span><span class="st"> area=</span><span class="sc">%g</span><span class="st"> exact=</span><span class="sc">%g</span><span class="st"> error=</span><span class="sc">%g</span><span class="st"> &quot;</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;pure_inner=</span><span class="sc">%d</span><span class="st"> status=</span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span> TEST_PIPE<span class="op">,</span> N<span class="op">,</span> measured<span class="op">,</span> exact<span class="op">,</span> error<span class="op">,</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>          bad_support<span class="op">,</span> bad <span class="op">?</span> <span class="st">&quot;FAIL&quot;</span> <span class="op">:</span> <span class="st">&quot;PASS&quot;</span><span class="op">);</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  foreach<span class="op">()</span> f<span class="op">[]</span> <span class="op">=</span> x <span class="op">&lt;</span> <span class="fl">0.</span> <span class="op">?</span> <span class="fl">1.</span> <span class="op">:</span> <span class="fl">0.</span><span class="op">;</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  boundary<span class="op">({</span>f<span class="op">});</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>  bad_support <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>  measured <span class="op">=</span> source_area<span class="op">(&amp;</span>bad_support<span class="op">);</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>  <span class="dt">const</span> <span class="dt">double</span> face_exact <span class="op">=</span> TEST_PIPE <span class="op">?</span> <span class="fl">8.</span> <span class="op">:</span> <span class="fl">4.</span><span class="op">;</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>  error <span class="op">=</span> fabs<span class="op">(</span>measured <span class="op">-</span> face_exact<span class="op">);</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>  bad <span class="op">=</span> <span class="op">!</span>isfinite<span class="op">(</span>measured<span class="op">)</span> <span class="op">||</span> bad_support <span class="op">||</span> error <span class="op">&gt;</span> <span class="fl">1e-12</span><span class="op">;</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>  failed <span class="op">|=</span> bad<span class="op">;</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>  fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;face-source pipe=</span><span class="sc">%d</span><span class="st"> N=</span><span class="sc">%d</span><span class="st"> area=</span><span class="sc">%g</span><span class="st"> exact=</span><span class="sc">%g</span><span class="st"> error=</span><span class="sc">%g</span><span class="st"> &quot;</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;pure_inner=</span><span class="sc">%d</span><span class="st"> status=</span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span> TEST_PIPE<span class="op">,</span> N<span class="op">,</span> measured<span class="op">,</span> face_exact<span class="op">,</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>          error<span class="op">,</span> bad_support<span class="op">,</span> bad <span class="op">?</span> <span class="st">&quot;FAIL&quot;</span> <span class="op">:</span> <span class="st">&quot;PASS&quot;</span><span class="op">);</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
             </div>
         </main>
 
         <footer class="site-footer">
             <div class="footer-left">
               <a href="https://basilisk.fr/sandbox/vatsal/" target="_blank" rel="noopener noreferrer">
-                <img src="./assets/logos/logoBasilisk_TransparentBackground.png" alt="Basilisk C" class="footer-logo">
+                <img src="../assets/logos/logoBasilisk_TransparentBackground.png" alt="Basilisk C" class="footer-logo">
               </a>
               <a href="https://pof.tnw.utwente.nl/" target="_blank" rel="noopener noreferrer">
-                <img src="./assets/logos/LogoPof_transparent_white.png" alt="Physics of Fluids" class="footer-logo pof-logo">
+                <img src="../assets/logos/LogoPof_transparent_white.png" alt="Physics of Fluids" class="footer-logo pof-logo">
               </a>
               <a href="https://www.utwente.nl/" target="_blank" rel="noopener noreferrer">
-                <img src="./assets/logos/UT_Logo_2400_Sta_White_EN.png" alt="University of Twente" class="footer-logo">
+                <img src="../assets/logos/UT_Logo_2400_Sta_White_EN.png" alt="University of Twente" class="footer-logo">
               </a>
               <a href="https://www.vatsalsanjay.com/" target="_blank" rel="noopener noreferrer">
-                <img src="./assets/logos/Logo_Vatsal_v3_OutLine.png" alt="Vatsal Sanjay" class="footer-logo">
+                <img src="../assets/logos/Logo_Vatsal_v3_OutLine.png" alt="Vatsal Sanjay" class="footer-logo">
               </a>
             </div>
             <div class="footer-center">
@@ -486,7 +570,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
               <a href="https://bsky.app/profile/comphy-lab.org" target="_blank" rel="noopener noreferrer" aria-label="Bluesky Profile">
                 <i class="fa-brands fa-bluesky" style="font-size: 2.5em; color: white;"></i>
               </a>
-              <a href="https://github.com/comphy-lab/ActiveDrops/edit/main/sweep.params" class="edit-link" aria-label="Edit this page on GitHub">
+              <a href="https://github.com/comphy-lab/ActiveDrops/edit/main/testCases/activity-source-budget.c" class="edit-link" aria-label="Edit this page on GitHub">
                 <i class="fa-brands fa-github"></i> Edit this page
               </a>
             </div>

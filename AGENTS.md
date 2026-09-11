@@ -23,7 +23,8 @@ for building and running.
   and pipe are periodic only left/right. The channel has upper/lower solid
   walls; the pipe has an upper solid wall and bottom symmetry axis.
 - `src-local/`: `activity.h` (interfacial chemical source and species
-  transport), `embed-channel-geometry.h` (`confined_geometry()` reconstructs
+  transport), `active-drop-model.h` (dimensionless scales and mobility
+  diagnostics), `embed-channel-geometry.h` (`confined_geometry()` reconstructs
   embedded wall fractions and metrics), `parse_params.h` and `params.h`
   (the single runtime-parameter pathway), `two-phase-clsvof-VP.h`
   (experimental viscoplastic variant, not included by the driver).
@@ -42,6 +43,12 @@ for building and running.
   file passed as `argv[1]`; do not add `key=value` command-line parsing or a
   second parser. New parameters get a default in the relevant driver, a line in
   `default.params` and a row in the driver's header table.
+- Dimensionless contract. Use `Re`, `Ca`, `Pe`, `GammaSlope`, `AcNum`,
+  `viscosityRatio` and `densityRatio`. Map the diffuse source as `AcNum/Pe`.
+  `Oh=sqrt(Ca/Re)` and the mobility-based Péclet number are derived outputs.
+  Reject the retired `Oh` input rather than guessing a conversion. Keep the
+  same `GammaSlope` for the same material in planar and spherical geometries;
+  geometry belongs in the reported mobility ratio.
 - Cases run in their own directory. `runSimulation.sh` copies the source and
   parameter file into `simulationCases/c<CaseNo>/`, compiles with
   `-I../../src-local` and executes there. `CaseNo >= 1000`.
@@ -74,9 +81,12 @@ for building and running.
   centroid of a circle on a deliberately asymmetric adaptive mesh.
   `test_periodic_centroid.py` exercises the actual driver moment formulas
   through periodic seams; `test_case_boundaries.py` checks the actual case
-  setup and solid cleanup without advancing a timestep. `embed-contract.c`
-  covers geometry and species diffusion, and `activity-phase-contract.c`
-  covers the temporary tracer phase assignment. These establish
+  setup and solid cleanup without advancing a timestep.
+  `test_dimensionless_model.py` checks the production parameter mapping and
+  retired-`Oh` rejection. `embed-contract.c` covers geometry and species
+  diffusion, `activity-phase-contract.c` covers temporary tracer phase
+  assignment and `activity-source-budget.c` checks geometric source support,
+  its integral and bounded circle/sphere area convergence. These establish
   implementation contracts only.
 - No verification or validation case exists yet. A single-drop run that
   reports `MOVED` demonstrates that the code runs and that the instability

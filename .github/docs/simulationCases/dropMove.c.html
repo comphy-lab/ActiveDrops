@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!-- 
+  <!--
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -202,10 +202,10 @@
   </style>
 
   <!-- Critical Meta Tags -->
-  <meta name="description" content="A single planar drop emits a chemical species at its interface. The species is advected and diffuses in the outer phase. The implemented law sigma = 1/Ca + 4...">
+  <meta name="description" content="A single planar drop emits a coarse-grained chemical product at its interface. The product is advected and diffuses in the outer phase. The implemented law s...">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="activity.h, curvature, dropmove, errno.h, integral.h, navier-stokes/centered.h, params.h, sys/stat.h, two-phase-clsvof.h">
+  <meta name="keywords" content="active-drop-model.h, activity.h, curvature, dropmove, errno.h, integral.h, navier-stokes/centered.h, params.h, sys/stat.h, two-phase-clsvof.h">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
@@ -437,33 +437,44 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 id="dropmove.c-onset-of-self-propulsion-of-a-chemically-active-drop">dropMove.c:
                 onset of self-propulsion of a chemically active
                 drop</h1>
-                <p>A single planar drop emits a chemical species at its
-                interface. The species is advected and diffuses in the
-                outer phase. The implemented law
-                <code>sigma = 1/Ca + 4*cL</code> increases surface
-                tension with concentration. Above a critical Péclet
-                number the isotropic state is unstable and the drop
-                self-propels. The problem is integrated in the Stokes
-                limit with the coupled level-set and volume-of-fluid
-                (CLSVOF) interface method and the integral formulation
-                of surface tension.</p>
+                <p>A single planar drop emits a coarse-grained chemical
+                product at its interface. The product is advected and
+                diffuses in the outer phase. The implemented law
+                <code>sigma = 1/Ca + GammaSlope*cL</code> increases
+                surface tension with concentration. Above a critical
+                Péclet number the isotropic state is unstable and the
+                drop self-propels. The problem uses the full
+                dimensionless Navier–Stokes equations with the coupled
+                level-set and volume-of-fluid (CLSVOF) interface method
+                and the integral formulation of surface tension.</p>
                 <h2 id="non-dimensional-groups">Non-dimensional
                 groups</h2>
                 <ul>
-                <li><code>Oh</code>: Ohnesorge number, entering only
-                through the density <span class="math inline">\(\rho =
-                4/Oh^2\)</span>.</li>
-                <li><code>Pe</code>: Péclet number; the species
-                diffusivity is <span class="math inline">\(D =
-                1/Pe\)</span>.</li>
-                <li><code>Ca</code>: the clean-interface surface tension
-                is <span class="math inline">\(1/Ca\)</span>; the local
-                coefficient is <span class="math inline">\(1/Ca +
-                4c\)</span> with <span class="math inline">\(c\)</span>
-                the species concentration.</li>
-                <li><code>AcNum</code>: constant chemical flux emitted
-                at the interface.</li>
+                <li><code>Re</code>: outer-fluid Reynolds number; the
+                outer density is <code>Re</code> when the outer
+                viscosity, velocity and radius scales are one.</li>
+                <li><code>Ca</code>: clean-interface capillary number;
+                the reference tension is <span
+                class="math inline">\(1/Ca\)</span>.</li>
+                <li><code>Pe</code>: product Péclet number; its
+                diffusivity is <span
+                class="math inline">\(1/Pe\)</span>.</li>
+                <li><code>GammaSlope</code>: dimensionless
+                surface-tension sensitivity; the local tension is <span
+                class="math inline">\(1/Ca +
+                \mathit{GammaSlope}\,c\)</span>.</li>
+                <li><code>AcNum</code>: dimensionless outward
+                normal-gradient magnitude. The PLIC surface-source
+                coefficient is <code>AcNum/Pe</code>.</li>
+                <li><code>viscosityRatio</code>,
+                <code>densityRatio</code>: inner-to-outer
+                material-property ratios.</li>
                 </ul>
+                <p>The reference-tension Ohnesorge number is derived as
+                <span class="math inline">\(Oh=\sqrt{Ca/Re}\)</span>.
+                See <a href="../src-local/active-drop-model.h">the model
+                contract</a> for the dimensional scales and mobility
+                diagnostics.</p>
                 <h2 id="runtime-parameters">Runtime parameters</h2>
                 <p>All parameters are read from a <code>key=value</code>
                 file passed as the first argument (default
@@ -499,10 +510,21 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <td>Quadtree refinement bounds</td>
                 </tr>
                 <tr>
-                <td><code>Oh</code>, <code>Ca</code>,
-                <code>AcNum</code></td>
-                <td>1, 0.1, 1</td>
-                <td>Fixed non-dimensional groups</td>
+                <td><code>Re</code>, <code>Ca</code></td>
+                <td>0.01, 0.1</td>
+                <td>Inertia and reference tension</td>
+                </tr>
+                <tr>
+                <td><code>GammaSlope</code>, <code>AcNum</code></td>
+                <td>4, 1</td>
+                <td>Surface-tension coupling and interfacial gradient
+                magnitude</td>
+                </tr>
+                <tr>
+                <td><code>viscosityRatio</code>,
+                <code>densityRatio</code></td>
+                <td>1, 1</td>
+                <td>Inner-to-outer property ratios</td>
                 </tr>
                 <tr>
                 <td><code>L0</code></td>
@@ -565,11 +587,14 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;errno.h&gt;</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/navier-stokes/centered.h" title="Link to Basilisk source for navier-stokes/centered.h"><span class="im">"navier-stokes/centered.h"</span></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define FILTERED </span><span class="dv">1</span><span class="pp"></span><span class="dv">62</span><span class="pp"></span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define FILTERED </span><span class="dv">1</span><span class="pp">
+</span><span class="dv">72</span><span class="pp">
+</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/two-phase-clsvof.h" title="Link to Basilisk source for two-phase-clsvof.h"><span class="im">"two-phase-clsvof.h"</span></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/integral.h" title="Link to Basilisk source for integral.h"><span class="im">"integral.h"</span></a></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/activity.h.html" title="Link to local documentation for activity.h"><span class="im">"activity.h"</span></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/params.h.html" title="Link to local documentation for params.h"><span class="im">"params.h"</span></a><span class="pp"></span></span></code></pre></div></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/params.h.html" title="Link to local documentation for params.h"><span class="im">"params.h"</span></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/active-drop-model.h.html" title="Link to local documentation for active-drop-model.h"><span class="im">"active-drop-model.h"</span></a><span class="pp"></span></span></code></pre></div></div>
                 <h2 id="fields-and-boundary-conditions">Fields and
                 boundary conditions</h2>
                 <p><code>cL</code> is the species concentration in the
@@ -586,13 +611,15 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <h2 id="runtime-parameters-1">Runtime parameters</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> CaseNo <span class="op">=</span> <span class="dv">1000</span><span class="op">;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Pe <span class="op">=</span> <span class="fl">1.6</span><span class="op">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Re <span class="op">=</span> <span class="fl">0.01</span><span class="op">,</span> Ca <span class="op">=</span> <span class="fl">0.1</span><span class="op">,</span> Pe <span class="op">=</span> <span class="fl">1.6</span><span class="op">;</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> MAXlevel <span class="op">=</span> <span class="dv">8</span><span class="op">,</span> MINlevel <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Oh <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> Ca <span class="op">=</span> <span class="fl">0.1</span><span class="op">,</span> AcNum <span class="op">=</span> <span class="fl">1.</span><span class="op">;</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> tmax <span class="op">=</span> <span class="fl">50.</span><span class="op">,</span> tsnap <span class="op">=</span> <span class="fl">0.1</span><span class="op">;</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> movement_threshold <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> FErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">,</span> VelErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">,</span> cErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">,</span> KErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">;</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> keLimit <span class="op">=</span> <span class="fl">1e3</span><span class="op">;</span></span></code></pre></div></div>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> GammaSlope <span class="op">=</span> <span class="fl">4.</span><span class="op">,</span> AcNum <span class="op">=</span> <span class="fl">1.</span><span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> viscosityRatio <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> densityRatio <span class="op">=</span> <span class="fl">1.</span><span class="op">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> OhDerived<span class="op">,</span> mobilityScaleRatio<span class="op">,</span> PeMobility<span class="op">;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> tmax <span class="op">=</span> <span class="fl">50.</span><span class="op">,</span> tsnap <span class="op">=</span> <span class="fl">0.1</span><span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> movement_threshold <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> FErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">,</span> VelErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">,</span> cErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">,</span> KErr <span class="op">=</span> <span class="fl">1e-3</span><span class="op">;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> keLimit <span class="op">=</span> <span class="fl">1e3</span><span class="op">;</span></span></code></pre></div></div>
                 <h2 id="classifier-state">Classifier state</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">double</span> x0_cm <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> y0_cm <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
@@ -622,13 +649,16 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  status_printed <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  fprintf <span class="op">(</span>stdout<span class="op">,</span> <span class="st">&quot;STATUS </span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span> status<span class="op">);</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  fprintf <span class="op">(</span>stdout<span class="op">,</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;SUMMARY CaseNo=</span><span class="sc">%d</span><span class="st"> Pe=</span><span class="sc">%g</span><span class="st"> max_level=</span><span class="sc">%d</span><span class="st"> tmax=</span><span class="sc">%g</span><span class="st"> threshold=</span><span class="sc">%g</span><span class="st">&quot;</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot; t_end=</span><span class="sc">%g</span><span class="st"> i_end=</span><span class="sc">%d</span><span class="st"> dist_end=</span><span class="sc">%.8e</span><span class="st"> xcm_end=</span><span class="sc">%.8e</span><span class="st"> ycm_end=</span><span class="sc">%.8e</span><span class="st">&quot;</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot; status=</span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>           CaseNo<span class="op">,</span> Pe<span class="op">,</span> MAXlevel<span class="op">,</span> tmax<span class="op">,</span> movement_threshold<span class="op">,</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>           t_now<span class="op">,</span> i_now<span class="op">,</span> dist_last<span class="op">,</span> xcm_last<span class="op">,</span> ycm_last<span class="op">,</span> status<span class="op">);</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  fflush <span class="op">(</span>stdout<span class="op">);</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;SUMMARY CaseNo=</span><span class="sc">%d</span><span class="st"> Re=</span><span class="sc">%g</span><span class="st"> Ca=</span><span class="sc">%g</span><span class="st"> Pe=</span><span class="sc">%g</span><span class="st"> GammaSlope=</span><span class="sc">%g</span><span class="st"> AcNum=</span><span class="sc">%g</span><span class="st">&quot;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot; viscosityRatio=</span><span class="sc">%g</span><span class="st"> densityRatio=</span><span class="sc">%g</span><span class="st"> Oh=</span><span class="sc">%g</span><span class="st"> mobilityScaleRatio=</span><span class="sc">%g</span><span class="st"> PeMobility=</span><span class="sc">%g</span><span class="st">&quot;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot; max_level=</span><span class="sc">%d</span><span class="st"> tmax=</span><span class="sc">%g</span><span class="st"> threshold=</span><span class="sc">%g</span><span class="st">&quot;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot; t_end=</span><span class="sc">%g</span><span class="st"> i_end=</span><span class="sc">%d</span><span class="st"> dist_end=</span><span class="sc">%.8e</span><span class="st"> xcm_end=</span><span class="sc">%.8e</span><span class="st"> ycm_end=</span><span class="sc">%.8e</span><span class="st">&quot;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot; status=</span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>           CaseNo<span class="op">,</span> Re<span class="op">,</span> Ca<span class="op">,</span> Pe<span class="op">,</span> GammaSlope<span class="op">,</span> AcNum<span class="op">,</span> viscosityRatio<span class="op">,</span> densityRatio<span class="op">,</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>           OhDerived<span class="op">,</span> mobilityScaleRatio<span class="op">,</span> PeMobility<span class="op">,</span> MAXlevel<span class="op">,</span> tmax<span class="op">,</span> movement_threshold<span class="op">,</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>           t_now<span class="op">,</span> i_now<span class="op">,</span> dist_last<span class="op">,</span> xcm_last<span class="op">,</span> ycm_last<span class="op">,</span> status<span class="op">);</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  fflush <span class="op">(</span>stdout<span class="op">);</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h3 id="ensure_directory">ensure_directory()</h3>
                 <p>Creates <code>path</code> with <code>mkdir(2)</code>;
                 an existing directory is accepted.</p>
@@ -649,61 +679,83 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  params_init_from_argv <span class="op">(</span>argc<span class="op">,</span> argv<span class="op">);</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  CaseNo <span class="op">=</span> param_int <span class="op">(</span><span class="st">&quot;CaseNo&quot;</span><span class="op">,</span> CaseNo<span class="op">);</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  Pe <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;Pe&quot;</span><span class="op">,</span> Pe<span class="op">);</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  MAXlevel <span class="op">=</span> param_int <span class="op">(</span><span class="st">&quot;MAXlevel&quot;</span><span class="op">,</span> MAXlevel<span class="op">);</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  MINlevel <span class="op">=</span> param_int <span class="op">(</span><span class="st">&quot;MINlevel&quot;</span><span class="op">,</span> MINlevel<span class="op">);</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  Oh <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;Oh&quot;</span><span class="op">,</span> Oh<span class="op">);</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  Ca <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;Ca&quot;</span><span class="op">,</span> Ca<span class="op">);</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  AcNum <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;AcNum&quot;</span><span class="op">,</span> AcNum<span class="op">);</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> L0_param <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;L0&quot;</span><span class="op">,</span> <span class="fl">10.</span><span class="op">);</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  tmax <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;tmax&quot;</span><span class="op">,</span> tmax<span class="op">);</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  tsnap <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;tsnap&quot;</span><span class="op">,</span> tsnap<span class="op">);</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  movement_threshold <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;threshold&quot;</span><span class="op">,</span> movement_threshold<span class="op">);</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  FErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;FErr&quot;</span><span class="op">,</span> FErr<span class="op">);</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  VelErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;VelErr&quot;</span><span class="op">,</span> VelErr<span class="op">);</span></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  cErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;cErr&quot;</span><span class="op">,</span> cErr<span class="op">);</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  KErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;KErr&quot;</span><span class="op">,</span> KErr<span class="op">);</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  keLimit <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;keLimit&quot;</span><span class="op">,</span> keLimit<span class="op">);</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!(</span>Pe <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>Oh <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>Ca <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>L0_param <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>tmax <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>tsnap <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>keLimit <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>      MAXlevel <span class="op">&lt;</span> <span class="dv">1</span> <span class="op">||</span> MAXlevel <span class="op">&gt;</span> <span class="dv">20</span> <span class="op">||</span> MINlevel <span class="op">&lt;</span> <span class="dv">0</span> <span class="op">||</span> MINlevel <span class="op">&gt;</span> MAXlevel<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;Invalid parameters: Pe, Oh, Ca, L0, tmax, tsnap and keLimit&quot;</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot; must be positive and 0 &lt;= MINlevel &lt;= MAXlevel &lt;= 20.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>ensure_directory <span class="op">(</span><span class="st">&quot;intermediate&quot;</span><span class="op">))</span> <span class="op">{</span></span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;Cannot create output directory &#39;intermediate&#39;.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>  stokes <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>  L0 <span class="op">=</span> L0_param<span class="op">;</span></span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  origin <span class="op">(-</span><span class="fl">0.5</span><span class="op">*</span>L0<span class="op">,</span> <span class="op">-</span><span class="fl">0.5</span><span class="op">*</span>L0<span class="op">);</span></span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  periodic <span class="op">(</span>right<span class="op">);</span></span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  periodic <span class="op">(</span>top<span class="op">);</span></span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>  init_grid <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> MAXlevel<span class="op">);</span></span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>  d<span class="op">.</span>sigmaf <span class="op">=</span> sigmaf<span class="op">;</span></span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>  rho1 <span class="op">=</span> <span class="fl">4.</span><span class="op">/</span>sq<span class="op">(</span>Oh<span class="op">);</span> rho2 <span class="op">=</span> <span class="fl">4.</span><span class="op">/</span>sq<span class="op">(</span>Oh<span class="op">);</span></span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>  mu1 <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span> mu2 <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span></span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>  cL<span class="op">.</span>inverse <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
-<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>  cL<span class="op">.</span>A <span class="op">=</span> AcNum<span class="op">;</span></span>
-<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>  cL<span class="op">.</span>D <span class="op">=</span> <span class="fl">1.</span><span class="op">/</span>Pe<span class="op">;</span></span>
-<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span></span>
-<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;CaseNo=</span><span class="sc">%d</span><span class="st"> Pe=</span><span class="sc">%g</span><span class="st"> MAXlevel=</span><span class="sc">%d</span><span class="st"> MINlevel=</span><span class="sc">%d</span><span class="st"> Oh=</span><span class="sc">%g</span><span class="st"> Ca=</span><span class="sc">%g</span><span class="st"> AcNum=</span><span class="sc">%g</span><span class="st">&quot;</span></span>
-<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot; L0=</span><span class="sc">%g</span><span class="st"> tmax=</span><span class="sc">%g</span><span class="st"> tsnap=</span><span class="sc">%g</span><span class="st"> threshold=</span><span class="sc">%g\n</span><span class="st">&quot;</span><span class="op">,</span></span>
-<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>             CaseNo<span class="op">,</span> Pe<span class="op">,</span> MAXlevel<span class="op">,</span> MINlevel<span class="op">,</span> Oh<span class="op">,</span> Ca<span class="op">,</span> AcNum<span class="op">,</span> L0<span class="op">,</span> tmax<span class="op">,</span> tsnap<span class="op">,</span></span>
-<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>             movement_threshold<span class="op">);</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>param_present<span class="op">(</span><span class="st">&quot;Oh&quot;</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;Parameter &#39;Oh&#39; is retired. Supply Re and Ca; &quot;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;the code reports Oh=sqrt(Ca/Re).</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  CaseNo <span class="op">=</span> param_int <span class="op">(</span><span class="st">&quot;CaseNo&quot;</span><span class="op">,</span> CaseNo<span class="op">);</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  Re <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;Re&quot;</span><span class="op">,</span> Re<span class="op">);</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  Pe <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;Pe&quot;</span><span class="op">,</span> Pe<span class="op">);</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  MAXlevel <span class="op">=</span> param_int <span class="op">(</span><span class="st">&quot;MAXlevel&quot;</span><span class="op">,</span> MAXlevel<span class="op">);</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  MINlevel <span class="op">=</span> param_int <span class="op">(</span><span class="st">&quot;MINlevel&quot;</span><span class="op">,</span> MINlevel<span class="op">);</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  Ca <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;Ca&quot;</span><span class="op">,</span> Ca<span class="op">);</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  GammaSlope <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;GammaSlope&quot;</span><span class="op">,</span> GammaSlope<span class="op">);</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  AcNum <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;AcNum&quot;</span><span class="op">,</span> AcNum<span class="op">);</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  viscosityRatio <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;viscosityRatio&quot;</span><span class="op">,</span> viscosityRatio<span class="op">);</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  densityRatio <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;densityRatio&quot;</span><span class="op">,</span> densityRatio<span class="op">);</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> L0_param <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;L0&quot;</span><span class="op">,</span> <span class="fl">10.</span><span class="op">);</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  tmax <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;tmax&quot;</span><span class="op">,</span> tmax<span class="op">);</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  tsnap <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;tsnap&quot;</span><span class="op">,</span> tsnap<span class="op">);</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  movement_threshold <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;threshold&quot;</span><span class="op">,</span> movement_threshold<span class="op">);</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  FErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;FErr&quot;</span><span class="op">,</span> FErr<span class="op">);</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  VelErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;VelErr&quot;</span><span class="op">,</span> VelErr<span class="op">);</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>  cErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;cErr&quot;</span><span class="op">,</span> cErr<span class="op">);</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  KErr <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;KErr&quot;</span><span class="op">,</span> KErr<span class="op">);</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  keLimit <span class="op">=</span> param_double <span class="op">(</span><span class="st">&quot;keLimit&quot;</span><span class="op">,</span> keLimit<span class="op">);</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!(</span>Re <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>Pe <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>Ca <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>L0_param <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>GammaSlope <span class="op">&gt;=</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>AcNum <span class="op">&gt;=</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>viscosityRatio <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>densityRatio <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>      <span class="op">!(</span>tmax <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>tsnap <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span> <span class="op">!(</span>keLimit <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>Re<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>Pe<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>Ca<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>GammaSlope<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>AcNum<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite<span class="op">(</span>viscosityRatio<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite<span class="op">(</span>densityRatio<span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>      MAXlevel <span class="op">&lt;</span> <span class="dv">1</span> <span class="op">||</span> MAXlevel <span class="op">&gt;</span> <span class="dv">20</span> <span class="op">||</span> MINlevel <span class="op">&lt;</span> <span class="dv">0</span> <span class="op">||</span> MINlevel <span class="op">&gt;</span> MAXlevel<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;Invalid dimensionless parameters or refinement levels. &quot;</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;Require Re, Ca, Pe, viscosityRatio and densityRatio &gt; 0; &quot;</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;GammaSlope and AcNum &gt;= 0; and 0 &lt;= MINlevel &lt;= MAXlevel &lt;= 20.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>ensure_directory <span class="op">(</span><span class="st">&quot;intermediate&quot;</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;Cannot create output directory &#39;intermediate&#39;.</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>  stokes <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>  L0 <span class="op">=</span> L0_param<span class="op">;</span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>  origin <span class="op">(-</span><span class="fl">0.5</span><span class="op">*</span>L0<span class="op">,</span> <span class="op">-</span><span class="fl">0.5</span><span class="op">*</span>L0<span class="op">);</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>  periodic <span class="op">(</span>right<span class="op">);</span></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>  periodic <span class="op">(</span>top<span class="op">);</span></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>  init_grid <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> MAXlevel<span class="op">);</span></span>
 <span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>  run<span class="op">();</span></span>
-<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> exit_status<span class="op">;</span></span>
-<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>  d<span class="op">.</span>sigmaf <span class="op">=</span> sigmaf<span class="op">;</span></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>  rho1 <span class="op">=</span> densityRatio<span class="op">*</span>Re<span class="op">;</span> rho2 <span class="op">=</span> Re<span class="op">;</span></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>  mu1 <span class="op">=</span> viscosityRatio<span class="op">;</span>   mu2 <span class="op">=</span> <span class="fl">1.</span><span class="op">;</span></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>  cL<span class="op">.</span>inverse <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>  cL<span class="op">.</span>A <span class="op">=</span> AcNum<span class="op">/</span>Pe<span class="op">;</span></span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>  cL<span class="op">.</span>D <span class="op">=</span> <span class="fl">1.</span><span class="op">/</span>Pe<span class="op">;</span></span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>  OhDerived <span class="op">=</span> active_drop_ohnesorge<span class="op">(</span>Re<span class="op">,</span> Ca<span class="op">);</span></span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>  mobilityScaleRatio <span class="op">=</span> active_drop_velocity_scale_ratio</span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span>AcNum<span class="op">,</span> GammaSlope<span class="op">,</span> viscosityRatio<span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>  PeMobility <span class="op">=</span> mobilityScaleRatio<span class="op">*</span>Pe<span class="op">;</span></span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;CaseNo=</span><span class="sc">%d</span><span class="st"> Re=</span><span class="sc">%g</span><span class="st"> Ca=</span><span class="sc">%g</span><span class="st"> Pe=</span><span class="sc">%g</span><span class="st"> GammaSlope=</span><span class="sc">%g</span><span class="st"> AcNum=</span><span class="sc">%g</span><span class="st"> &quot;</span></span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;viscosityRatio=</span><span class="sc">%g</span><span class="st"> densityRatio=</span><span class="sc">%g</span><span class="st"> Oh=</span><span class="sc">%g</span><span class="st"> mobilityScaleRatio=</span><span class="sc">%g</span><span class="st"> &quot;</span></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;PeMobility=</span><span class="sc">%g</span><span class="st"> MAXlevel=</span><span class="sc">%d</span><span class="st"> MINlevel=</span><span class="sc">%d</span><span class="st"> L0=</span><span class="sc">%g</span><span class="st"> tmax=</span><span class="sc">%g</span><span class="st"> tsnap=</span><span class="sc">%g</span><span class="st"> &quot;</span></span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;threshold=</span><span class="sc">%g\n</span><span class="st">&quot;</span><span class="op">,</span> CaseNo<span class="op">,</span> Re<span class="op">,</span> Ca<span class="op">,</span> Pe<span class="op">,</span> GammaSlope<span class="op">,</span> AcNum<span class="op">,</span></span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a>             viscosityRatio<span class="op">,</span> densityRatio<span class="op">,</span> OhDerived<span class="op">,</span> mobilityScaleRatio<span class="op">,</span> PeMobility<span class="op">,</span></span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a>             MAXlevel<span class="op">,</span> MINlevel<span class="op">,</span> L0<span class="op">,</span> tmax<span class="op">,</span> tsnap<span class="op">,</span> movement_threshold<span class="op">);</span></span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a>  run<span class="op">();</span></span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> exit_status<span class="op">;</span></span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h2 id="initialisation">Initialisation</h2>
                 <p>Signed distance to a unit circle centred at the
                 origin; the CLSVOF header derives the volume fraction
@@ -715,7 +767,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    u<span class="op">.</span>x<span class="op">[]</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    u<span class="op">.</span>y<span class="op">[]</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    cL<span class="op">[]</span> <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    sigmaf<span class="op">[]</span> <span class="op">=</span> <span class="fl">1.</span><span class="op">/</span>Ca <span class="op">+</span> <span class="fl">4.</span><span class="op">*</span>cL<span class="op">[];</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    sigmaf<span class="op">[]</span> <span class="op">=</span> <span class="fl">1.</span><span class="op">/</span>Ca <span class="op">+</span> GammaSlope<span class="op">*</span>cL<span class="op">[];</span></span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h2
@@ -724,7 +776,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>event properties <span class="op">(</span>i<span class="op">++)</span> <span class="op">{</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  foreach<span class="op">()</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    sigmaf<span class="op">[]</span> <span class="op">=</span> <span class="fl">1.</span><span class="op">/</span>Ca <span class="op">+</span> <span class="fl">4.</span><span class="op">*</span>cL<span class="op">[];</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    sigmaf<span class="op">[]</span> <span class="op">=</span> <span class="fl">1.</span><span class="op">/</span>Ca <span class="op">+</span> GammaSlope<span class="op">*</span>cL<span class="op">[];</span></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h2 id="adaptation">Adaptation</h2>
                 <p>Wavelet adaptation on the volume fraction, velocity,
@@ -869,7 +921,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
               </a>
             </div>
           </footer>
-    </div>  
+    </div>
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -897,17 +949,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-        
+
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-        
+
         // Add the button to the container
         container.appendChild(button);
-        
+
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-            
+
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -920,10 +972,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-                    
+
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    
+
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -936,7 +988,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -946,7 +998,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-        
+
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

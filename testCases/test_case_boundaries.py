@@ -26,7 +26,7 @@ static int inspect_solid (const char * stage)
   foreach(reduction(+:solids) reduction(+:bad)) {
     if (cs[] <= 0.) {
       solids++;
-      if (f[] != 0. || cL[] != 0. || !(d[] < 0.))
+      if (f[] != 0. || cL[] != 0. || ActivityFlux[] != 0. || !(d[] < 0.))
         bad++;
     }
   }
@@ -75,6 +75,15 @@ static int check_case()
   }
   if (fragments == 0) bad++;
   fprintf(stderr, "embedded fragments=%d boundary_errors=%d\n", fragments, bad);
+#endif
+  /* Exercise the production source before inspecting solid support. */
+#if EMBED
+  dt = 0.01;
+  cL.D = 0.;
+  foreach_face() uf.x[] = 0.;
+  boundary({f, cL, uf});
+  event("vof");
+  event("tracer_diffusion");
 #endif
   bad += inspect_solid("init");
 #if EMBED

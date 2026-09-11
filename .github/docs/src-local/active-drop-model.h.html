@@ -171,7 +171,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
-  <title>Simulation Cases | Documentation</title>
+  <title>src-local/active-drop-model.h | ActiveDrops</title>
 
   <!-- Critical CSS for fastest paint -->
   <style>
@@ -202,10 +202,10 @@
   </style>
 
   <!-- Critical Meta Tags -->
-  <meta name="description" content="Documentation for the CoMPhy-Lab computational fluid dynamics framework.">
+  <meta name="description" content="The model uses the initial drop radius $R0$, a chosen velocity $U0$ and a chosen emitted-species concentration $C$ as independent scales. Viscosity is scaled...">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="fluid dynamics, CFD, Basilisk, simulationCases, documentation">
+  <meta name="keywords" content="active, active_drop_model_h, drop, math.h, model">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
@@ -299,7 +299,7 @@
         link.href = href;
         link.crossOrigin = 'anonymous';
         link.onerror = (e) => {
-          console.error(`Failed to load stylesheet: ${href}`, e);
+          console.error(`Failed to load stylesheet: `, e);
           console.log('Trying alternative Font Awesome source...');
         };
         document.head.appendChild(link);
@@ -340,6 +340,12 @@
   </script>
 </head>
 <body id="top">
+<script>
+window.repoName = "ActiveDrops";
+window.githubOrg = "comphy-lab";
+window.baseDomain = "https://comphy-lab.org/ActiveDrops";
+</script>
+
 
     <!-- Preloader with theme variables applied -->
     <div id="preloader">
@@ -416,31 +422,136 @@
         <!-- Main content -->
         <main class="content">
 
-
             <div class="page-content">
-<h1>Simulation Cases</h1>
 
-<div class="documentation-section">
-<table class="documentation-files">
-<tr>
-  <td class="file-icon"><span class="file-c"></span></td>
-  <td class="file-link" style="padding-right: 2em;"><a href="dropMove-embed-channel.c.html" class="doc-link-button">dropMove-embed-channel.c</a></td>
-  <td class="file-desc">A planar unit circle starts at (0,dropOffset) between the straight embedded walls y=+/-wallHalfWidth. The offset perm...</td>
-</tr>
-<tr>
-  <td class="file-icon"><span class="file-c"></span></td>
-  <td class="file-link" style="padding-right: 2em;"><a href="dropMove-embed-pipe.c.html" class="doc-link-button">dropMove-embed-pipe.c</a></td>
-  <td class="file-desc">A unit sphere starts on the symmetry axis y=0. The coordinate x is axial and y is radial; axisymmetry excludes transv...</td>
-</tr>
-<tr>
-  <td class="file-icon"><span class="file-c"></span></td>
-  <td class="file-link" style="padding-right: 2em;"><a href="dropMove.c.html" class="doc-link-button">dropMove.c</a></td>
-  <td class="file-desc">A single planar drop emits a coarse-grained chemical product at its interface. The product is advected and diffuses i...</td>
-</tr>
-</table>
-</div>
+                                <h1 class="page-title">src-local/active-drop-model.h</h1>
 
-</div>
+
+                                <div class="raw-file-button-container">
+                    <a href="https://github.com/comphy-lab/ActiveDrops/raw/main/src-local/active-drop-model.h" class="raw-file-button" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-brands fa-github"></i> See raw file
+                    </a>
+                </div>
+
+                <h1
+                id="dimensionless-model-for-solubilizing-active-drops">Dimensionless
+                model for solubilizing active drops</h1>
+                <p>The model uses the initial drop radius <span
+                class="math inline">\(R_0\)</span>, a chosen velocity
+                <span class="math inline">\(U_0\)</span> and a chosen
+                emitted-species concentration <span
+                class="math inline">\(C_*\)</span> as independent
+                scales. Viscosity is scaled by <span
+                class="math inline">\(\mu_o\)</span>, pressure and
+                stress by <span
+                class="math inline">\(\mu_oU_0/R_0\)</span>, and surface
+                tension by <span
+                class="math inline">\(\mu_oU_0\)</span>. The input
+                groups are</p>
+                <p><span class="math display">\[
+                Re = \frac{\rho_o U_0R_0}{\mu_o},\qquad
+                Ca = \frac{\mu_oU_0}{\gamma_0},\qquad
+                Pe = \frac{U_0R_0}{D},
+                \]</span></p>
+                <p><span class="math display">\[
+                \Gamma_c = \frac{\gamma_C C_*}{\mu_oU_0},\qquad
+                A_c = \frac{A_0R_0}{DC_*},\qquad
+                \lambda = \frac{\mu_i}{\mu_o},\qquad
+                r_\rho = \frac{\rho_i}{\rho_o}.
+                \]</span></p>
+                <p>Here <span class="math inline">\(A_0\)</span> is the
+                dimensional outward flux of a coarse-grained product
+                that increases surface tension, and <span
+                class="math inline">\(\gamma_C = \partial\gamma/\partial
+                C &gt; 0\)</span>. The implemented dimensionless
+                equations therefore use</p>
+                <p><span class="math display">\[
+                D_c = Pe^{-1},\qquad
+                S_c = \frac{A_c}{Pe}\,\delta_{\Gamma,h},\qquad
+                \gamma = Ca^{-1} + \Gamma_c c.
+                \]</span></p>
+                <p>This is a prescribed-flux solubilization model. It
+                conserves the drop phase approximately through CLSVOF
+                and does not resolve micelle formation, droplet mass
+                loss or a finite fuel inventory.</p>
+                <p>The discrete surface measure <span
+                class="math inline">\(\delta_{\Gamma,h}\)</span> is the
+                geometric PLIC fragment area divided by the metric cell
+                volume. Mixed cells carry their reconstructed fragment;
+                an exactly face-aligned interface is assigned to its
+                pure exterior neighbour. Pure drop cells and full solids
+                receive no source. The concentration remains a
+                whole-field numerical extension, with diffusion weighted
+                toward the outer phase.</p>
+                <h2 id="mobility-diagnostics">Mobility diagnostics</h2>
+                <p>The material coupling <span
+                class="math inline">\(\Gamma_c\)</span> is independent
+                of geometry. Geometry enters only when comparing the
+                chosen velocity scale with the classical mobility scale.
+                For a circular planar drop and a spherical drop,
+                respectively,</p>
+                <p><span class="math display">\[
+                G_{2D}=2(1+\lambda),\qquad G_{3D}=2+3\lambda,
+                \]</span></p>
+                <p><span class="math display">\[
+                \chi = \frac{U_M}{U_0} = \frac{A_c\Gamma_c}{G},\qquad
+                Pe_M = \chi Pe.
+                \]</span></p>
+                <p>Thus <span class="math inline">\(\Gamma_c=4\)</span>
+                at <span class="math inline">\(A_c=\lambda=1\)</span>
+                normalizes the planar mobility, while a spherical
+                mobility normalization would use <span
+                class="math inline">\(5\)</span>. The simulations retain
+                the same default material value <span
+                class="math inline">\(\Gamma_c=4\)</span> in all
+                geometries and report <span
+                class="math inline">\(\chi\)</span> and <span
+                class="math inline">\(Pe_M\)</span> rather than silently
+                changing the material in the pipe.</p>
+                <p>The reference-tension Ohnesorge number is derived,
+                never independently specified:</p>
+                <p><span class="math display">\[
+                Oh = \sqrt{Ca/Re}.
+                \]</span></p>
+                <h2 id="evidence-boundary">Evidence boundary</h2>
+                <p>The scales follow Michelin (2023), equations (2)–(5),
+                and the planar mobility used by Li &amp; Koch (2022),
+                DOI 10.1017/jfm.2022.891. The spherical and planar
+                mobility formulae are comparison diagnostics. They do
+                not verify the diffuse source, predict a confined onset
+                or turn a finite-time <code>MOVED</code> classification
+                into a critical Péclet number.</p>
+                <div class="code-block-container"><div class="code-block-container"><pre
+                class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef ACTIVE_DROP_MODEL_H</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define ACTIVE_DROP_MODEL_H
+</span><span class="dv">79</span><span class="pp">
+</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;math.h&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">double</span> active_drop_ohnesorge <span class="op">(</span><span class="dt">double</span> reynolds<span class="op">,</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                                             <span class="dt">double</span> capillary<span class="op">)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> sqrt<span class="op">(</span>capillary<span class="op">/</span>reynolds<span class="op">);</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">double</span> active_drop_mobility_denominator</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span><span class="dt">double</span> viscosity_ratio<span class="op">,</span> <span class="dt">int</span> spherical<span class="op">)</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> spherical <span class="op">?</span> <span class="fl">2.</span> <span class="op">+</span> <span class="fl">3.</span><span class="op">*</span>viscosity_ratio <span class="op">:</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="fl">2.</span><span class="op">*(</span><span class="fl">1.</span> <span class="op">+</span> viscosity_ratio<span class="op">);</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">double</span> active_drop_velocity_scale_ratio</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span><span class="dt">double</span> activity<span class="op">,</span> <span class="dt">double</span> gamma_slope<span class="op">,</span> <span class="dt">double</span> viscosity_ratio<span class="op">,</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>   <span class="dt">int</span> spherical<span class="op">)</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> activity<span class="op">*</span>gamma_slope<span class="op">/</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    active_drop_mobility_denominator<span class="op">(</span>viscosity_ratio<span class="op">,</span> spherical<span class="op">);</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code></pre></div></div>
+            </div>
         </main>
 
         <footer class="site-footer">
@@ -481,8 +592,8 @@
               <a href="https://bsky.app/profile/comphy-lab.org" target="_blank" rel="noopener noreferrer" aria-label="Bluesky Profile">
                 <i class="fa-brands fa-bluesky" style="font-size: 2.5em; color: white;"></i>
               </a>
-              <a href="https://github.com/comphy-lab/ActiveDrops" class="edit-link" aria-label="Edit this page on GitHub">
-                <i class="fa-brands fa-github"></i> View repository
+              <a href="https://github.com/comphy-lab/ActiveDrops/edit/main/src-local/active-drop-model.h" class="edit-link" aria-label="Edit this page on GitHub">
+                <i class="fa-brands fa-github"></i> Edit this page
               </a>
             </div>
           </footer>
@@ -502,5 +613,75 @@
         </div>
     </div>
 
-</body>
+
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    // Add copy button to each code block container
+    const codeBlocks = document.querySelectorAll('.code-block-container pre');
+    codeBlocks.forEach(function(codeBlock, index) {
+        // Create button element
+        const button = document.createElement('button');
+        button.className = 'copy-button';
+        button.textContent = 'Copy';
+        button.setAttribute('aria-label', 'Copy code to clipboard');
+        button.setAttribute('data-copy-state', 'copy');
+
+        // Get the code block container (parent of the pre)
+        const container = codeBlock.parentNode;
+
+        // Add the button to the container
+        container.appendChild(button);
+
+        // Set up click event
+        button.addEventListener('click', async function() {
+            const codeText = codeBlock.textContent;
+
+            try {
+                // Try to use the modern clipboard API first
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(codeText);
+                    updateButtonState(button, 'success');
+                } else {
+                    // Fall back to the deprecated execCommand method
+                    const textarea = document.createElement('textarea');
+                    textarea.value = codeText;
+                    textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
+                    document.body.appendChild(textarea);
+                    textarea.select();
+
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(textarea);
+
+                    if (successful) {
+                        updateButtonState(button, 'success');
+                    } else {
+                        updateButtonState(button, 'error');
+                    }
+                }
+            } catch (err) {
+                console.error('Copy failed:', err);
+                updateButtonState(button, 'error');
+            }
+        });
+    });
+
+    // Function to update button state
+    function updateButtonState(button, state) {
+        if (state === 'success') {
+            button.textContent = 'Copied!';
+            button.classList.add('copied');
+        } else if (state === 'error') {
+            button.textContent = 'Error!';
+            button.classList.add('error');
+        }
+
+        // Reset button state after 2 seconds
+        setTimeout(function() {
+            button.textContent = 'Copy';
+            button.classList.remove('copied', 'error');
+        }, 2000);
+    }
+});
+</script>
+        </body>
 </html>
