@@ -1,15 +1,19 @@
 # Base parameters for simulationCases/dropMove-embed-channel.c
 # CaseNo >= 1000 keeps case folders sortable: simulationCases/c<CaseNo>/
 CaseNo=1002
-# Peclet number: species diffusivity is D = 1/Pe
+# Outer-fluid Reynolds number and emitted-product Peclet number
+Re=0.01
 Pe=1.6
 # Refinement levels (domain is L0 x L0 with 2^MAXlevel cells across)
 MAXlevel=8
 MINlevel=0
-# Fixed non-dimensional groups
-Oh=1.0
+# Clean capillary number, surface-tension slope and interface flux
 Ca=0.1
+GammaSlope=4.0
 AcNum=1.0
+# Inner-to-outer material-property ratios
+viscosityRatio=1.0
+densityRatio=1.0
 L0=10.0
 # Observation horizon and snapshot interval
 tmax=50

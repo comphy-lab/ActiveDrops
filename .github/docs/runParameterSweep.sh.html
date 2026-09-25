@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!-- 
+  <!--
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -59,20 +59,20 @@
       --color-primary: #0066cc;
       --color-secondary: #036;
       --color-accent: #0099ff;
-      
+
       /* UI elements */
       --color-header-bg: #f5f5f5;
       --color-footer-bg: #2d2e33;
       --color-border: #e0e0e0;
       --color-input-bg: #f9f9f9;
-      
+
       /* Component colors */
       --color-preloader-bg: #ffffff;
       --color-loader: #0066cc;
       --color-card-bg: #ffffff;
       --color-code-bg: #f5f5f5;
     }
-    
+
     /* Dark theme variables applied via media query when JS is disabled */
     @media (prefers-color-scheme: dark) {
       :root:not(.theme-set) {
@@ -82,13 +82,13 @@
         --color-primary: #4d9fff;
         --color-secondary: #88ccff;
         --color-accent: #00bfff;
-        
+
         /* UI elements - dark mode */
         --color-header-bg: #121212;
         --color-footer-bg: #121212;
         --color-border: #333;
         --color-input-bg: #2d2d2d;
-        
+
         /* Component colors - dark mode */
         --color-preloader-bg: #1a1a1a;
         --color-loader: #4d9fff;
@@ -96,7 +96,7 @@
         --color-code-bg: #2d2d2d;
       }
     }
-    
+
     /* When JS sets the theme explicitly via data attribute */
     [data-theme="dark"] {
       /* Base colors - dark mode */
@@ -105,36 +105,36 @@
       --color-primary: #4d9fff;
       --color-secondary: #88ccff;
       --color-accent: #00bfff;
-      
+
       /* UI elements - dark mode */
       --color-header-bg: #121212;
       --color-footer-bg: #121212;
       --color-border: #333;
       --color-input-bg: #2d2d2d;
-      
+
       /* Component colors - dark mode */
       --color-preloader-bg: #1a1a1a;
       --color-loader: #4d9fff;
       --color-card-bg: #222;
       --color-code-bg: #2d2d2d;
     }
-    
+
     /* Prevent transition flashes during initial load */
     html:not(.transitions-enabled) * {
       transition: none !important;
     }
-    
+
     /* Apply theme to preloader and early elements */
     #preloader {
       background-color: var(--color-preloader-bg);
       color: var(--color-text);
     }
-    
+
     #loader {
       border-color: var(--color-loader);
       border-top-color: transparent;
     }
-    
+
     /* Noscript warning */
     .noscript-warning {
       background-color: var(--color-primary);
@@ -147,7 +147,7 @@
       right: 0;
       z-index: 1000;
     }
-    
+
     /* Theme indicator for no-JS */
     .theme-indicator {
       padding: 5px 10px;
@@ -156,12 +156,12 @@
       color: var(--color-text);
       text-align: center;
     }
-    
+
     /* Hide JS-only elements when no JS */
     .no-js .js-only {
       display: none !important;
     }
-    
+
     /* Show no-JS alternatives */
     .js .no-js-only {
       display: none !important;
@@ -172,7 +172,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
   <title>runParameterSweep.sh | ActiveDrops</title>
-  
+
   <!-- Critical CSS for fastest paint -->
   <style>
       .s-intro__title {
@@ -182,19 +182,19 @@
       .s-header {
           visibility: visible;
       }
-      
+
       /* Ensure theme toggle properly styled immediately */
       .theme-toggle {
           background-color: var(--color-background);
           color: var(--color-text);
       }
-      
+
       /* Control SVG visibility based on theme */
       [data-theme="dark"] .theme-toggle-icon.sun,
       :root:not([data-theme="dark"]) .theme-toggle-icon.moon {
           display: block;
       }
-      
+
       [data-theme="dark"] .theme-toggle-icon.moon,
       :root:not([data-theme="dark"]) .theme-toggle-icon.sun {
           display: none;
@@ -256,7 +256,7 @@
   <script defer src="./assets/js/main.js"></script>
   <script defer src="./assets/js/theme-toggle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
-  
+
   <!-- Optimize page load performance -->
   <script>
     // Preconnect to critical domains
@@ -264,21 +264,21 @@
       'https://cdnjs.cloudflare.com',
       'https://cdn.jsdelivr.net'
     ];
-    
+
     preconnectDomains.forEach(domain => {
       const link = document.createElement('link');
       link.rel = 'preconnect';
       link.href = domain;
       link.crossOrigin = 'anonymous';
       document.head.appendChild(link);
-      
+
       // Also add DNS prefetch as fallback
       const dnsLink = document.createElement('link');
       dnsLink.rel = 'dns-prefetch';
       dnsLink.href = domain;
       document.head.appendChild(dnsLink);
     });
-    
+
     // Detect when document is fully loaded to remove preloader
     window.addEventListener('load', function() {
       const preloader = document.getElementById('preloader');
@@ -305,11 +305,11 @@
         document.head.appendChild(link);
         return link;
       }
-      
+
       // Check if we're on localhost
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         // Use hardcoded version numbers for reliable loading
-        
+
         // Load Font Awesome using multiple CDNs to maximize reliability for local development
         loadStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css');
         // Backup CDN if the first one fails
@@ -330,7 +330,7 @@
       // Mark page as JS-enabled and manage transitions
       document.documentElement.classList.remove('no-js');
       document.documentElement.classList.add('js');
-      
+
       // Allow CSS transitions after initial load to prevent transition flashes
       window.addEventListener('DOMContentLoaded', () => {
           setTimeout(() => {
@@ -421,18 +421,18 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 
         <!-- Main content -->
         <main class="content">
-            
+
             <div class="page-content">
-                
+
                                 <h1 class="page-title">runParameterSweep.sh</h1>
-                
-                                
+
+
                                 <div class="raw-file-button-container">
                     <a href="https://github.com/comphy-lab/ActiveDrops/raw/main/runParameterSweep.sh" class="raw-file-button" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-github"></i> See raw file
                     </a>
                 </div>
-                
+
                 <h1 id="runparametersweep.sh">runParameterSweep.sh</h1>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
@@ -737,152 +737,157 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 <span id="cb1-300"><a href="#cb1-300" aria-hidden="true" tabindex="-1"></a>  <span class="bu">exit</span> 1</span>
 <span id="cb1-301"><a href="#cb1-301" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
 <span id="cb1-302"><a href="#cb1-302" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-303"><a href="#cb1-303" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="ot">!</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">CASE_START&quot;</span> <span class="ot">=~</span> <span class="pp">^</span><span class="op">[</span><span class="ss">0</span><span class="op">-</span><span class="ss">9</span><span class="op">]</span><span class="pp">+</span><span class="dt">\$</span> <span class="kw">]];</span> <span class="cf">then</span></span>
-<span id="cb1-304"><a href="#cb1-304" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;ERROR: CASE_START must be numeric, got: </span><span class="dt">\$</span><span class="st">CASE_START&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
+<span id="cb1-303"><a href="#cb1-303" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="fu">grep</span> <span class="at">-Eq</span> <span class="st">&#39;^[[:space:]]*Oh[[:space:]]*=&#39;</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">BASE_CONFIG&quot;</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb1-304"><a href="#cb1-304" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;ERROR: Parameter &#39;Oh&#39; is retired; supply Re and Ca in BASE_CONFIG.&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
 <span id="cb1-305"><a href="#cb1-305" aria-hidden="true" tabindex="-1"></a>  <span class="bu">exit</span> 1</span>
 <span id="cb1-306"><a href="#cb1-306" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
 <span id="cb1-307"><a href="#cb1-307" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-308"><a href="#cb1-308" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">CASE_START&quot;</span> <span class="ot">-lt</span> 1000 <span class="kw">]];</span> <span class="cf">then</span></span>
-<span id="cb1-309"><a href="#cb1-309" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;ERROR: CASE_START must be &gt;= 1000 for consistent sorting, got: </span><span class="dt">\$</span><span class="st">CASE_START&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
+<span id="cb1-308"><a href="#cb1-308" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="ot">!</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">CASE_START&quot;</span> <span class="ot">=~</span> <span class="pp">^</span><span class="op">[</span><span class="ss">0</span><span class="op">-</span><span class="ss">9</span><span class="op">]</span><span class="pp">+</span><span class="dt">\$</span> <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-309"><a href="#cb1-309" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;ERROR: CASE_START must be numeric, got: </span><span class="dt">\$</span><span class="st">CASE_START&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
 <span id="cb1-310"><a href="#cb1-310" aria-hidden="true" tabindex="-1"></a>  <span class="bu">exit</span> 1</span>
 <span id="cb1-311"><a href="#cb1-311" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
 <span id="cb1-312"><a href="#cb1-312" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-313"><a href="#cb1-313" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="ot">-n</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">{CASE_END:-}&quot;</span> <span class="kw">]]</span> <span class="kw">&amp;&amp;</span> <span class="kw">[[</span> <span class="ot">!</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">CASE_END&quot;</span> <span class="ot">=~</span> <span class="pp">^</span><span class="op">[</span><span class="ss">0</span><span class="op">-</span><span class="ss">9</span><span class="op">]</span><span class="pp">+</span><span class="dt">\$</span> <span class="kw">]];</span> <span class="cf">then</span></span>
-<span id="cb1-314"><a href="#cb1-314" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;ERROR: CASE_END must be numeric when provided, got: </span><span class="dt">\$</span><span class="st">CASE_END&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
+<span id="cb1-313"><a href="#cb1-313" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">CASE_START&quot;</span> <span class="ot">-lt</span> 1000 <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-314"><a href="#cb1-314" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;ERROR: CASE_START must be &gt;= 1000 for consistent sorting, got: </span><span class="dt">\$</span><span class="st">CASE_START&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
 <span id="cb1-315"><a href="#cb1-315" aria-hidden="true" tabindex="-1"></a>  <span class="bu">exit</span> 1</span>
 <span id="cb1-316"><a href="#cb1-316" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
 <span id="cb1-317"><a href="#cb1-317" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-318"><a href="#cb1-318" aria-hidden="true" tabindex="-1"></a><span class="ex">parse_sweep_variables</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">SWEEP_FILE&quot;</span></span>
-<span id="cb1-319"><a href="#cb1-319" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-320"><a href="#cb1-320" aria-hidden="true" tabindex="-1"></a><span class="va">TEMP_DIR</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">(mktemp -d &quot;</span><span class="dt">\$</span>{TMPDIR:-/tmp}/activedrops-sweep.XXXXXX<span class="st">&quot;)&quot;</span></span>
-<span id="cb1-321"><a href="#cb1-321" aria-hidden="true" tabindex="-1"></a><span class="bu">trap</span> <span class="st">&#39;rm -rf &quot;\$TEMP_DIR&quot;&#39;</span> EXIT</span>
+<span id="cb1-318"><a href="#cb1-318" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="ot">-n</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">{CASE_END:-}&quot;</span> <span class="kw">]]</span> <span class="kw">&amp;&amp;</span> <span class="kw">[[</span> <span class="ot">!</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">CASE_END&quot;</span> <span class="ot">=~</span> <span class="pp">^</span><span class="op">[</span><span class="ss">0</span><span class="op">-</span><span class="ss">9</span><span class="op">]</span><span class="pp">+</span><span class="dt">\$</span> <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-319"><a href="#cb1-319" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;ERROR: CASE_END must be numeric when provided, got: </span><span class="dt">\$</span><span class="st">CASE_END&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
+<span id="cb1-320"><a href="#cb1-320" aria-hidden="true" tabindex="-1"></a>  <span class="bu">exit</span> 1</span>
+<span id="cb1-321"><a href="#cb1-321" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
 <span id="cb1-322"><a href="#cb1-322" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-323"><a href="#cb1-323" aria-hidden="true" tabindex="-1"></a><span class="va">PARAM_FILES</span><span class="op">=</span><span class="va">()</span></span>
-<span id="cb1-324"><a href="#cb1-324" aria-hidden="true" tabindex="-1"></a><span class="va">COMBINATION_COUNT</span><span class="op">=</span>0</span>
-<span id="cb1-325"><a href="#cb1-325" aria-hidden="true" tabindex="-1"></a><span class="va">CURRENT_CASE_NO</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">CASE_START&quot;</span></span>
-<span id="cb1-326"><a href="#cb1-326" aria-hidden="true" tabindex="-1"></a><span class="ex">generate_combinations</span> 0</span>
+<span id="cb1-323"><a href="#cb1-323" aria-hidden="true" tabindex="-1"></a><span class="ex">parse_sweep_variables</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">SWEEP_FILE&quot;</span></span>
+<span id="cb1-324"><a href="#cb1-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-325"><a href="#cb1-325" aria-hidden="true" tabindex="-1"></a><span class="va">TEMP_DIR</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">(mktemp -d &quot;</span><span class="dt">\$</span>{TMPDIR:-/tmp}/activedrops-sweep.XXXXXX<span class="st">&quot;)&quot;</span></span>
+<span id="cb1-326"><a href="#cb1-326" aria-hidden="true" tabindex="-1"></a><span class="bu">trap</span> <span class="st">&#39;rm -rf &quot;\$TEMP_DIR&quot;&#39;</span> EXIT</span>
 <span id="cb1-327"><a href="#cb1-327" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-328"><a href="#cb1-328" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">COMBINATION_COUNT&quot;</span> <span class="ot">-le</span> 0 <span class="kw">]];</span> <span class="cf">then</span></span>
-<span id="cb1-329"><a href="#cb1-329" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;ERROR: No parameter combinations generated.&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
-<span id="cb1-330"><a href="#cb1-330" aria-hidden="true" tabindex="-1"></a>  <span class="bu">exit</span> 1</span>
-<span id="cb1-331"><a href="#cb1-331" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
+<span id="cb1-328"><a href="#cb1-328" aria-hidden="true" tabindex="-1"></a><span class="va">PARAM_FILES</span><span class="op">=</span><span class="va">()</span></span>
+<span id="cb1-329"><a href="#cb1-329" aria-hidden="true" tabindex="-1"></a><span class="va">COMBINATION_COUNT</span><span class="op">=</span>0</span>
+<span id="cb1-330"><a href="#cb1-330" aria-hidden="true" tabindex="-1"></a><span class="va">CURRENT_CASE_NO</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">CASE_START&quot;</span></span>
+<span id="cb1-331"><a href="#cb1-331" aria-hidden="true" tabindex="-1"></a><span class="ex">generate_combinations</span> 0</span>
 <span id="cb1-332"><a href="#cb1-332" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-333"><a href="#cb1-333" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="ot">-n</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">{CASE_END:-}&quot;</span> <span class="kw">]];</span> <span class="cf">then</span></span>
-<span id="cb1-334"><a href="#cb1-334" aria-hidden="true" tabindex="-1"></a>  <span class="va">EXPECTED_COUNT</span><span class="op">=</span><span class="dt">\$</span><span class="kw">((</span><span class="va">CASE_END</span> <span class="op">-</span> <span class="va">CASE_START</span> <span class="op">+</span> <span class="dv">1</span><span class="kw">))</span></span>
-<span id="cb1-335"><a href="#cb1-335" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="kw">[[</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">EXPECTED_COUNT&quot;</span> <span class="ot">-ne</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">COMBINATION_COUNT&quot;</span> <span class="kw">]];</span> <span class="cf">then</span></span>
-<span id="cb1-336"><a href="#cb1-336" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;ERROR: CASE_START/CASE_END imply </span><span class="dt">\$</span><span class="st">{EXPECTED_COUNT} cases, but generated </span><span class="dt">\$</span><span class="st">{COMBINATION_COUNT} combinations.&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
-<span id="cb1-337"><a href="#cb1-337" aria-hidden="true" tabindex="-1"></a>    <span class="bu">exit</span> 1</span>
-<span id="cb1-338"><a href="#cb1-338" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
-<span id="cb1-339"><a href="#cb1-339" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
-<span id="cb1-340"><a href="#cb1-340" aria-hidden="true" tabindex="-1"></a>  <span class="va">CASE_END</span><span class="op">=</span><span class="dt">\$</span><span class="kw">((</span><span class="va">CASE_START</span> <span class="op">+</span> <span class="va">COMBINATION_COUNT</span> <span class="op">-</span> <span class="dv">1</span><span class="kw">))</span></span>
-<span id="cb1-341"><a href="#cb1-341" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
-<span id="cb1-342"><a href="#cb1-342" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-343"><a href="#cb1-343" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;=========================================&quot;</span></span>
-<span id="cb1-344"><a href="#cb1-344" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;ActiveDrops - Parameter Sweep&quot;</span></span>
-<span id="cb1-345"><a href="#cb1-345" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;=========================================&quot;</span></span>
-<span id="cb1-346"><a href="#cb1-346" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Sweep file: </span><span class="dt">\$</span><span class="st">{SWEEP_FILE}&quot;</span></span>
-<span id="cb1-347"><a href="#cb1-347" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Source file: </span><span class="dt">\$</span><span class="st">{EXEC_CODE}&quot;</span></span>
-<span id="cb1-348"><a href="#cb1-348" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Base config: </span><span class="dt">\$</span><span class="st">{BASE_CONFIG}&quot;</span></span>
-<span id="cb1-349"><a href="#cb1-349" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Sweep variables: </span><span class="dt">\$</span><span class="st">{SWEEP_VARS[*]}&quot;</span></span>
-<span id="cb1-350"><a href="#cb1-350" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Cases: </span><span class="dt">\$</span><span class="st">{CASE_START}..</span><span class="dt">\$</span><span class="st">{CASE_END} (</span><span class="dt">\$</span><span class="st">{COMBINATION_COUNT})&quot;</span></span>
-<span id="cb1-351"><a href="#cb1-351" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="dt">\$</span>OMP_THREADS <span class="ot">-gt</span> 1 <span class="kw">]];</span> <span class="cf">then</span></span>
-<span id="cb1-352"><a href="#cb1-352" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Run mode: OpenMP (threads per case=</span><span class="dt">\$</span><span class="st">{OMP_THREADS})&quot;</span></span>
-<span id="cb1-353"><a href="#cb1-353" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
-<span id="cb1-354"><a href="#cb1-354" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Run mode: Serial&quot;</span></span>
-<span id="cb1-355"><a href="#cb1-355" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
-<span id="cb1-356"><a href="#cb1-356" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="dt">\$</span>MAX_PARALLEL <span class="ot">-gt</span> 1 <span class="kw">]];</span> <span class="cf">then</span></span>
-<span id="cb1-357"><a href="#cb1-357" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Sweep execution: Parallel (max concurrent cases=</span><span class="dt">\$</span><span class="st">{MAX_PARALLEL})&quot;</span></span>
+<span id="cb1-333"><a href="#cb1-333" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">COMBINATION_COUNT&quot;</span> <span class="ot">-le</span> 0 <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-334"><a href="#cb1-334" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;ERROR: No parameter combinations generated.&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
+<span id="cb1-335"><a href="#cb1-335" aria-hidden="true" tabindex="-1"></a>  <span class="bu">exit</span> 1</span>
+<span id="cb1-336"><a href="#cb1-336" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
+<span id="cb1-337"><a href="#cb1-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-338"><a href="#cb1-338" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="ot">-n</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">{CASE_END:-}&quot;</span> <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-339"><a href="#cb1-339" aria-hidden="true" tabindex="-1"></a>  <span class="va">EXPECTED_COUNT</span><span class="op">=</span><span class="dt">\$</span><span class="kw">((</span><span class="va">CASE_END</span> <span class="op">-</span> <span class="va">CASE_START</span> <span class="op">+</span> <span class="dv">1</span><span class="kw">))</span></span>
+<span id="cb1-340"><a href="#cb1-340" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="kw">[[</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">EXPECTED_COUNT&quot;</span> <span class="ot">-ne</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">COMBINATION_COUNT&quot;</span> <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-341"><a href="#cb1-341" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;ERROR: CASE_START/CASE_END imply </span><span class="dt">\$</span><span class="st">{EXPECTED_COUNT} cases, but generated </span><span class="dt">\$</span><span class="st">{COMBINATION_COUNT} combinations.&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
+<span id="cb1-342"><a href="#cb1-342" aria-hidden="true" tabindex="-1"></a>    <span class="bu">exit</span> 1</span>
+<span id="cb1-343"><a href="#cb1-343" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
+<span id="cb1-344"><a href="#cb1-344" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
+<span id="cb1-345"><a href="#cb1-345" aria-hidden="true" tabindex="-1"></a>  <span class="va">CASE_END</span><span class="op">=</span><span class="dt">\$</span><span class="kw">((</span><span class="va">CASE_START</span> <span class="op">+</span> <span class="va">COMBINATION_COUNT</span> <span class="op">-</span> <span class="dv">1</span><span class="kw">))</span></span>
+<span id="cb1-346"><a href="#cb1-346" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
+<span id="cb1-347"><a href="#cb1-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-348"><a href="#cb1-348" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;=========================================&quot;</span></span>
+<span id="cb1-349"><a href="#cb1-349" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;ActiveDrops - Parameter Sweep&quot;</span></span>
+<span id="cb1-350"><a href="#cb1-350" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;=========================================&quot;</span></span>
+<span id="cb1-351"><a href="#cb1-351" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Sweep file: </span><span class="dt">\$</span><span class="st">{SWEEP_FILE}&quot;</span></span>
+<span id="cb1-352"><a href="#cb1-352" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Source file: </span><span class="dt">\$</span><span class="st">{EXEC_CODE}&quot;</span></span>
+<span id="cb1-353"><a href="#cb1-353" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Base config: </span><span class="dt">\$</span><span class="st">{BASE_CONFIG}&quot;</span></span>
+<span id="cb1-354"><a href="#cb1-354" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Sweep variables: </span><span class="dt">\$</span><span class="st">{SWEEP_VARS[*]}&quot;</span></span>
+<span id="cb1-355"><a href="#cb1-355" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Cases: </span><span class="dt">\$</span><span class="st">{CASE_START}..</span><span class="dt">\$</span><span class="st">{CASE_END} (</span><span class="dt">\$</span><span class="st">{COMBINATION_COUNT})&quot;</span></span>
+<span id="cb1-356"><a href="#cb1-356" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="dt">\$</span>OMP_THREADS <span class="ot">-gt</span> 1 <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-357"><a href="#cb1-357" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Run mode: OpenMP (threads per case=</span><span class="dt">\$</span><span class="st">{OMP_THREADS})&quot;</span></span>
 <span id="cb1-358"><a href="#cb1-358" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
-<span id="cb1-359"><a href="#cb1-359" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Sweep execution: Sequential&quot;</span></span>
+<span id="cb1-359"><a href="#cb1-359" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Run mode: Serial&quot;</span></span>
 <span id="cb1-360"><a href="#cb1-360" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
-<span id="cb1-361"><a href="#cb1-361" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="dt">\$</span>DRY_RUN <span class="ot">-eq</span> 1 <span class="kw">]];</span> <span class="cf">then</span></span>
-<span id="cb1-362"><a href="#cb1-362" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Mode: Dry run&quot;</span></span>
-<span id="cb1-363"><a href="#cb1-363" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
-<span id="cb1-364"><a href="#cb1-364" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;=========================================&quot;</span></span>
-<span id="cb1-365"><a href="#cb1-365" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;&quot;</span></span>
-<span id="cb1-366"><a href="#cb1-366" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-367"><a href="#cb1-367" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="dt">\$</span>DRY_RUN <span class="ot">-eq</span> 1 <span class="kw">]];</span> <span class="cf">then</span></span>
-<span id="cb1-368"><a href="#cb1-368" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Dry run complete. No simulations executed.&quot;</span></span>
-<span id="cb1-369"><a href="#cb1-369" aria-hidden="true" tabindex="-1"></a>  <span class="bu">exit</span> 0</span>
-<span id="cb1-370"><a href="#cb1-370" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
+<span id="cb1-361"><a href="#cb1-361" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="dt">\$</span>MAX_PARALLEL <span class="ot">-gt</span> 1 <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-362"><a href="#cb1-362" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Sweep execution: Parallel (max concurrent cases=</span><span class="dt">\$</span><span class="st">{MAX_PARALLEL})&quot;</span></span>
+<span id="cb1-363"><a href="#cb1-363" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
+<span id="cb1-364"><a href="#cb1-364" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Sweep execution: Sequential&quot;</span></span>
+<span id="cb1-365"><a href="#cb1-365" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
+<span id="cb1-366"><a href="#cb1-366" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="dt">\$</span>DRY_RUN <span class="ot">-eq</span> 1 <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-367"><a href="#cb1-367" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Mode: Dry run&quot;</span></span>
+<span id="cb1-368"><a href="#cb1-368" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
+<span id="cb1-369"><a href="#cb1-369" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;=========================================&quot;</span></span>
+<span id="cb1-370"><a href="#cb1-370" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;&quot;</span></span>
 <span id="cb1-371"><a href="#cb1-371" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-372"><a href="#cb1-372" aria-hidden="true" tabindex="-1"></a><span class="va">SUCCESSFUL</span><span class="op">=</span>0</span>
-<span id="cb1-373"><a href="#cb1-373" aria-hidden="true" tabindex="-1"></a><span class="va">FAILED</span><span class="op">=</span>0</span>
-<span id="cb1-374"><a href="#cb1-374" aria-hidden="true" tabindex="-1"></a><span class="va">RUN_PIDS</span><span class="op">=</span><span class="va">()</span></span>
-<span id="cb1-375"><a href="#cb1-375" aria-hidden="true" tabindex="-1"></a><span class="va">RUN_CASE_NOS</span><span class="op">=</span><span class="va">()</span></span>
+<span id="cb1-372"><a href="#cb1-372" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="dt">\$</span>DRY_RUN <span class="ot">-eq</span> 1 <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-373"><a href="#cb1-373" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Dry run complete. No simulations executed.&quot;</span></span>
+<span id="cb1-374"><a href="#cb1-374" aria-hidden="true" tabindex="-1"></a>  <span class="bu">exit</span> 0</span>
+<span id="cb1-375"><a href="#cb1-375" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
 <span id="cb1-376"><a href="#cb1-376" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-377"><a href="#cb1-377" aria-hidden="true" tabindex="-1"></a><span class="fu">wait_for_pid_index()</span> <span class="kw">{</span></span>
-<span id="cb1-378"><a href="#cb1-378" aria-hidden="true" tabindex="-1"></a>  <span class="bu">local</span> <span class="va">idx</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">1&quot;</span></span>
-<span id="cb1-379"><a href="#cb1-379" aria-hidden="true" tabindex="-1"></a>  <span class="bu">local</span> <span class="va">pid</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">{RUN_PIDS[</span><span class="dt">\$</span><span class="st">idx]}&quot;</span></span>
-<span id="cb1-380"><a href="#cb1-380" aria-hidden="true" tabindex="-1"></a>  <span class="bu">local</span> <span class="va">case_no</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">{RUN_CASE_NOS[</span><span class="dt">\$</span><span class="st">idx]}&quot;</span></span>
+<span id="cb1-377"><a href="#cb1-377" aria-hidden="true" tabindex="-1"></a><span class="va">SUCCESSFUL</span><span class="op">=</span>0</span>
+<span id="cb1-378"><a href="#cb1-378" aria-hidden="true" tabindex="-1"></a><span class="va">FAILED</span><span class="op">=</span>0</span>
+<span id="cb1-379"><a href="#cb1-379" aria-hidden="true" tabindex="-1"></a><span class="va">RUN_PIDS</span><span class="op">=</span><span class="va">()</span></span>
+<span id="cb1-380"><a href="#cb1-380" aria-hidden="true" tabindex="-1"></a><span class="va">RUN_CASE_NOS</span><span class="op">=</span><span class="va">()</span></span>
 <span id="cb1-381"><a href="#cb1-381" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-382"><a href="#cb1-382" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="bu">wait</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">pid&quot;</span><span class="kw">;</span> <span class="cf">then</span></span>
-<span id="cb1-383"><a href="#cb1-383" aria-hidden="true" tabindex="-1"></a>    <span class="kw">((</span><span class="va">SUCCESSFUL</span> <span class="op">+=</span> <span class="dv">1</span><span class="kw">))</span></span>
-<span id="cb1-384"><a href="#cb1-384" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;Case </span><span class="dt">\$</span><span class="st">{case_no} completed.&quot;</span></span>
-<span id="cb1-385"><a href="#cb1-385" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span></span>
-<span id="cb1-386"><a href="#cb1-386" aria-hidden="true" tabindex="-1"></a>    <span class="kw">((</span><span class="va">FAILED</span> <span class="op">+=</span> <span class="dv">1</span><span class="kw">))</span></span>
-<span id="cb1-387"><a href="#cb1-387" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;ERROR: Case </span><span class="dt">\$</span><span class="st">{case_no} failed.&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
-<span id="cb1-388"><a href="#cb1-388" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
-<span id="cb1-389"><a href="#cb1-389" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-390"><a href="#cb1-390" aria-hidden="true" tabindex="-1"></a>  <span class="bu">unset</span> <span class="st">&#39;RUN_PIDS[idx]&#39;</span></span>
-<span id="cb1-391"><a href="#cb1-391" aria-hidden="true" tabindex="-1"></a>  <span class="bu">unset</span> <span class="st">&#39;RUN_CASE_NOS[idx]&#39;</span></span>
-<span id="cb1-392"><a href="#cb1-392" aria-hidden="true" tabindex="-1"></a>  <span class="va">RUN_PIDS</span><span class="op">=</span><span class="va">(</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">{RUN_PIDS[@]}&quot;</span><span class="va">)</span></span>
-<span id="cb1-393"><a href="#cb1-393" aria-hidden="true" tabindex="-1"></a>  <span class="va">RUN_CASE_NOS</span><span class="op">=</span><span class="va">(</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">{RUN_CASE_NOS[@]}&quot;</span><span class="va">)</span></span>
-<span id="cb1-394"><a href="#cb1-394" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
-<span id="cb1-395"><a href="#cb1-395" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-396"><a href="#cb1-396" aria-hidden="true" tabindex="-1"></a><span class="fu">wait_for_one_active_case()</span> <span class="kw">{</span></span>
-<span id="cb1-397"><a href="#cb1-397" aria-hidden="true" tabindex="-1"></a>  <span class="bu">local</span> <span class="va">idx</span></span>
-<span id="cb1-398"><a href="#cb1-398" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="fu">true</span><span class="kw">;</span> <span class="cf">do</span></span>
-<span id="cb1-399"><a href="#cb1-399" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> idx <span class="kw">in</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">{!RUN_PIDS[@]}&quot;</span><span class="kw">;</span> <span class="cf">do</span></span>
-<span id="cb1-400"><a href="#cb1-400" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="ot">! </span><span class="bu">kill</span> <span class="at">-0</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">{RUN_PIDS[</span><span class="dt">\$</span><span class="st">idx]}&quot;</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null<span class="kw">;</span> <span class="cf">then</span></span>
-<span id="cb1-401"><a href="#cb1-401" aria-hidden="true" tabindex="-1"></a>        <span class="ex">wait_for_pid_index</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">idx&quot;</span></span>
-<span id="cb1-402"><a href="#cb1-402" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span>
-<span id="cb1-403"><a href="#cb1-403" aria-hidden="true" tabindex="-1"></a>      <span class="cf">fi</span></span>
-<span id="cb1-404"><a href="#cb1-404" aria-hidden="true" tabindex="-1"></a>    <span class="cf">done</span></span>
-<span id="cb1-405"><a href="#cb1-405" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sleep</span> 1</span>
-<span id="cb1-406"><a href="#cb1-406" aria-hidden="true" tabindex="-1"></a>  <span class="cf">done</span></span>
-<span id="cb1-407"><a href="#cb1-407" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
-<span id="cb1-408"><a href="#cb1-408" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-409"><a href="#cb1-409" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> param_file <span class="kw">in</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">{PARAM_FILES[@]}&quot;</span><span class="kw">;</span> <span class="cf">do</span></span>
-<span id="cb1-410"><a href="#cb1-410" aria-hidden="true" tabindex="-1"></a>  <span class="va">case_no</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">(get_param_value &quot;</span>CaseNo<span class="st">&quot; &quot;</span><span class="dt">\$</span>param_file<span class="st">&quot;)&quot;</span></span>
-<span id="cb1-411"><a href="#cb1-411" aria-hidden="true" tabindex="-1"></a>  <span class="va">pe_value</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">(get_param_value &quot;</span>Pe<span class="st">&quot; &quot;</span><span class="dt">\$</span>param_file<span class="st">&quot;)&quot;</span></span>
-<span id="cb1-412"><a href="#cb1-412" aria-hidden="true" tabindex="-1"></a>  <span class="va">level_value</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">(get_param_value &quot;</span>MAXlevel<span class="st">&quot; &quot;</span><span class="dt">\$</span>param_file<span class="st">&quot;)&quot;</span></span>
-<span id="cb1-413"><a href="#cb1-413" aria-hidden="true" tabindex="-1"></a>  <span class="va">tmax_value</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">(get_param_value &quot;</span>tmax<span class="st">&quot; &quot;</span><span class="dt">\$</span>param_file<span class="st">&quot;)&quot;</span></span>
-<span id="cb1-414"><a href="#cb1-414" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-415"><a href="#cb1-415" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;-----------------------------------------&quot;</span></span>
-<span id="cb1-416"><a href="#cb1-416" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Launching Case </span><span class="dt">\$</span><span class="st">{case_no}&quot;</span></span>
-<span id="cb1-417"><a href="#cb1-417" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Pe=</span><span class="dt">\$</span><span class="st">{pe_value:-NA}, MAXlevel=</span><span class="dt">\$</span><span class="st">{level_value:-NA}, tmax=</span><span class="dt">\$</span><span class="st">{tmax_value:-NA}&quot;</span></span>
-<span id="cb1-418"><a href="#cb1-418" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;-----------------------------------------&quot;</span></span>
+<span id="cb1-382"><a href="#cb1-382" aria-hidden="true" tabindex="-1"></a><span class="fu">wait_for_pid_index()</span> <span class="kw">{</span></span>
+<span id="cb1-383"><a href="#cb1-383" aria-hidden="true" tabindex="-1"></a>  <span class="bu">local</span> <span class="va">idx</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">1&quot;</span></span>
+<span id="cb1-384"><a href="#cb1-384" aria-hidden="true" tabindex="-1"></a>  <span class="bu">local</span> <span class="va">pid</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">{RUN_PIDS[</span><span class="dt">\$</span><span class="st">idx]}&quot;</span></span>
+<span id="cb1-385"><a href="#cb1-385" aria-hidden="true" tabindex="-1"></a>  <span class="bu">local</span> <span class="va">case_no</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">{RUN_CASE_NOS[</span><span class="dt">\$</span><span class="st">idx]}&quot;</span></span>
+<span id="cb1-386"><a href="#cb1-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-387"><a href="#cb1-387" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="bu">wait</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">pid&quot;</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb1-388"><a href="#cb1-388" aria-hidden="true" tabindex="-1"></a>    <span class="kw">((</span><span class="va">SUCCESSFUL</span> <span class="op">+=</span> <span class="dv">1</span><span class="kw">))</span></span>
+<span id="cb1-389"><a href="#cb1-389" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;Case </span><span class="dt">\$</span><span class="st">{case_no} completed.&quot;</span></span>
+<span id="cb1-390"><a href="#cb1-390" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb1-391"><a href="#cb1-391" aria-hidden="true" tabindex="-1"></a>    <span class="kw">((</span><span class="va">FAILED</span> <span class="op">+=</span> <span class="dv">1</span><span class="kw">))</span></span>
+<span id="cb1-392"><a href="#cb1-392" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;ERROR: Case </span><span class="dt">\$</span><span class="st">{case_no} failed.&quot;</span> <span class="op">&gt;&amp;</span><span class="dv">2</span></span>
+<span id="cb1-393"><a href="#cb1-393" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
+<span id="cb1-394"><a href="#cb1-394" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-395"><a href="#cb1-395" aria-hidden="true" tabindex="-1"></a>  <span class="bu">unset</span> <span class="st">&#39;RUN_PIDS[idx]&#39;</span></span>
+<span id="cb1-396"><a href="#cb1-396" aria-hidden="true" tabindex="-1"></a>  <span class="bu">unset</span> <span class="st">&#39;RUN_CASE_NOS[idx]&#39;</span></span>
+<span id="cb1-397"><a href="#cb1-397" aria-hidden="true" tabindex="-1"></a>  <span class="va">RUN_PIDS</span><span class="op">=</span><span class="va">(</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">{RUN_PIDS[@]}&quot;</span><span class="va">)</span></span>
+<span id="cb1-398"><a href="#cb1-398" aria-hidden="true" tabindex="-1"></a>  <span class="va">RUN_CASE_NOS</span><span class="op">=</span><span class="va">(</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">{RUN_CASE_NOS[@]}&quot;</span><span class="va">)</span></span>
+<span id="cb1-399"><a href="#cb1-399" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
+<span id="cb1-400"><a href="#cb1-400" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-401"><a href="#cb1-401" aria-hidden="true" tabindex="-1"></a><span class="fu">wait_for_one_active_case()</span> <span class="kw">{</span></span>
+<span id="cb1-402"><a href="#cb1-402" aria-hidden="true" tabindex="-1"></a>  <span class="bu">local</span> <span class="va">idx</span></span>
+<span id="cb1-403"><a href="#cb1-403" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="fu">true</span><span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb1-404"><a href="#cb1-404" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> idx <span class="kw">in</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">{!RUN_PIDS[@]}&quot;</span><span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb1-405"><a href="#cb1-405" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="ot">! </span><span class="bu">kill</span> <span class="at">-0</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">{RUN_PIDS[</span><span class="dt">\$</span><span class="st">idx]}&quot;</span> <span class="dv">2</span><span class="op">&gt;</span>/dev/null<span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb1-406"><a href="#cb1-406" aria-hidden="true" tabindex="-1"></a>        <span class="ex">wait_for_pid_index</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">idx&quot;</span></span>
+<span id="cb1-407"><a href="#cb1-407" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span></span>
+<span id="cb1-408"><a href="#cb1-408" aria-hidden="true" tabindex="-1"></a>      <span class="cf">fi</span></span>
+<span id="cb1-409"><a href="#cb1-409" aria-hidden="true" tabindex="-1"></a>    <span class="cf">done</span></span>
+<span id="cb1-410"><a href="#cb1-410" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sleep</span> 1</span>
+<span id="cb1-411"><a href="#cb1-411" aria-hidden="true" tabindex="-1"></a>  <span class="cf">done</span></span>
+<span id="cb1-412"><a href="#cb1-412" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
+<span id="cb1-413"><a href="#cb1-413" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-414"><a href="#cb1-414" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> param_file <span class="kw">in</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">{PARAM_FILES[@]}&quot;</span><span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb1-415"><a href="#cb1-415" aria-hidden="true" tabindex="-1"></a>  <span class="va">case_no</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">(get_param_value &quot;</span>CaseNo<span class="st">&quot; &quot;</span><span class="dt">\$</span>param_file<span class="st">&quot;)&quot;</span></span>
+<span id="cb1-416"><a href="#cb1-416" aria-hidden="true" tabindex="-1"></a>  <span class="va">pe_value</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">(get_param_value &quot;</span>Pe<span class="st">&quot; &quot;</span><span class="dt">\$</span>param_file<span class="st">&quot;)&quot;</span></span>
+<span id="cb1-417"><a href="#cb1-417" aria-hidden="true" tabindex="-1"></a>  <span class="va">level_value</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">(get_param_value &quot;</span>MAXlevel<span class="st">&quot; &quot;</span><span class="dt">\$</span>param_file<span class="st">&quot;)&quot;</span></span>
+<span id="cb1-418"><a href="#cb1-418" aria-hidden="true" tabindex="-1"></a>  <span class="va">tmax_value</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">(get_param_value &quot;</span>tmax<span class="st">&quot; &quot;</span><span class="dt">\$</span>param_file<span class="st">&quot;)&quot;</span></span>
 <span id="cb1-419"><a href="#cb1-419" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-420"><a href="#cb1-420" aria-hidden="true" tabindex="-1"></a>  <span class="va">run_cmd</span><span class="op">=</span><span class="va">(</span>bash <span class="st">&quot;</span><span class="dt">\$</span><span class="st">RUN_SIM_SCRIPT&quot;</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">param_file&quot;</span> --exec <span class="st">&quot;</span><span class="dt">\$</span><span class="st">EXEC_CODE&quot;</span> --threads <span class="st">&quot;</span><span class="dt">\$</span><span class="st">OMP_THREADS&quot;</span><span class="va">)</span></span>
-<span id="cb1-421"><a href="#cb1-421" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;</span><span class="dt">\$</span><span class="st">{run_cmd[@]}&quot;</span> <span class="kw">&amp;</span></span>
-<span id="cb1-422"><a href="#cb1-422" aria-hidden="true" tabindex="-1"></a>  <span class="va">RUN_PIDS</span><span class="op">+=</span><span class="va">(</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">!&quot;</span><span class="va">)</span></span>
-<span id="cb1-423"><a href="#cb1-423" aria-hidden="true" tabindex="-1"></a>  <span class="va">RUN_CASE_NOS</span><span class="op">+=</span><span class="va">(</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">case_no&quot;</span><span class="va">)</span></span>
+<span id="cb1-420"><a href="#cb1-420" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;-----------------------------------------&quot;</span></span>
+<span id="cb1-421"><a href="#cb1-421" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Launching Case </span><span class="dt">\$</span><span class="st">{case_no}&quot;</span></span>
+<span id="cb1-422"><a href="#cb1-422" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;Pe=</span><span class="dt">\$</span><span class="st">{pe_value:-NA}, MAXlevel=</span><span class="dt">\$</span><span class="st">{level_value:-NA}, tmax=</span><span class="dt">\$</span><span class="st">{tmax_value:-NA}&quot;</span></span>
+<span id="cb1-423"><a href="#cb1-423" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;-----------------------------------------&quot;</span></span>
 <span id="cb1-424"><a href="#cb1-424" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-425"><a href="#cb1-425" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="kw">[[</span> <span class="dt">\$</span>{#RUN_PIDS[@]} <span class="ot">-ge</span> <span class="dt">\$</span>MAX_PARALLEL <span class="kw">]];</span> <span class="cf">then</span></span>
-<span id="cb1-426"><a href="#cb1-426" aria-hidden="true" tabindex="-1"></a>    <span class="ex">wait_for_one_active_case</span></span>
-<span id="cb1-427"><a href="#cb1-427" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
-<span id="cb1-428"><a href="#cb1-428" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;&quot;</span></span>
-<span id="cb1-429"><a href="#cb1-429" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
-<span id="cb1-430"><a href="#cb1-430" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-431"><a href="#cb1-431" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="kw">[[</span> <span class="dt">\$</span>{#RUN_PIDS[@]} <span class="ot">-gt</span> 0 <span class="kw">]];</span> <span class="cf">do</span></span>
-<span id="cb1-432"><a href="#cb1-432" aria-hidden="true" tabindex="-1"></a>  <span class="ex">wait_for_one_active_case</span></span>
-<span id="cb1-433"><a href="#cb1-433" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
-<span id="cb1-434"><a href="#cb1-434" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-435"><a href="#cb1-435" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;=========================================&quot;</span></span>
-<span id="cb1-436"><a href="#cb1-436" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Parameter Sweep Complete&quot;</span></span>
-<span id="cb1-437"><a href="#cb1-437" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;=========================================&quot;</span></span>
-<span id="cb1-438"><a href="#cb1-438" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Total cases: </span><span class="dt">\$</span><span class="st">{COMBINATION_COUNT}&quot;</span></span>
-<span id="cb1-439"><a href="#cb1-439" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Successful: </span><span class="dt">\$</span><span class="st">{SUCCESSFUL}&quot;</span></span>
-<span id="cb1-440"><a href="#cb1-440" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Failed: </span><span class="dt">\$</span><span class="st">{FAILED}&quot;</span></span>
-<span id="cb1-441"><a href="#cb1-441" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Outputs: simulationCases/&quot;</span></span>
+<span id="cb1-425"><a href="#cb1-425" aria-hidden="true" tabindex="-1"></a>  <span class="va">run_cmd</span><span class="op">=</span><span class="va">(</span>bash <span class="st">&quot;</span><span class="dt">\$</span><span class="st">RUN_SIM_SCRIPT&quot;</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">param_file&quot;</span> --exec <span class="st">&quot;</span><span class="dt">\$</span><span class="st">EXEC_CODE&quot;</span> --threads <span class="st">&quot;</span><span class="dt">\$</span><span class="st">OMP_THREADS&quot;</span><span class="va">)</span></span>
+<span id="cb1-426"><a href="#cb1-426" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;</span><span class="dt">\$</span><span class="st">{run_cmd[@]}&quot;</span> <span class="kw">&amp;</span></span>
+<span id="cb1-427"><a href="#cb1-427" aria-hidden="true" tabindex="-1"></a>  <span class="va">RUN_PIDS</span><span class="op">+=</span><span class="va">(</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">!&quot;</span><span class="va">)</span></span>
+<span id="cb1-428"><a href="#cb1-428" aria-hidden="true" tabindex="-1"></a>  <span class="va">RUN_CASE_NOS</span><span class="op">+=</span><span class="va">(</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">case_no&quot;</span><span class="va">)</span></span>
+<span id="cb1-429"><a href="#cb1-429" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-430"><a href="#cb1-430" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="kw">[[</span> <span class="dt">\$</span>{#RUN_PIDS[@]} <span class="ot">-ge</span> <span class="dt">\$</span>MAX_PARALLEL <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-431"><a href="#cb1-431" aria-hidden="true" tabindex="-1"></a>    <span class="ex">wait_for_one_active_case</span></span>
+<span id="cb1-432"><a href="#cb1-432" aria-hidden="true" tabindex="-1"></a>  <span class="cf">fi</span></span>
+<span id="cb1-433"><a href="#cb1-433" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb1-434"><a href="#cb1-434" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb1-435"><a href="#cb1-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-436"><a href="#cb1-436" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="kw">[[</span> <span class="dt">\$</span>{#RUN_PIDS[@]} <span class="ot">-gt</span> 0 <span class="kw">]];</span> <span class="cf">do</span></span>
+<span id="cb1-437"><a href="#cb1-437" aria-hidden="true" tabindex="-1"></a>  <span class="ex">wait_for_one_active_case</span></span>
+<span id="cb1-438"><a href="#cb1-438" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb1-439"><a href="#cb1-439" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-440"><a href="#cb1-440" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;=========================================&quot;</span></span>
+<span id="cb1-441"><a href="#cb1-441" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Parameter Sweep Complete&quot;</span></span>
 <span id="cb1-442"><a href="#cb1-442" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;=========================================&quot;</span></span>
-<span id="cb1-443"><a href="#cb1-443" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-444"><a href="#cb1-444" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">FAILED&quot;</span> <span class="ot">-gt</span> 0 <span class="kw">]];</span> <span class="cf">then</span></span>
-<span id="cb1-445"><a href="#cb1-445" aria-hidden="true" tabindex="-1"></a>  <span class="bu">exit</span> 1</span>
-<span id="cb1-446"><a href="#cb1-446" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
-<span id="cb1-447"><a href="#cb1-447" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-448"><a href="#cb1-448" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span> 0</span></code></pre></div></div>
+<span id="cb1-443"><a href="#cb1-443" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Total cases: </span><span class="dt">\$</span><span class="st">{COMBINATION_COUNT}&quot;</span></span>
+<span id="cb1-444"><a href="#cb1-444" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Successful: </span><span class="dt">\$</span><span class="st">{SUCCESSFUL}&quot;</span></span>
+<span id="cb1-445"><a href="#cb1-445" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Failed: </span><span class="dt">\$</span><span class="st">{FAILED}&quot;</span></span>
+<span id="cb1-446"><a href="#cb1-446" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Outputs: simulationCases/&quot;</span></span>
+<span id="cb1-447"><a href="#cb1-447" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;=========================================&quot;</span></span>
+<span id="cb1-448"><a href="#cb1-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-449"><a href="#cb1-449" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">FAILED&quot;</span> <span class="ot">-gt</span> 0 <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-450"><a href="#cb1-450" aria-hidden="true" tabindex="-1"></a>  <span class="bu">exit</span> 1</span>
+<span id="cb1-451"><a href="#cb1-451" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
+<span id="cb1-452"><a href="#cb1-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-453"><a href="#cb1-453" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span> 0</span></code></pre></div></div>
             </div>
         </main>
 
@@ -929,7 +934,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
               </a>
             </div>
           </footer>
-    </div>  
+    </div>
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -957,17 +962,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-        
+
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-        
+
         // Add the button to the container
         container.appendChild(button);
-        
+
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-            
+
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -980,10 +985,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-                    
+
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    
+
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -996,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -1006,7 +1011,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-        
+
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';
