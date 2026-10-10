@@ -18,6 +18,7 @@ the provided default is returned.
 ## Public API
 
 - `params_init_from_argv()`: Initialize runtime key/value storage.
+- `param_present()`: Test whether a key was supplied.
 - `param_string()`: Access raw string values.
 - `param_int()`, `param_double()`, `param_bool()`: Typed accessors with defaults.
 */
@@ -79,6 +80,17 @@ static inline const char * param_string (const char * key,
                                          const char * default_value)
 {
   return parse_param_string(key, default_value);
+}
+
+/**
+### param_present()
+
+Returns true when `key` occurs in the loaded parameter file.  This is used to
+reject retired parameters explicitly instead of silently ignoring them.
+*/
+static inline bool param_present (const char * key)
+{
+  return param_string(key, NULL) != NULL;
 }
 
 /**

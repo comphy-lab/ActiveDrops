@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <!--
+    IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
+    They cause JavaScript syntax errors when they appear inside script blocks.
+  -->
+  <!-- Eliminate FOUC (Flash of Unstyled Content) and FOUT (Flash of Incorrect Theme) -->
+  <script>
+    (function() {
+  try {
+    // Apply the theme as quickly as possible to avoid flash
+    let saved;
+    try {
+      saved = localStorage.getItem('theme');
+    } catch (storageError) {
+      // Handle localStorage access errors (private browsing, cookies disabled)
+      console.warn('Unable to access localStorage:', storageError);
+    }
+
+    let prefersDark = false;
+    try {
+      prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    } catch (mediaError) {
+      // Handle matchMedia access errors (unsupported browsers)
+      console.warn('Unable to check media query:', mediaError);
+    }
+
+    const theme = saved ? saved : (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    // Add theme class for CSS targeting
+    document.documentElement.classList.add(theme + '-theme');
+    // Mark when theme is set for CSS transitions
+    document.documentElement.classList.add('theme-set');
+  } catch (error) {
+    // Fallback for any other unexpected errors
+    console.warn('Theme initialization failed:', error);
+    // Apply default theme as fallback
+    try {
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.classList.add('light-theme');
+      document.documentElement.classList.add('theme-set');
+    } catch (fallbackError) {
+      // Silent catch for extreme cases
+      console.error('Critical theme fallback failed:', fallbackError);
+    }
+  }
+})();
+  </script>
+
+
+  <!-- No-JS fallback for theme and critical theming styles -->
+  <style>
+    /* Default light theme variables */
+    :root {
+      /* Base colors */
+      --color-background: #fff;
+      --color-text: #333;
+      --color-primary: #0066cc;
+      --color-secondary: #036;
+      --color-accent: #0099ff;
+
+      /* UI elements */
+      --color-header-bg: #f5f5f5;
+      --color-footer-bg: #2d2e33;
+      --color-border: #e0e0e0;
+      --color-input-bg: #f9f9f9;
+
+      /* Component colors */
+      --color-preloader-bg: #ffffff;
+      --color-loader: #0066cc;
+      --color-card-bg: #ffffff;
+      --color-code-bg: #f5f5f5;
+    }
+
+    /* Dark theme variables applied via media query when JS is disabled */
+    @media (prefers-color-scheme: dark) {
+      :root:not(.theme-set) {
+        /* Base colors - dark mode */
+        --color-background: #1a1a1a;
+        --color-text: #f5f5f5;
+        --color-primary: #4d9fff;
+        --color-secondary: #88ccff;
+        --color-accent: #00bfff;
+
+        /* UI elements - dark mode */
+        --color-header-bg: #121212;
+        --color-footer-bg: #121212;
+        --color-border: #333;
+        --color-input-bg: #2d2d2d;
+
+        /* Component colors - dark mode */
+        --color-preloader-bg: #1a1a1a;
+        --color-loader: #4d9fff;
+        --color-card-bg: #222;
+        --color-code-bg: #2d2d2d;
+      }
+    }
+
+    /* When JS sets the theme explicitly via data attribute */
+    [data-theme="dark"] {
+      /* Base colors - dark mode */
+      --color-background: #1a1a1a;
+      --color-text: #f5f5f5;
+      --color-primary: #4d9fff;
+      --color-secondary: #88ccff;
+      --color-accent: #00bfff;
+
+      /* UI elements - dark mode */
+      --color-header-bg: #121212;
+      --color-footer-bg: #121212;
+      --color-border: #333;
+      --color-input-bg: #2d2d2d;
+
+      /* Component colors - dark mode */
+      --color-preloader-bg: #1a1a1a;
+      --color-loader: #4d9fff;
+      --color-card-bg: #222;
+      --color-code-bg: #2d2d2d;
+    }
+
+    /* Prevent transition flashes during initial load */
+    html:not(.transitions-enabled) * {
+      transition: none !important;
+    }
+
+    /* Apply theme to preloader and early elements */
+    #preloader {
+      background-color: var(--color-preloader-bg);
+      color: var(--color-text);
+    }
+
+    #loader {
+      border-color: var(--color-loader);
+      border-top-color: transparent;
+    }
+
+    /* Noscript warning */
+    .noscript-warning {
+      background-color: var(--color-primary);
+      color: white;
+      text-align: center;
+      padding: 10px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    /* Theme indicator for no-JS */
+    .theme-indicator {
+      padding: 5px 10px;
+      border-radius: 4px;
+      background-color: var(--color-input-bg);
+      color: var(--color-text);
+      text-align: center;
+    }
+
+    /* Hide JS-only elements when no JS */
+    .no-js .js-only {
+      display: none !important;
+    }
+
+    /* Show no-JS alternatives */
+    .js .no-js-only {
+      display: none !important;
+    }
+  </style>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="base-url" content="..">
+  <title>testCases/test_periodic_centroid.py | ActiveDrops</title>
+
+  <!-- Critical CSS for fastest paint -->
+  <style>
+      .s-intro__title {
+          visibility: visible;
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      .s-header {
+          visibility: visible;
+      }
+
+      /* Ensure theme toggle properly styled immediately */
+      .theme-toggle {
+          background-color: var(--color-background);
+          color: var(--color-text);
+      }
+
+      /* Control SVG visibility based on theme */
+      [data-theme="dark"] .theme-toggle-icon.sun,
+      :root:not([data-theme="dark"]) .theme-toggle-icon.moon {
+          display: block;
+      }
+
+      [data-theme="dark"] .theme-toggle-icon.moon,
+      :root:not([data-theme="dark"]) .theme-toggle-icon.sun {
+          display: none;
+      }
+  </style>
+
+  <!-- Critical Meta Tags -->
+  <meta name="description" content="Compile the actual coordinate helper and moment/displacement expressions from each case into a small C harness. Synthetic compact weighted samples cross peri...">
+  <meta name="author" content="CoMPhy Lab">
+  <meta name="robots" content="index, follow">
+  <meta name="keywords" content="centroid, harness_source, math.h, periodic, periodiccentroidtests, setupclass, stdio.h, test, test_confined_axial_wraps_preserve_transverse_coordinate, test_wraps_reverse_direction_without_displacement_jump">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
+
+  <!-- Preload critical resources -->
+  <link rel="preload" href="../assets/js/main.js" as="script">
+  <link rel="preload" href="../assets/css/fontello/css/fontello.css" as="style">
+  <link rel="preload" href="../assets/css/academicons-1.7.0/css/academicons.min.css" as="style">
+
+  <!-- Base stylesheets -->
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/custom_styles.css">
+  <link rel="stylesheet" href="../assets/css/command-palette.css">
+  <link rel="stylesheet" href="../assets/css/fontello/css/fontello.css">
+  <link rel="stylesheet" href="../assets/css/academicons-1.7.0/css/academicons.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+  <!-- Font optimization -->
+  <style>
+      @font-face {
+          font-display: swap;
+          font-family: 'System Font';
+          src: local('system-ui');
+      }
+  </style>
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="../assets/favicon/favicon-96x96.png">
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon/favicon.svg">
+  <link rel="shortcut icon" href="../assets/favicon/favicon.ico">
+  <link rel="manifest" href="../assets/favicon/site.webmanifest">
+
+  <!-- Scripts with proper loading attributes -->
+  <script>
+    window.ASSET_PATH_PREFIX = "..";
+  </script>
+  <script src="../assets/js/jquery.min.js"></script>
+  <script src="../assets/js/jquery-ui.packed.js"></script>
+  <script src="../assets/js/plots.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
+  <!-- Config script must load before other scripts -->
+  <script src="../assets/js/config.js"></script>
+  <script defer src="../assets/js/html-sanitizer.js"></script>
+  <script defer src="../assets/js/search-helper.js"></script>
+  <script defer src="../assets/js/command-palette.js"></script>
+  <script defer src="../assets/js/command-data.js"></script>
+  <script defer src="../assets/js/main.js"></script>
+  <script defer src="../assets/js/theme-toggle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
+
+  <!-- Optimize page load performance -->
+  <script>
+    // Preconnect to critical domains
+    const preconnectDomains = [
+      'https://cdnjs.cloudflare.com',
+      'https://cdn.jsdelivr.net'
+    ];
+
+    preconnectDomains.forEach(domain => {
+      const link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = domain;
+      link.crossOrigin = 'anonymous';
+      document.head.appendChild(link);
+
+      // Also add DNS prefetch as fallback
+      const dnsLink = document.createElement('link');
+      dnsLink.rel = 'dns-prefetch';
+      dnsLink.href = domain;
+      document.head.appendChild(dnsLink);
+    });
+
+    // Detect when document is fully loaded to remove preloader
+    window.addEventListener('load', function() {
+      const preloader = document.getElementById('preloader');
+      if (preloader) {
+        preloader.style.opacity = '0';
+        setTimeout(() => {
+          preloader.style.display = 'none';
+        }, 300); // Match transition duration
+      }
+    });
+  </script>
+
+  <script>
+      // Load Font Awesome with proper environment detection and fallbacks
+      function loadStylesheet(href) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.crossOrigin = 'anonymous';
+        link.onerror = (e) => {
+          console.error(`Failed to load stylesheet: `, e);
+          console.log('Trying alternative Font Awesome source...');
+        };
+        document.head.appendChild(link);
+        return link;
+      }
+
+      // Check if we're on localhost
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        // Use hardcoded version numbers for reliable loading
+
+        // Load Font Awesome using multiple CDNs to maximize reliability for local development
+        loadStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css');
+        // Backup CDN if the first one fails
+        loadStylesheet('https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css');
+        // Final local fallback - ensures it will work on any localhost environment
+        loadStylesheet('https://use.fontawesome.com/releases/v6.7.2/css/all.css');
+      } else {
+        // Use Kit for production with defer
+        var script = document.createElement('script');
+        script.src = 'https://kit.fontawesome.com/b1cfd9ca75.js';
+        script.crossOrigin = 'anonymous';
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+    </script>
+
+  <script>
+      // Mark page as JS-enabled and manage transitions
+      document.documentElement.classList.remove('no-js');
+      document.documentElement.classList.add('js');
+
+      // Allow CSS transitions after initial load to prevent transition flashes
+      window.addEventListener('DOMContentLoaded', () => {
+          setTimeout(() => {
+              document.documentElement.classList.add('transitions-enabled');
+          }, 100); // Short delay to ensure DOM is ready
+      });
+  </script>
+</head>
+<body id="top">
+<script>
+window.repoName = "ActiveDrops";
+window.githubOrg = "comphy-lab";
+window.baseDomain = "https://comphy-lab.org/ActiveDrops";
+</script>
+
+
+    <!-- Preloader with theme variables applied -->
+    <div id="preloader">
+        <div id="loader"></div>
+    </div>
+
+    <noscript>
+        <div class="noscript-warning">
+            <p>This site works best with JavaScript enabled. Some features may be limited.</p>
+        </div>
+    </noscript>
+
+    <div id="page" class="s-pagewrap">
+        <header class="s-header">
+            <div class="s-header__logo">
+                <a class="logo" href="/">
+                    <img src="../assets/logos/CoMPhy-Lab-no-name.png" alt="CoMPhy Lab">
+                </a>
+                <a class="documentation-button" href="/ActiveDrops">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>ActiveDrops</span>
+                </a>
+            </div>
+            <a class="s-header__menu-toggle" href="#0">
+                <span class="s-header__menu-text">Menu</span>
+                <span class="s-header__menu-icon"></span>
+            </a>
+            <nav class="s-header__nav">
+                <a href="#0" class="s-header__nav-close-btn"><span>Close</span></a>
+                <ul class="s-header__nav-list">
+                    <li style="background: none;">
+                        <!-- JS theme toggle -->
+                        <div class="theme-toggle js-only" id="theme-toggle" aria-label="Toggle dark/light theme">
+                            <svg class="theme-toggle-icon moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                            </svg>
+                            <svg class="theme-toggle-icon sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                            </svg>
+                        </div>
+                    </li>
+                    <!-- NOTE: The following links are organization-specific. Customize for your organization. -->
+                    <li style="background: none;"><a href="https://scholar.google.com/citations?user=tHb_qZoAAAAJ&hl=en" style="background: none; padding: 0;" aria-label="Google Scholar Profile"><i class="ai ai-google-scholar" style="font-size: 1.75em;"></i></a></li>
+                    <li style="background: none;"><a href="https://github.com/comphy-lab" style="background: none; padding: 0;" aria-label="GitHub Organization"><i class="fa-brands fa-github" style="font-size: 1.75em"></i></a></li>
+                    <li><a href="https://comphy-lab.org/#about" class="smoothscroll">About</a></li>
+                    <li><a href="https://comphy-lab.org/team/">Team</a></li>
+                    <li><a href="https://comphy-lab.org/research">Research</a></li>
+                    <li><a href="https://comphy-lab.org/teaching">Teaching</a></li>
+                    <li><a href="https://comphy-lab.org/join">Join Us</a></li>
+                    <li><a href="https://blogs.comphy-lab.org/">Blog</a></li>
+                    <li style="background: none;"><a href="https://bsky.app/profile/comphy-lab.org" style="background: none; padding: 0;" aria-label="Bluesky Profile"><i class="fa-brands fa-bluesky" style="font-size: 1.75em; color: #0085ff;"></i></a></li>
+                    <!-- Command Palette Button (Styled like search) -->
+                    <li class="command-palette-button">
+                        <div class="command-wrapper">
+                            <button class="command-k-style-btn" id="command-palette-btn" aria-label="Open command palette">
+                                <span class="default-theme-text">ctrl K</span>
+                                <span class="mac-theme-text">⌘ K</span>
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Main content -->
+        <main class="content">
+
+            <div class="page-content">
+
+                                <h1 class="page-title">testCases/test_periodic_centroid.py</h1>
+
+
+                                <div class="raw-file-button-container">
+                    <a href="https://github.com/comphy-lab/ActiveDrops/raw/main/testCases/test_periodic_centroid.py" class="raw-file-button" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-brands fa-github"></i> See raw file
+                    </a>
+                </div>
+
+                <h1 id="periodic-centroid-software-contracts">Periodic
+                centroid software contracts</h1>
+                <p>Compile the actual coordinate helper and
+                moment/displacement expressions from each case into a
+                small C harness. Synthetic compact weighted samples
+                cross periodic seams without running the flow solver.
+                These checks assume that each sample stays within half a
+                period of the preceding centroid.</p>
+                <div class="code-block-container"><div class="code-block-container"><pre
+                class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shutil</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> subprocess</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tempfile</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> unittest</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>CASES <span class="op">=</span> (<span class="st">&quot;dropMove&quot;</span>, <span class="st">&quot;dropMove-embed-channel&quot;</span>, <span class="st">&quot;dropMove-embed-pipe&quot;</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>REPO <span class="op">=</span> Path(<span class="va">__file__</span>).resolve().parents[<span class="dv">1</span>]</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_one(pattern, source):</span></code></pre></div></div>
+                <p>Require one production expression, so layout changes
+                fail visibly.</p>
+                <div class="code-block-container"><div class="code-block-container"><pre
+                class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>    matches <span class="op">=</span> re.findall(pattern, source, re.MULTILINE)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(matches) <span class="op">!=</span> <span class="dv">1</span>:</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">AssertionError</span>(<span class="ss">f&quot;Expected one match for </span><span class="sc">{</span>pattern<span class="sc">!r}</span><span class="ss">, got </span><span class="sc">{</span><span class="bu">len</span>(matches)<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> matches[<span class="dv">0</span>]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> harness_source(source):</span></code></pre></div></div>
+                <p>Embed production logic; replace only the mesh-volume
+                accessor.</p>
+                <div class="code-block-container"><div class="code-block-container"><pre
+                class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>    helper <span class="op">=</span> extract_one(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>        <span class="vs">r&quot;</span><span class="kw">(</span><span class="vs">static double periodic_coordinate</span><span class="dv">\s</span><span class="op">*</span><span class="ch">\(</span><span class="pp">[^)]</span><span class="op">*</span><span class="ch">\)</span><span class="dv">\s</span><span class="op">*</span><span class="ch">\{</span><span class="pp">[^}]</span><span class="op">*</span><span class="ch">\}</span><span class="kw">)</span><span class="vs">&quot;</span>, source</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    statements <span class="op">=</span> [extract_one(<span class="vs">rf&quot;</span><span class="dv">^\s</span><span class="op">*</span><span class="kw">(</span><span class="sc">{</span>name<span class="sc">}</span><span class="dv">\s</span><span class="op">*</span><span class="ch">\+</span><span class="vs">=</span><span class="dv">\s</span><span class="op">*</span><span class="pp">[^;]</span><span class="op">+</span><span class="vs">;</span><span class="kw">)</span><span class="vs">&quot;</span>, source)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                  <span class="cf">for</span> name <span class="kw">in</span> (<span class="st">&quot;drop_volume&quot;</span>, <span class="st">&quot;x_moment&quot;</span>, <span class="st">&quot;y_moment&quot;</span>)]</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    displacement <span class="op">=</span> extract_one(<span class="vs">r&quot;</span><span class="dv">^\s</span><span class="op">*</span><span class="kw">(</span><span class="vs">dist_last</span><span class="dv">\s</span><span class="op">*</span><span class="vs">=</span><span class="dv">\s</span><span class="op">*</span><span class="pp">[^;]</span><span class="op">+</span><span class="vs">;</span><span class="kw">)</span><span class="vs">&quot;</span>, source)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="st">#include &lt;math.h&gt;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="st">#include &lt;stdio.h&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="st">#define sq(a) ((a)*(a))</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="st">#define dv() volume</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="st">double L0;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;&quot;&quot;</span> <span class="op">+</span> helper <span class="op">+</span> <span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="st">int main(void) {</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="st">  double xcm_last, ycm_last, x0_cm, y0_cm;</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="st">  if (scanf(&quot;</span><span class="sc">%lf</span><span class="st"> </span><span class="sc">%lf</span><span class="st"> </span><span class="sc">%lf</span><span class="st"> </span><span class="sc">%lf</span><span class="st"> </span><span class="sc">%lf</span><span class="st">&quot;, &amp;L0, &amp;xcm_last, &amp;ycm_last,</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="st">            &amp;x0_cm, &amp;y0_cm) != 5) return 2;</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="st">  int count;</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="st">  while (scanf(&quot;</span><span class="sc">%d</span><span class="st">&quot;, &amp;count) == 1) {</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="st">    double drop_volume = 0., x_moment = 0., y_moment = 0., dist_last;</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="st">    for (int j = 0; j &lt; count; j++) {</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="st">      double x, y, ff, volume;</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="st">      if (scanf(&quot;</span><span class="sc">%lf</span><span class="st"> </span><span class="sc">%lf</span><span class="st"> </span><span class="sc">%lf</span><span class="st"> </span><span class="sc">%lf</span><span class="st">&quot;, &amp;x, &amp;y, &amp;ff, &amp;volume) != 4) return 3;</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;&quot;&quot;</span> <span class="op">+</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>.join(statements) <span class="op">+</span> <span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="st">    }</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="st">    xcm_last = x_moment/drop_volume;</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="st">    ycm_last = y_moment/drop_volume;</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;&quot;&quot;</span> <span class="op">+</span> displacement <span class="op">+</span> <span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="st">    printf(&quot;</span><span class="sc">%.17g</span><span class="st"> </span><span class="sc">%.17g</span><span class="st"> </span><span class="sc">%.17g</span><span class="ch">\\</span><span class="st">n&quot;, xcm_last, ycm_last, dist_last);</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="st">  }</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="st">  return 0;</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="st">}</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;&quot;&quot;</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> PeriodicCentroidTests(unittest.TestCase):</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">@classmethod</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> setUpClass(cls):</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>        compiler <span class="op">=</span> shutil.which(<span class="st">&quot;cc&quot;</span>)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> compiler <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">RuntimeError</span>(<span class="st">&quot;A C compiler is required for centroid contracts&quot;</span>)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        cls.temporary <span class="op">=</span> tempfile.TemporaryDirectory(prefix<span class="op">=</span><span class="st">&quot;active-drops-centroid-&quot;</span>)</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>        cls.addClassCleanup(cls.temporary.cleanup)</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>        cls.executables <span class="op">=</span> {}</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> case <span class="kw">in</span> CASES:</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>            source <span class="op">=</span> (REPO <span class="op">/</span> <span class="st">&quot;simulationCases&quot;</span> <span class="op">/</span> <span class="ss">f&quot;</span><span class="sc">{</span>case<span class="sc">}</span><span class="ss">.c&quot;</span>).read_text()</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>            c_file <span class="op">=</span> Path(cls.temporary.name) <span class="op">/</span> <span class="ss">f&quot;</span><span class="sc">{</span>case<span class="sc">}</span><span class="ss">.c&quot;</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>            executable <span class="op">=</span> c_file.with_suffix(<span class="st">&quot;&quot;</span>)</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>            c_file.write_text(harness_source(source))</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>            subprocess.run([compiler, <span class="st">&quot;-std=c99&quot;</span>, <span class="st">&quot;-Wall&quot;</span>, <span class="st">&quot;-Werror&quot;</span>,</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>                            <span class="bu">str</span>(c_file), <span class="st">&quot;-o&quot;</span>, <span class="bu">str</span>(executable), <span class="st">&quot;-lm&quot;</span>],</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>                           check<span class="op">=</span><span class="va">True</span>, capture_output<span class="op">=</span><span class="va">True</span>, text<span class="op">=</span><span class="va">True</span>, timeout<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>            cls.executables[case] <span class="op">=</span> executable</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> check_trajectory(<span class="va">self</span>, case, centres, reference<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>        period <span class="op">=</span> <span class="fl">10.</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>        initial <span class="op">=</span> centres[<span class="dv">0</span>]</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>        reference <span class="op">=</span> initial <span class="cf">if</span> reference <span class="kw">is</span> <span class="va">None</span> <span class="cf">else</span> reference</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>        lines <span class="op">=</span> [<span class="ss">f&quot;</span><span class="sc">{</span>period<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>reference[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>reference[<span class="dv">1</span>]<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>initial[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>initial[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">&quot;</span>]</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>        fractions <span class="op">=</span> [<span class="fl">1.</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">1.</span>]</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>        volumes <span class="op">=</span> [<span class="fl">0.125</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">1.</span>]</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>        weights <span class="op">=</span> [a<span class="op">*</span>b <span class="cf">for</span> a, b <span class="kw">in</span> <span class="bu">zip</span>(fractions, volumes)]</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>        offsets_x <span class="op">=</span> [<span class="op">-</span><span class="fl">0.3</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.14</span>, <span class="fl">0.36</span>]</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>        offsets_y <span class="op">=</span> [<span class="fl">0.28</span>, <span class="op">-</span><span class="fl">0.32</span>, <span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.16</span>]</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>        mean_x <span class="op">=</span> <span class="bu">sum</span>(w<span class="op">*</span>x <span class="cf">for</span> w, x <span class="kw">in</span> <span class="bu">zip</span>(weights, offsets_x))<span class="op">/</span><span class="bu">sum</span>(weights)</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>        mean_y <span class="op">=</span> <span class="bu">sum</span>(w<span class="op">*</span>y <span class="cf">for</span> w, y <span class="kw">in</span> <span class="bu">zip</span>(weights, offsets_y))<span class="op">/</span><span class="bu">sum</span>(weights)</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> centre_x, centre_y <span class="kw">in</span> centres:</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>            lines.append(<span class="bu">str</span>(<span class="bu">len</span>(weights)))</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> dx, dy, fraction, volume <span class="kw">in</span> <span class="bu">zip</span>(</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>                    offsets_x, offsets_y, fractions, volumes):</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>                x <span class="op">=</span> (centre_x <span class="op">+</span> dx <span class="op">-</span> mean_x <span class="op">+</span> period<span class="op">/</span><span class="fl">2.</span>) <span class="op">%</span> period <span class="op">-</span> period<span class="op">/</span><span class="fl">2.</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>                y <span class="op">=</span> centre_y <span class="op">+</span> dy <span class="op">-</span> mean_y</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> case <span class="op">==</span> <span class="st">&quot;dropMove&quot;</span>:</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>                    y <span class="op">=</span> (y <span class="op">+</span> period<span class="op">/</span><span class="fl">2.</span>) <span class="op">%</span> period <span class="op">-</span> period<span class="op">/</span><span class="fl">2.</span></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>                lines.append(<span class="ss">f&quot;</span><span class="sc">{</span>x<span class="sc">:.17g}</span><span class="ss"> </span><span class="sc">{</span>y<span class="sc">:.17g}</span><span class="ss"> </span><span class="sc">{</span>fraction<span class="sc">:.17g}</span><span class="ss"> </span><span class="sc">{</span>volume<span class="sc">:.17g}</span><span class="ss">&quot;</span>)</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> subprocess.run([<span class="bu">str</span>(<span class="va">self</span>.executables[case])],</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>                                <span class="bu">input</span><span class="op">=</span><span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>.join(lines) <span class="op">+</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>, text<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>                                capture_output<span class="op">=</span><span class="va">True</span>, check<span class="op">=</span><span class="va">True</span>, timeout<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>        actual <span class="op">=</span> [<span class="bu">tuple</span>(<span class="bu">map</span>(<span class="bu">float</span>, row.split())) <span class="cf">for</span> row <span class="kw">in</span> result.stdout.splitlines()]</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.assertEqual(<span class="bu">len</span>(actual), <span class="bu">len</span>(centres))</span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>        previous <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> index, ((x, y, distance), (expected_x, expected_y)) <span class="kw">in</span> <span class="bu">enumerate</span>(</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>                <span class="bu">zip</span>(actual, centres)):</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>            <span class="cf">with</span> <span class="va">self</span>.subTest(case<span class="op">=</span>case, frame<span class="op">=</span>index):</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.assertAlmostEqual(x, expected_x, delta<span class="op">=</span><span class="fl">1e-11</span>)</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.assertAlmostEqual(y, expected_y, delta<span class="op">=</span><span class="fl">1e-11</span>)</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>                dx, dy <span class="op">=</span> expected_x <span class="op">-</span> initial[<span class="dv">0</span>], expected_y <span class="op">-</span> initial[<span class="dv">1</span>]</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>                expected_distance <span class="op">=</span> <span class="bu">abs</span>(dx) <span class="cf">if</span> case.endswith(<span class="st">&quot;pipe&quot;</span>) <span class="cf">else</span> math.hypot(dx, dy)</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.assertAlmostEqual(distance, expected_distance, delta<span class="op">=</span><span class="fl">1e-11</span>)</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> previous <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>                    step_x <span class="op">=</span> expected_x <span class="op">-</span> centres[index <span class="op">-</span> <span class="dv">1</span>][<span class="dv">0</span>]</span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>                    step_y <span class="op">=</span> expected_y <span class="op">-</span> centres[index <span class="op">-</span> <span class="dv">1</span>][<span class="dv">1</span>]</span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>                    <span class="va">self</span>.assertAlmostEqual(x <span class="op">-</span> previous[<span class="dv">0</span>], step_x, delta<span class="op">=</span><span class="fl">1e-11</span>)</span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>                    <span class="va">self</span>.assertAlmostEqual(y <span class="op">-</span> previous[<span class="dv">1</span>], step_y, delta<span class="op">=</span><span class="fl">1e-11</span>)</span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>                previous <span class="op">=</span> (x, y)</span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> test_baseline_crosses_both_seams_repeatedly(<span class="va">self</span>):</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> direction <span class="kw">in</span> (<span class="op">-</span><span class="fl">1.</span>, <span class="fl">1.</span>):</span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.check_trajectory(<span class="st">&quot;dropMove&quot;</span>, [</span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>                (direction<span class="op">*</span>(<span class="fl">4.85</span> <span class="op">+</span> <span class="fl">0.4</span><span class="op">*</span>i), <span class="op">-</span>direction<span class="op">*</span>(<span class="fl">4.9</span> <span class="op">+</span> <span class="fl">0.3</span><span class="op">*</span>i))</span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">151</span>)</span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>            ])</span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> test_confined_axial_wraps_preserve_transverse_coordinate(<span class="va">self</span>):</span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> case <span class="kw">in</span> CASES[<span class="dv">1</span>:]:</span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> direction <span class="kw">in</span> (<span class="op">-</span><span class="fl">1.</span>, <span class="fl">1.</span>):</span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>                centres <span class="op">=</span> [(direction<span class="op">*</span>(<span class="fl">4.85</span> <span class="op">+</span> <span class="fl">0.4</span><span class="op">*</span>i), <span class="fl">1.2</span> <span class="op">+</span> <span class="fl">0.002</span><span class="op">*</span>i)</span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>                           <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">151</span>)]</span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>                <span class="co"># A distant transverse reference must not wrap a solid-wall axis.</span></span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.check_trajectory(case, centres, reference<span class="op">=</span>(centres[<span class="dv">0</span>][<span class="dv">0</span>], <span class="fl">101.2</span>))</span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> test_wraps_reverse_direction_without_displacement_jump(<span class="va">self</span>):</span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> case <span class="kw">in</span> CASES:</span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a>            path <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">101</span>)) <span class="op">+</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">99</span>, <span class="op">-</span><span class="dv">102</span>, <span class="op">-</span><span class="dv">1</span>))</span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.check_trajectory(case, [</span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>                (<span class="fl">0.4</span><span class="op">*</span>i, <span class="op">-</span><span class="fl">0.3</span><span class="op">*</span>i <span class="cf">if</span> case <span class="op">==</span> <span class="st">&quot;dropMove&quot;</span> <span class="cf">else</span> <span class="fl">1.5</span>) <span class="cf">for</span> i <span class="kw">in</span> path</span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>            ])</span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a>    unittest.main()</span></code></pre></div></div>
+            </div>
+        </main>
+
+        <footer class="site-footer">
+            <div class="footer-left">
+              <a href="https://basilisk.fr/sandbox/vatsal/" target="_blank" rel="noopener noreferrer">
+                <img src="../assets/logos/logoBasilisk_TransparentBackground.png" alt="Basilisk C" class="footer-logo">
+              </a>
+              <a href="https://pof.tnw.utwente.nl/" target="_blank" rel="noopener noreferrer">
+                <img src="../assets/logos/LogoPof_transparent_white.png" alt="Physics of Fluids" class="footer-logo pof-logo">
+              </a>
+              <a href="https://www.utwente.nl/" target="_blank" rel="noopener noreferrer">
+                <img src="../assets/logos/UT_Logo_2400_Sta_White_EN.png" alt="University of Twente" class="footer-logo">
+              </a>
+              <a href="https://www.vatsalsanjay.com/" target="_blank" rel="noopener noreferrer">
+                <img src="../assets/logos/Logo_Vatsal_v3_OutLine.png" alt="Vatsal Sanjay" class="footer-logo">
+              </a>
+            </div>
+            <div class="footer-center">
+              <p class="copyright-text">
+                &copy; Copyright<br>
+                CoMPhy Lab 2025
+              </p>
+            </div>
+            <div class="footer-right">
+              <!-- NOTE: Social media links below are organization-specific. Customize for your organization. -->
+              <a href="https://scholar.google.com/citations?user=tHb_qZoAAAAJ&hl=en" target="_blank" rel="noopener noreferrer" aria-label="Google Scholar Profile">
+                <i class="ai ai-google-scholar" style="font-size: 2.5em; color: white;"></i>
+              </a>
+              <a href="https://github.com/comphy-lab" target="_blank" rel="noopener noreferrer" aria-label="GitHub Organization">
+                <i class="fa-brands fa-github" style="font-size: 2.5em; color: white;"></i>
+              </a>
+              <a href="https://www.youtube.com/@CoMPhyLab" target="_blank" rel="noopener noreferrer" aria-label="YouTube Channel">
+                <i class="fa-brands fa-youtube" style="font-size: 2.5em; color: white;"></i>
+              </a>
+              <a href="https://x.com/VatsalSanjay" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter) Profile">
+                <i class="fa-brands fa-x-twitter" style="font-size: 2.5em; color: white;"></i>
+              </a>
+              <a href="https://bsky.app/profile/comphy-lab.org" target="_blank" rel="noopener noreferrer" aria-label="Bluesky Profile">
+                <i class="fa-brands fa-bluesky" style="font-size: 2.5em; color: white;"></i>
+              </a>
+              <a href="https://github.com/comphy-lab/ActiveDrops/edit/main/testCases/test_periodic_centroid.py" class="edit-link" aria-label="Edit this page on GitHub">
+                <i class="fa-brands fa-github"></i> Edit this page
+              </a>
+            </div>
+          </footer>
+    </div>
+
+    <!-- Command Palette -->
+    <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
+        <div class="simple-command-palette-backdrop"></div>
+        <div class="simple-command-palette-modal">
+            <input type="text" id="command-palette-input" placeholder="Type a command..." autocomplete="off">
+            <div id="command-palette-results" class="command-palette-results"></div>
+            <div class="command-palette-footer">
+                <span class="command-palette-footer-item"><kbd>↑</kbd> <kbd>↓</kbd> to navigate</span>
+                <span class="command-palette-footer-item"><kbd>enter</kbd> to select</span>
+                <span class="command-palette-footer-item"><kbd>esc</kbd> to close</span>
+            </div>
+        </div>
+    </div>
+
+
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    // Add copy button to each code block container
+    const codeBlocks = document.querySelectorAll('.code-block-container pre');
+    codeBlocks.forEach(function(codeBlock, index) {
+        // Create button element
+        const button = document.createElement('button');
+        button.className = 'copy-button';
+        button.textContent = 'Copy';
+        button.setAttribute('aria-label', 'Copy code to clipboard');
+        button.setAttribute('data-copy-state', 'copy');
+
+        // Get the code block container (parent of the pre)
+        const container = codeBlock.parentNode;
+
+        // Add the button to the container
+        container.appendChild(button);
+
+        // Set up click event
+        button.addEventListener('click', async function() {
+            const codeText = codeBlock.textContent;
+
+            try {
+                // Try to use the modern clipboard API first
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(codeText);
+                    updateButtonState(button, 'success');
+                } else {
+                    // Fall back to the deprecated execCommand method
+                    const textarea = document.createElement('textarea');
+                    textarea.value = codeText;
+                    textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
+                    document.body.appendChild(textarea);
+                    textarea.select();
+
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(textarea);
+
+                    if (successful) {
+                        updateButtonState(button, 'success');
+                    } else {
+                        updateButtonState(button, 'error');
+                    }
+                }
+            } catch (err) {
+                console.error('Copy failed:', err);
+                updateButtonState(button, 'error');
+            }
+        });
+    });
+
+    // Function to update button state
+    function updateButtonState(button, state) {
+        if (state === 'success') {
+            button.textContent = 'Copied!';
+            button.classList.add('copied');
+        } else if (state === 'error') {
+            button.textContent = 'Error!';
+            button.classList.add('error');
+        }
+
+        // Reset button state after 2 seconds
+        setTimeout(function() {
+            button.textContent = 'Copy';
+            button.classList.remove('copied', 'error');
+        }, 2000);
+    }
+});
+</script>
+        </body>
+</html>

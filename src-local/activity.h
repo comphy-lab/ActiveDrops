@@ -1,20 +1,74 @@
 /**
-# Advection/diffusion of temperature tracers
-The *stracers* list of temperature tracers must be defined by the calling
-code. 
-copied and inspired from http://basilisk.fr/src/henry.h & http://basilisk.fr/sandbox/farsoiya/phase_change/phase-change.h
+# Emitted-product transport for active drops
+
+The calling code defines `stracers` and supplies each tracer's dimensionless
+diffusivity `D=1/Pe` and diffuse interfacial source coefficient
+`A=AcNum/Pe`. The temporary VOF tracers transport complementary phase
+contributions before reconstructing the concentration field. Diffusion is
+weighted toward the selected phase through the tracer's `inverse` flag.
+
+The scheme is based on Basilisk's `henry.h` pattern and the phase-change
+transport of Farsoiya et al. (2021). Geometric PLIC fragments define the
+discrete surface measure. Convergence of the coupled whole-field extension to
+a sharp exterior-flux model is a separate verification problem.
 */
 
 attribute {
   scalar phi1, phi2; // private
-  double A;  // activity at the interface
-  double D; // Diffusivity of tracer in the diffusive phase
+  double A;  // volumetric source coefficient AcNum/Pe
+  double D; // dimensionless diffusivity 1/Pe in the diffusive phase
 }
 
 extern scalar * stracers;
 scalar ActivityFlux[];
 
 #include "diffusion.h"
+
+/**
+### activity_interface_area()
+
+Returns the reconstructed interfacial area assigned to the current cell. PLIC
+fragments are stored in mixed cells. If an interface lies exactly on a grid
+face, no mixed cell exists; its face area is assigned once to the adjacent
+pure exterior cell (`f=0`). In axisymmetry the returned area includes the
+radial metric but omits the common factor $2\pi$.
+
+This construction keeps the source out of pure drop cells and full solids.
+It does not change the numerical extension used to store and transport the
+concentration field.
+*/
+static inline double activity_interface_area (Point point, scalar phase)
+{
+  const double eps = 1e-6;
+#if EMBED
+  if (cs[] <= 0.)
+    return 0.;
+#endif
+
+  if (phase[] > eps && phase[] < 1. - eps) {
+    coord n = interface_normal(point, phase), p;
+    double alpha = plane_alpha(phase[], n);
+    double area = pow(Delta, dimension - 1)*
+      plane_area_center(n, alpha, &p);
+#if AXI
+    area *= max(y + p.y*Delta, 0.);
+#endif
+    return area;
+  }
+
+  if (phase[] <= eps) {
+    double area = 0.;
+    foreach_dimension() {
+      if (phase[-1] >= 1. - eps)
+        area += fm.x[]*pow(Delta, dimension - 1);
+      if (phase[1] >= 1. - eps)
+        area += fm.x[1]*pow(Delta, dimension - 1);
+    }
+    return area;
+  }
+
+  return 0.;
+}
 
 /**
 ## Defaults
@@ -110,27 +164,10 @@ event tracer_diffusion (i++)
     scalar volumic_metric[], dirichlet_source_term[];
     face vector diffusion_coef[];
 
-    scalar diracDelta[];
-    // foreach(){
-    //   if (interfacial(point, f)){
-    //     coord n = interface_normal (point, c), p;
-    //     double alpha = plane_alpha (c[], n);
-    //     double area = pow(Delta, dimension - 1)*plane_area_center (n, alpha, &p);
-    //     diracDelta[] = area/sq(Delta); //sqrt(sq(fx) + sq(fy));
-    //     ActivityFlux[] = diracDelta[]*c.A;
-    //   }
-    // }
-
-    foreach(){
-      // if (interfacial (point, f))
-      double fx = (f[1]-f[-1])/(2*Delta);
-      double fy = (f[0,1]-f[0,-1])/(2*Delta);
-      diracDelta[] = sqrt(sq(fx) + sq(fy));
-      ActivityFlux[] = diracDelta[]*c.A;
-#if EMBED
-      if (cs[] <= 0.)
-        ActivityFlux[] = 0.;
-#endif
+    foreach() {
+      double area = activity_interface_area(point, f);
+      ActivityFlux[] = cm[] > 0. ?
+        c.A*area/(cm[]*pow(Delta, dimension)) : 0.;
     }
   
     foreach() {

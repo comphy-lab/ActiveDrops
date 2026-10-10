@@ -2,7 +2,8 @@
 # run-tests.sh
 #
 # Run the ActiveDrops software tests from the repository root:
-#   1. synthetic-classifier unit tests for PeScan.py (no Basilisk needed);
+#   1. Python contracts for PeScan, periodic centroids and actual case
+#      boundary/solid setup (the case probes require pinned qcc);
 #   2. the adaptive-mesh centroid check (needs qcc; skipped with a warning
 #      when qcc is unavailable).
 #
@@ -21,11 +22,11 @@ fi
 
 STATUS=0
 
-echo "=== PeScan synthetic-classifier tests"
+echo "=== Python software contracts"
 if python3 -m unittest discover -s testCases -p 'test_*.py'; then
-  echo "PASS: testCases/test_pescan.py"
+  echo "PASS: Python software contracts"
 else
-  echo "FAIL: testCases/test_pescan.py" >&2
+  echo "FAIL: Python software contracts" >&2
   STATUS=1
 fi
 
