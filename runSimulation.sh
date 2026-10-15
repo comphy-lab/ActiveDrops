@@ -161,6 +161,11 @@ if [[ ! -f "$PARAM_FILE" ]]; then
   exit 1
 fi
 
+if grep -Eq '^[[:space:]]*Oh[[:space:]]*=' "$PARAM_FILE"; then
+  echo "ERROR: Parameter 'Oh' is retired; supply Re and Ca instead." >&2
+  exit 1
+fi
+
 SRC_FILE_ORIG="${SCRIPT_DIR}/simulationCases/${EXEC_CODE}"
 if [[ ! -f "$SRC_FILE_ORIG" ]]; then
   echo "ERROR: Source file not found: $SRC_FILE_ORIG" >&2

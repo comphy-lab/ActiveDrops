@@ -18,6 +18,7 @@ test_dir="$(mktemp -d "${TMPDIR:-/tmp}/active-drops-embed.XXXXXX")"
 trap 'rm -rf -- "$test_dir"' EXIT
 cp testCases/embed-contract.c "$test_dir/"
 cp testCases/activity-phase-contract.c "$test_dir/"
+cp testCases/activity-source-budget.c "$test_dir/"
 cd "$test_dir"
 for pipe in 0 1; do
   "$qcc_bin" -O2 -Wall -disable-dimensions -DTEST_PIPE="$pipe" \
@@ -27,3 +28,9 @@ done
 "$qcc_bin" -O2 -Wall -disable-dimensions -I"$repo_root/src-local" \
   activity-phase-contract.c -o activity-phase-contract -lm
 ./activity-phase-contract
+for pipe in 0 1; do
+  "$qcc_bin" -O2 -Wall -disable-dimensions -DTEST_PIPE="$pipe" \
+    -I"$repo_root/src-local" activity-source-budget.c \
+    -o "activity-source-budget-$pipe" -lm
+  "./activity-source-budget-$pipe"
+done

@@ -17,9 +17,11 @@ If no bracket exists inside ``[pe_min, pe_max]`` the result is explicitly
 ``undetermined``.
 
 Every run is recorded (Pe, CaseNo, status, final time, final displacement
-and the driver's SUMMARY line) in a JSON results file so that the
-classification convention, resolution and observation horizon travel with
-the number.
+and the driver's complete scale-aware SUMMARY line) in a JSON results file so
+that the classification convention, resolution, material coupling and
+observation horizon travel with the number. The scan varies `Pe`; interpret it
+as the mobility-based `PeMobility` only when the fixed base-file scale ratio is
+one.
 
 The classification is a finite-time, finite-displacement convention: near
 onset slow growth can be censored by ``tmax``. Refine ``tmax``,
@@ -359,6 +361,11 @@ def main(argv: Optional[List[str]] = None) -> int:
     if not base.is_file():
         print(f"base parameter file not found: {base}", file=sys.stderr)
         return 2
+    for line in base.read_text().splitlines():
+        if re.match(r"^\s*Oh\s*=", line):
+            print("parameter 'Oh' is retired; supply Re and Ca in the base file",
+                  file=sys.stderr)
+            return 2
     scan_dir = REPO_ROOT / "simulationCases" / f"pescan-{args.tag}"
     scan_dir.mkdir(parents=True, exist_ok=True)
     results_path = scan_dir / "results.json"
