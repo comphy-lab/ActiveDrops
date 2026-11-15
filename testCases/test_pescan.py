@@ -143,5 +143,16 @@ class ParseDriverOutputTests(unittest.TestCase):
             parse_driver_output("STATUS MAYBE\n")
 
 
+class RetiredParameterTests(unittest.TestCase):
+    def test_main_rejects_legacy_oh_before_creating_scan(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary) / "legacy.params"
+            base.write_text("CaseNo=2000\nOh=1\nCa=0.1\nPe=1.6\n")
+            status = PeScan.main(["--base", str(base), "--tag", "unused"])
+            self.assertEqual(status, 2)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!-- 
+  <!--
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -455,6 +455,8 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <ul>
                 <li><code>params_init_from_argv()</code>: Initialize
                 runtime key/value storage.</li>
+                <li><code>param_present()</code>: Test whether a key was
+                supplied.</li>
                 <li><code>param_string()</code>: Access raw string
                 values.</li>
                 <li><code>param_int()</code>,
@@ -463,7 +465,9 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 </ul>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef PARAMS_H</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define PARAMS_H</span><span class="dv">26</span><span class="pp"></span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define PARAMS_H
+</span><span class="dv">27</span><span class="pp">
+</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;ctype.h&gt;</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;errno.h&gt;</span></span>
@@ -519,6 +523,16 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> parse_param_string<span class="op">(</span>key<span class="op">,</span> default_value<span class="op">);</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+                <h3 id="param_present">param_present()</h3>
+                <p>Returns true when <code>key</code> occurs in the
+                loaded parameter file. This is used to reject retired
+                parameters explicitly instead of silently ignoring
+                them.</p>
+                <div class="code-block-container"><div class="code-block-container"><pre
+                class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">bool</span> param_present <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> key<span class="op">)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> param_string<span class="op">(</span>key<span class="op">,</span> NULL<span class="op">)</span> <span class="op">!=</span> NULL<span class="op">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h3 id="param_double">param_double()</h3>
                 <p>Returns a floating-point parameter with a default
                 fallback.</p>
@@ -528,27 +542,27 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 otherwise <code>default_value</code>.</li>
                 </ul>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">double</span> param_double <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> key<span class="op">,</span> <span class="dt">double</span> default_value<span class="op">)</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> s <span class="op">=</span> param_string<span class="op">(</span>key<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!</span>s<span class="op">)</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> default_value<span class="op">;</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  errno <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">char</span> <span class="op">*</span> end <span class="op">=</span> NULL<span class="op">;</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> value <span class="op">=</span> strtod<span class="op">(</span>s<span class="op">,</span> <span class="op">&amp;</span>end<span class="op">);</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span>end <span class="op">&amp;&amp;</span> <span class="op">*</span>end <span class="op">&amp;&amp;</span> isspace<span class="op">((</span><span class="dt">unsigned</span> <span class="dt">char</span><span class="op">)</span> <span class="op">*</span>end<span class="op">))</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    end<span class="op">++;</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>errno <span class="op">!=</span> <span class="dv">0</span> <span class="op">||</span> end <span class="op">==</span> s <span class="op">||</span> <span class="op">(</span>end <span class="op">&amp;&amp;</span> <span class="op">*</span>end <span class="op">!=</span> <span class="ch">&#39;</span><span class="sc">\0</span><span class="ch">&#39;</span><span class="op">))</span> <span class="op">{</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>stderr<span class="op">,</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;WARNING: Invalid double for &#39;</span><span class="sc">%s</span><span class="st">&#39; (&#39;</span><span class="sc">%s</span><span class="st">&#39;), using default </span><span class="sc">%g\n</span><span class="st">&quot;</span><span class="op">,</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>            key<span class="op">,</span> s<span class="op">,</span> default_value<span class="op">);</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> default_value<span class="op">;</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> value<span class="op">;</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+                class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">double</span> param_double <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> key<span class="op">,</span> <span class="dt">double</span> default_value<span class="op">)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> s <span class="op">=</span> param_string<span class="op">(</span>key<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!</span>s<span class="op">)</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> default_value<span class="op">;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  errno <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">char</span> <span class="op">*</span> end <span class="op">=</span> NULL<span class="op">;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> value <span class="op">=</span> strtod<span class="op">(</span>s<span class="op">,</span> <span class="op">&amp;</span>end<span class="op">);</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span>end <span class="op">&amp;&amp;</span> <span class="op">*</span>end <span class="op">&amp;&amp;</span> isspace<span class="op">((</span><span class="dt">unsigned</span> <span class="dt">char</span><span class="op">)</span> <span class="op">*</span>end<span class="op">))</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    end<span class="op">++;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>errno <span class="op">!=</span> <span class="dv">0</span> <span class="op">||</span> end <span class="op">==</span> s <span class="op">||</span> <span class="op">(</span>end <span class="op">&amp;&amp;</span> <span class="op">*</span>end <span class="op">!=</span> <span class="ch">&#39;</span><span class="sc">\0</span><span class="ch">&#39;</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>stderr<span class="op">,</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;WARNING: Invalid double for &#39;</span><span class="sc">%s</span><span class="st">&#39; (&#39;</span><span class="sc">%s</span><span class="st">&#39;), using default </span><span class="sc">%g\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>            key<span class="op">,</span> s<span class="op">,</span> default_value<span class="op">);</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> default_value<span class="op">;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> value<span class="op">;</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h3 id="param_int">param_int()</h3>
                 <p>Returns an integer parameter with bounds and format
                 validation.</p>
@@ -558,28 +572,28 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <code>default_value</code>.</li>
                 </ul>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span> param_int <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> key<span class="op">,</span> <span class="dt">int</span> default_value<span class="op">)</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> s <span class="op">=</span> param_string<span class="op">(</span>key<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!</span>s<span class="op">)</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> default_value<span class="op">;</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  errno <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">char</span> <span class="op">*</span> end <span class="op">=</span> NULL<span class="op">;</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">long</span> value <span class="op">=</span> strtol<span class="op">(</span>s<span class="op">,</span> <span class="op">&amp;</span>end<span class="op">,</span> <span class="dv">10</span><span class="op">);</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span>end <span class="op">&amp;&amp;</span> <span class="op">*</span>end <span class="op">&amp;&amp;</span> isspace<span class="op">((</span><span class="dt">unsigned</span> <span class="dt">char</span><span class="op">)</span> <span class="op">*</span>end<span class="op">))</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    end<span class="op">++;</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>errno <span class="op">!=</span> <span class="dv">0</span> <span class="op">||</span> end <span class="op">==</span> s <span class="op">||</span> <span class="op">(</span>end <span class="op">&amp;&amp;</span> <span class="op">*</span>end <span class="op">!=</span> <span class="ch">&#39;</span><span class="sc">\0</span><span class="ch">&#39;</span><span class="op">)</span> <span class="op">||</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>      value <span class="op">&lt;</span> INT_MIN <span class="op">||</span> value <span class="op">&gt;</span> INT_MAX<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>stderr<span class="op">,</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;WARNING: Invalid int for &#39;</span><span class="sc">%s</span><span class="st">&#39; (&#39;</span><span class="sc">%s</span><span class="st">&#39;), using default </span><span class="sc">%d\n</span><span class="st">&quot;</span><span class="op">,</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>            key<span class="op">,</span> s<span class="op">,</span> default_value<span class="op">);</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> default_value<span class="op">;</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="op">(</span><span class="dt">int</span><span class="op">)</span> value<span class="op">;</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+                class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span> param_int <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> key<span class="op">,</span> <span class="dt">int</span> default_value<span class="op">)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> s <span class="op">=</span> param_string<span class="op">(</span>key<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!</span>s<span class="op">)</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> default_value<span class="op">;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  errno <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">char</span> <span class="op">*</span> end <span class="op">=</span> NULL<span class="op">;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">long</span> value <span class="op">=</span> strtol<span class="op">(</span>s<span class="op">,</span> <span class="op">&amp;</span>end<span class="op">,</span> <span class="dv">10</span><span class="op">);</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span>end <span class="op">&amp;&amp;</span> <span class="op">*</span>end <span class="op">&amp;&amp;</span> isspace<span class="op">((</span><span class="dt">unsigned</span> <span class="dt">char</span><span class="op">)</span> <span class="op">*</span>end<span class="op">))</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    end<span class="op">++;</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>errno <span class="op">!=</span> <span class="dv">0</span> <span class="op">||</span> end <span class="op">==</span> s <span class="op">||</span> <span class="op">(</span>end <span class="op">&amp;&amp;</span> <span class="op">*</span>end <span class="op">!=</span> <span class="ch">&#39;</span><span class="sc">\0</span><span class="ch">&#39;</span><span class="op">)</span> <span class="op">||</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>      value <span class="op">&lt;</span> INT_MIN <span class="op">||</span> value <span class="op">&gt;</span> INT_MAX<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>stderr<span class="op">,</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;WARNING: Invalid int for &#39;</span><span class="sc">%s</span><span class="st">&#39; (&#39;</span><span class="sc">%s</span><span class="st">&#39;), using default </span><span class="sc">%d\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>            key<span class="op">,</span> s<span class="op">,</span> default_value<span class="op">);</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> default_value<span class="op">;</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="op">(</span><span class="dt">int</span><span class="op">)</span> value<span class="op">;</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h3 id="param_bool">param_bool()</h3>
                 <p>Parses boolean-like values: - true: <code>1</code>,
                 <code>true</code>, <code>yes</code>, <code>on</code> -
@@ -592,27 +606,27 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
                 <code>default_value</code>.</li>
                 </ul>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">bool</span> param_bool <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> key<span class="op">,</span> <span class="dt">bool</span> default_value<span class="op">)</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> s <span class="op">=</span> param_string<span class="op">(</span>key<span class="op">,</span> NULL<span class="op">);</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!</span>s<span class="op">)</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> default_value<span class="op">;</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>_param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;1&quot;</span><span class="op">)</span> <span class="op">||</span> _param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;true&quot;</span><span class="op">)</span> <span class="op">||</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>      _param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;yes&quot;</span><span class="op">)</span> <span class="op">||</span> _param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;on&quot;</span><span class="op">))</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>_param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;0&quot;</span><span class="op">)</span> <span class="op">||</span> _param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;false&quot;</span><span class="op">)</span> <span class="op">||</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>      _param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;no&quot;</span><span class="op">)</span> <span class="op">||</span> _param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;off&quot;</span><span class="op">))</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  fprintf<span class="op">(</span>stderr<span class="op">,</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;WARNING: Invalid bool for &#39;</span><span class="sc">%s</span><span class="st">&#39; (&#39;</span><span class="sc">%s</span><span class="st">&#39;), using default </span><span class="sc">%d\n</span><span class="st">&quot;</span><span class="op">,</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>          key<span class="op">,</span> s<span class="op">,</span> default_value <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">);</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> default_value<span class="op">;</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code></pre></div></div>
+                class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">bool</span> param_bool <span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> key<span class="op">,</span> <span class="dt">bool</span> default_value<span class="op">)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span> s <span class="op">=</span> param_string<span class="op">(</span>key<span class="op">,</span> NULL<span class="op">);</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!</span>s<span class="op">)</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> default_value<span class="op">;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>_param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;1&quot;</span><span class="op">)</span> <span class="op">||</span> _param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;true&quot;</span><span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      _param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;yes&quot;</span><span class="op">)</span> <span class="op">||</span> _param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;on&quot;</span><span class="op">))</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>_param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;0&quot;</span><span class="op">)</span> <span class="op">||</span> _param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;false&quot;</span><span class="op">)</span> <span class="op">||</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>      _param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;no&quot;</span><span class="op">)</span> <span class="op">||</span> _param_str_ieq<span class="op">(</span>s<span class="op">,</span> <span class="st">&quot;off&quot;</span><span class="op">))</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  fprintf<span class="op">(</span>stderr<span class="op">,</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;WARNING: Invalid bool for &#39;</span><span class="sc">%s</span><span class="st">&#39; (&#39;</span><span class="sc">%s</span><span class="st">&#39;), using default </span><span class="sc">%d\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>          key<span class="op">,</span> s<span class="op">,</span> default_value <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> default_value<span class="op">;</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code></pre></div></div>
             </div>
         </main>
 
@@ -659,7 +673,7 @@ window.baseDomain = "https://comphy-lab.org/ActiveDrops";
               </a>
             </div>
           </footer>
-    </div>  
+    </div>
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -687,17 +701,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-        
+
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-        
+
         // Add the button to the container
         container.appendChild(button);
-        
+
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-            
+
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -710,10 +724,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-                    
+
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    
+
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -726,7 +740,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -736,7 +750,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-        
+
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

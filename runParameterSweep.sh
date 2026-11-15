@@ -300,6 +300,11 @@ if [[ ! -f "$BASE_CONFIG" ]]; then
   exit 1
 fi
 
+if grep -Eq '^[[:space:]]*Oh[[:space:]]*=' "$BASE_CONFIG"; then
+  echo "ERROR: Parameter 'Oh' is retired; supply Re and Ca in BASE_CONFIG." >&2
+  exit 1
+fi
+
 if [[ ! "$CASE_START" =~ ^[0-9]+$ ]]; then
   echo "ERROR: CASE_START must be numeric, got: $CASE_START" >&2
   exit 1
